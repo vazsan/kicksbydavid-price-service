@@ -1,0 +1,32 @@
+# Profit Analytics - public webroot rewrite rules.
+# This file should be the ONLY .htaccess actually reachable by the
+# webserver: point the domain/subdomain's document root at this "public"
+# folder (see SETUP.md). Every request that isn't an existing static
+# asset is routed to index.php with the original path in ?route=.
+
+Options -Indexes
+Options -MultiViews
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Serve existing files/directories (css/js/images) as-is.
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Everything else goes through the front controller.
+    RewriteRule ^(.*)$ index.php?route=$1 [QSA,L]
+</IfModule>
+
+# Defense in depth: never serve dotfiles (.env, .git, etc.) even if one
+# somehow ends up inside public/.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

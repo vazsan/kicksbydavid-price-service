@@ -1,0 +1,5 @@
+# Fallback safety net: if this repository's ROOT is ever accidentally
+# used as the webserver's document root (instead of the "public/"
+# subfolder, as documented in SETUP.md), deny everything by default so
+# source code, .env and the database schema are never served.
+Require all denied
