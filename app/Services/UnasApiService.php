@@ -11,24 +11,42 @@ use App\Repositories\ApiLogRepository;
 /**
  * Client for the UNAS Webshop API (https://unas.hu/tudastar/api).
  *
- * STATUS: skeleton. Authentication, the generic request/response pipeline,
- * rate limiting and error logging are fully wired and usable. The
- * business-specific methods below (getOrders, getOrderDetails,
- * getProducts, ...) have the signature and documented return shape the
- * rest of the app (order import, product import) will be built against,
- * but their XML field mapping is left as TODO until we can validate it
- * against a real UNAS account response - see the "Next step" note in
- * ARCHITECTURE.md and the list of fields requested in the final summary
- * of this session.
+ * STATUS: authentication and the low-level request pipeline are confirmed
+ * against the official documentation. getOrders()/getProducts() accept and
+ * send the documented filter fields, but the RESPONSE field mapping (i.e.
+ * turning UNAS's XML back into order_items/product_variants rows) is not
+ * implemented here yet - see cron/sync_unas_orders.php and
+ * cron/sync_unas_products.php (not yet built) and ARCHITECTURE.md "Next
+ * step". This class only speaks the wire protocol; it does not know what
+ * an Order or a Product XML tree looks like beyond what's documented
+ * below, on purpose - see "Do not guess" in ARCHITECTURE.md.
  *
- * Protocol notes (from UNAS's public API docs, to be confirmed against a
- * live account once credentials are available):
- *   - Transport is HTTPS, request/response bodies are XML (not JSON).
- *   - Auth is two-step: POST the shop's API key to /login, receive a
- *     short-lived Bearer token back, then send that token as an
- *     "Authorization: Bearer {token}" header on subsequent calls.
- *   - Most endpoints accept an XML <Params> document (filters, paging)
- *     and return an XML document of matching records.
+ * Confirmed protocol (https://unas.hu/tudastar/api and linked pages):
+ *   - Base URL: https://api.unas.eu/shop , all functions use HTTP POST.
+ *   - Request and response bodies are XML (not JSON).
+ *   - Auth is two-step: POST <Params><ApiKey>...</ApiKey></Params> to
+ *     /login; the response contains <Token> and <Expire>. Every
+ *     subsequent request sends that token as
+ *     "Authorization: Bearer {token}". Within the expiry window the same
+ *     token is reused - no need to re-login before every call.
+ *   - /getOrder lists orders. Documented filter fields include DateStart,
+ *     DateEnd, StatusID (an order-status serial number OR one of the
+ *     status *types* open_normal | open_prepare | close_ok | close_fault)
+ *     and InvoiceStatus (one or more status names, pipe-separated). If no
+ *     limit is given, UNAS caps a single response at 500 orders.
+ *   - /getProduct lists products. Documented filter fields include
+ *     StatusBase, LimitNum, LimitStart (pagination) and ContentType
+ *     (e.g. "full" to include the complete record - price, stock,
+ *     parameters, etc. - instead of a minimal one).
+ *   - /setOrder writes order changes back (status updates etc.) in the
+ *     same data shape /getOrder returns them in. Not used yet in this
+ *     codebase (V1 only reads).
+ *
+ * Exact response XML tag names (order line items, product/SKU/variant
+ * structure, customer fields) are NOT hardcoded here - they must be read
+ * off a real sample response first. Use scripts/test_unas_connection.php
+ * to fetch one and inspect it before extending this class with response
+ * parsing.
  */
 final class UnasApiService
 {
@@ -36,6 +54,10 @@ final class UnasApiService
 
     private ?string $token = null;
     private ?\DateTimeImmutable $tokenExpiresAt = null;
+
+    /** Set on every request() call; read by diagnostics, never by business logic. */
+    private ?int $lastHttpStatus = null;
+    private string $lastRawResponseBody = '';
 
     private readonly RateLimiter $rateLimiter;
     private readonly ApiLogRepository $apiLog;
@@ -73,16 +95,42 @@ final class UnasApiService
             'ApiKey' => $this->apiKey,
         ], authenticated: false);
 
-        // TODO: confirm exact response field names against a live account.
         $token = $response['Token'] ?? null;
-        $expiresInSeconds = (int) ($response['Expire'] ?? 3600);
+        $expire = $response['Expire'] ?? null;
 
         if (!is_string($token) || $token === '') {
             throw new \RuntimeException('UNAS authentication did not return a token.');
         }
 
         $this->token = $token;
-        $this->tokenExpiresAt = (new \DateTimeImmutable())->modify("+{$expiresInSeconds} seconds");
+        $this->tokenExpiresAt = $this->parseExpiry($expire);
+    }
+
+    /**
+     * UNAS's own docs describe Expire as "the token expiration time as a
+     * UNIX timestamp" (an absolute point in time), which is how this is
+     * interpreted below. If a live response instead turns out to carry a
+     * relative seconds-until-expiry value, this is the one place to fix
+     * it - confirm with scripts/test_unas_connection.php's printed
+     * "Token expires at" line against the account's actual login time.
+     */
+    private function parseExpiry(mixed $expire): ?\DateTimeImmutable
+    {
+        if ($expire === null || $expire === '') {
+            return null;
+        }
+
+        if (is_numeric($expire)) {
+            return (new \DateTimeImmutable())->setTimestamp((int) $expire);
+        }
+
+        // Fall back to letting DateTimeImmutable parse a textual date
+        // (e.g. "Y-m-d H:i:s") in case the field isn't a bare timestamp.
+        try {
+            return new \DateTimeImmutable((string) $expire);
+        } catch (\Exception) {
+            return null;
+        }
     }
 
     private function ensureAuthenticated(): void
@@ -96,19 +144,35 @@ final class UnasApiService
         }
     }
 
+    public function tokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->tokenExpiresAt;
+    }
+
     // -------------------------------------------------------------
     // Orders
     // -------------------------------------------------------------
 
     /**
-     * Fetches a page of order summaries, optionally filtered by date
-     * range / status, for the periodic order sync
-     * (cron/sync_unas_orders.php). Pagination shape TBD once confirmed
-     * against the real API (UNAS typically pages via LimitStart/LimitNum
-     * or a cursor - keeping $filters generic until then).
+     * Fetches a page of orders per the documented /getOrder filters.
+     * Returns the response decoded as a plain array with no assumptions
+     * about its inner shape - callers inspecting a live response should
+     * dump the array (or better, read the raw XML - see
+     * lastRawResponseBody()) rather than assume a structure.
      *
-     * @param array{from?: string, to?: string, status?: string, limit?: int, offset?: int} $filters
-     * @return array<int, array<string, mixed>> Raw per-order records as returned by UNAS.
+     * @param array{
+     *     DateStart?: string,
+     *     DateEnd?: string,
+     *     StatusID?: string,
+     *     InvoiceStatus?: string,
+     *     LimitNum?: int,
+     *     LimitStart?: int
+     * } $filters DateStart/DateEnd/StatusID/InvoiceStatus are confirmed
+     *     documented fields. LimitNum/LimitStart are confirmed for
+     *     /getProduct and passed through here on the (unconfirmed)
+     *     assumption /getOrder shares the same pagination convention -
+     *     verify with scripts/test_unas_connection.php before relying on it.
+     * @return array<string, mixed> Raw decoded response.
      */
     public function getOrders(array $filters = []): array
     {
@@ -116,29 +180,29 @@ final class UnasApiService
     }
 
     /**
-     * Fetches full detail for a single order (line items, prices,
-     * discounts, shipping, payment method) by its UNAS order id.
+     * Fetches a single order by UNAS order id. Field name for the filter
+     * (assumed "OrderID" here, matching UNAS's PascalCase convention seen
+     * elsewhere) is unconfirmed - verify against a real response before
+     * relying on this for anything beyond a manual diagnostic.
      *
      * @return array<string, mixed>
      */
     public function getOrderDetails(string $unasOrderId): array
     {
-        return $this->request('POST', '/getOrder', ['OrderId' => $unasOrderId]);
+        return $this->request('POST', '/getOrder', ['OrderID' => $unasOrderId]);
     }
 
     /**
-     * Pushes a status change back to UNAS (e.g. after fulfillment). Not
-     * needed for V1 (which only reads orders) but stubbed here since the
-     * spec calls out "rendelés státusz import" as a required capability
-     * and the read path and write path share the same auth/log/throttle
-     * plumbing.
+     * Writes an order status change back to UNAS via /setOrder (confirmed
+     * endpoint name; exact field shape unconfirmed - /setOrder is
+     * documented as accepting data in the same shape /getOrder returns
+     * it, so this needs a real getOrder sample before it can be
+     * implemented correctly). Not used anywhere yet - V1 only reads
+     * orders.
      */
-    public function setOrderStatus(string $unasOrderId, string $status): array
+    public function setOrder(array $orderData): array
     {
-        return $this->request('POST', '/setOrderStatus', [
-            'OrderId' => $unasOrderId,
-            'Status' => $status,
-        ]);
+        return $this->request('POST', '/setOrder', $orderData);
     }
 
     // -------------------------------------------------------------
@@ -146,38 +210,56 @@ final class UnasApiService
     // -------------------------------------------------------------
 
     /**
-     * Fetches product records including their variant/SKU breakdown
-     * (UNAS represents e.g. shoe sizes as separate SKUs under one parent
-     * product - see product_variants in the schema). Used by
-     * cron/sync_unas_products.php.
+     * Fetches product records per the documented /getProduct filters.
+     * UNAS represents e.g. shoe sizes as separate SKUs under one parent
+     * product - see product_variants in the schema - but the exact
+     * response shape for that parent/variant relationship is unconfirmed
+     * pending a live sample; do not assume a structure here.
      *
-     * @param array{updatedSince?: string, limit?: int, offset?: int} $filters
-     * @return array<int, array<string, mixed>>
+     * Per the docs, price/stock/etc. are components of the full product
+     * record (ContentType=full), not separate endpoints - there is no
+     * documented standalone "get stock for one SKU" call, so this class
+     * does not expose one.
+     *
+     * @param array{
+     *     StatusBase?: string,
+     *     LimitNum?: int,
+     *     LimitStart?: int,
+     *     ContentType?: string
+     * } $filters
+     * @return array<string, mixed> Raw decoded response.
      */
     public function getProducts(array $filters = []): array
     {
-        return $this->request('POST', '/getProduct', $filters);
+        return $this->request('POST', '/getProduct', array_merge(
+            ['ContentType' => 'full'],
+            $filters
+        ));
+    }
+
+    // -------------------------------------------------------------
+    // Diagnostics
+    // -------------------------------------------------------------
+
+    /**
+     * HTTP status of the most recent request() call, if any. For
+     * diagnostics/logging only - business logic should rely on
+     * request() throwing on failure, not on polling this.
+     */
+    public function lastHttpStatus(): ?int
+    {
+        return $this->lastHttpStatus;
     }
 
     /**
-     * Fetches current price for a single SKU. In practice this data
-     * usually comes back as part of getProducts(); this method exists
-     * for the case where a single-SKU price refresh is cheaper than a
-     * full product re-fetch.
+     * Raw (undecoded) XML body of the most recent request() call, success
+     * or failure. Needed because decodeBody() throws away structure
+     * (attributes, element order) that matters when reverse-engineering
+     * the real response shape - see scripts/test_unas_connection.php.
      */
-    public function getSkuPrice(string $sku): array
+    public function lastRawResponseBody(): string
     {
-        return $this->request('POST', '/getProduct', ['Sku' => $sku]);
-    }
-
-    /**
-     * Fetches current stock level for a single SKU (informational cache
-     * only - real sellable-cost tracking is done via FIFO inventory_batches,
-     * not this value).
-     */
-    public function getSkuStock(string $sku): array
-    {
-        return $this->request('POST', '/getStock', ['Sku' => $sku]);
+        return $this->lastRawResponseBody;
     }
 
     // -------------------------------------------------------------
@@ -233,6 +315,9 @@ final class UnasApiService
             curl_close($ch);
         }
 
+        $this->lastHttpStatus = $httpStatus;
+        $this->lastRawResponseBody = $body;
+
         $durationMs = (int) round((microtime(true) - $startedAtMicro) * 1000);
         $isSuccess = $errorMessage === null && $httpStatus !== null && $httpStatus >= 200 && $httpStatus < 300;
 
@@ -259,9 +344,6 @@ final class UnasApiService
      */
     private function encodeBody(array $params): string
     {
-        // UNAS expects XML request bodies. Kept as a single conversion
-        // point so it's easy to adjust the root element name once
-        // validated against the real API.
         $xml = new \SimpleXMLElement('<Params/>');
         $this->arrayToXml($params, $xml);
 

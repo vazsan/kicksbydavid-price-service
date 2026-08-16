@@ -96,16 +96,27 @@ Thresholds live in the `settings` table (`setting_group = 'status_rules'`), seed
 
 The shop sells into Hungary and Slovakia; `orders.currency` and `orders.customer_country` carry that per-order, and reporting rolls up into the single base currency. No separate "market" concept was introduced in V1 - not needed until region-specific P&L views are requested.
 
-## Next step: what we need from the UNAS API
+## UNAS API integration status
 
-The schema and `UnasApiService` skeleton are built against the UNAS API's documented shape (XML request/response, two-step token auth), but the exact endpoint paths and field names in this codebase are **placeholders pending validation against a live UNAS account** (see the TODOs in `app/Services/UnasApiService.php`). To build the real order/product import (the next development step), we need:
+### Confirmed protocol (implemented in `UnasApiService`)
 
-1. **UNAS API key** for the shop (Webshop admin > Settings > API key), placed in `.env` as `UNAS_API_KEY`.
-2. Access to (or a copy of) the **UNAS API reference** for the account's API version, specifically:
-   - The exact `/login` request/response field names (what we call `Token`/`Expire` are best guesses).
-   - The order-list and order-detail endpoint names, their filter parameters (date range, status, pagination), and a **sample response** for one real order - so `sku`, `actual selling price`, `discount`, `shipping fee`, `payment method` etc. can be mapped precisely instead of guessed.
-   - The product/SKU endpoint's response shape, in particular **how variant SKUs (sizes) are nested under a parent product** in your account (the brief's example: `DD1391-100-42`, `DD1391-100-425`, `DD1391-100-43`).
-   - Whatever status values UNAS uses for order status (so they can be mapped to `orders.status`) and whether cancellations/refunds are separate order states or a separate endpoint.
-3. Confirmation of the **actual UNAS API rate limit** (requests/minute) so `UNAS_RATE_LIMIT_PER_MINUTE` is set correctly rather than guessed.
+- Base URL `https://api.unas.eu/shop`, all functions HTTP POST, XML request/response bodies.
+- Auth: `POST /login` with `<Params><ApiKey>...</ApiKey></Params>`, response carries `<Token>` and `<Expire>`; subsequent requests send `Authorization: Bearer {token}`. `UnasApiService::authenticate()`/`ensureAuthenticated()` implement this, reusing the token until it's close to expiry.
+- `/getOrder`: documented filter fields `DateStart`, `DateEnd`, `StatusID` (a status serial number, or one of the status *types* `open_normal` | `open_prepare` | `close_ok` | `close_fault`), `InvoiceStatus` (pipe-separated status names). Unfiltered/unlimited requests cap at 500 orders per UNAS's own default.
+- `/getProduct`: documented filter fields `StatusBase`, `LimitNum`, `LimitStart` (pagination), `ContentType` (`getProducts()` defaults this to `full` so price/stock/parameters come back in one call).
+- `/setOrder`: confirmed to exist (writes back in the same shape `/getOrder` returns), not implemented beyond a thin pass-through - V1 only reads orders.
 
-Once that's available, the next build step is: implement the real XML field mapping in `UnasApiService`, then `cron/sync_unas_orders.php` and `cron/sync_unas_products.php` (order/product import with de-dupe on `unas_order_id`, SKU upsert into `product_variants`).
+### NOT yet confirmed - this environment cannot reach UNAS's docs or API
+
+Both `https://unas.hu` (the documentation site) and `https://api.unas.eu` (the live API) are blocked by this sandbox's network egress policy (`curl` to either returns a 403 from the proxy, and `WebFetch`/`WebSearch` cannot retrieve the docs pages directly - only AI-summarized search snippets of them were available, which is not a reliable source for exact XML tag names). Concretely, still unknown and **not guessed anywhere in this codebase**:
+
+- The exact response XML structure for `/getOrder` and `/getProduct` - line items, customer fields, discount/refund representation, parent-product/variant-SKU nesting.
+- Whether `/getOrder`'s pagination fields are really `LimitNum`/`LimitStart` (confirmed only for `/getProduct`; assumed shared by `getOrders()` but flagged as unconfirmed in its docblock).
+- The exact `/getOrder` single-order filter field name (`getOrderDetails()` assumes `OrderID`, unconfirmed).
+- Whether `Expire` in the login response is an absolute UNIX timestamp or a relative seconds-until-expiry duration (`UnasApiService::parseExpiry()` currently assumes absolute, per the one search snippet that described it that way - confirm against a real login response).
+
+### How to unblock this: `scripts/test_unas_connection.php`
+
+Rather than guess any of the above, this script (added in this pass) does a minimal, safe, read-only live call - login + a 3-record `/getOrder` sample + a 3-record `/getProduct` sample - and saves the raw (PII-redacted) XML to `storage/logs/unas_sample_orders.xml` / `unas_sample_products.xml`. It must be run somewhere with real network access to `api.unas.eu` and the real `UNAS_API_KEY` - i.e. on the production server, not in this development sandbox. See the final summary of this session for exact run instructions.
+
+**Next step once those files exist**: read the exact tag names off them, update the docblocks/TODOs in `UnasApiService` and the field-mapping notes below, then implement `cron/sync_unas_orders.php` and `cron/sync_unas_products.php` (order/product import with de-dupe on `unas_order_id`, SKU upsert into `product_variants`), and only after that `cron/recalculate_profit.php`. Each of those depends on the previous one being correct against real data - do not build them ahead of having the sample XML, per the same "don't guess" principle.
