@@ -119,7 +119,7 @@ A live diagnostic (`scripts/test_unas_connection.php`) has since been run succes
 | `<Date>` | `orders.order_date` | |
 | `<DateMod>` | `orders.unas_date_mod` | new column; UNAS's own last-modified timestamp, distinct from our `updated_at` |
 | `<Currency>` | `orders.currency` | |
-| `<Status>` | `orders.status` | human-readable label |
+| `<Status>` | `orders.status` | human-readable label; `VARCHAR(255)` (migration 006 - a real production status, "Elindult a rendelésed a külső raktárunkból!", exceeded the original `VARCHAR(40)`) |
 | `<StatusID>` | `orders.status_id` | new column |
 | `<StatusType>` | `orders.status_type` | new column; NOT mapped to `is_cancelled` - see ASSUMPTIONS.md |
 | `<Payment><Type>` | `orders.payment_method` | |
