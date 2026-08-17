@@ -391,7 +391,16 @@ final class UnasApiService
         }
 
         $previous = libxml_use_internal_errors(true);
-        $xml = simplexml_load_string($body);
+        // LIBXML_NOCDATA: confirmed live UNAS responses wrap field values
+        // in CDATA (e.g. <Status><![CDATA[Megrendelés lezárva]]></Status>).
+        // Without this flag, simplexml_load_string() keeps CDATA sections
+        // as a separate node type that json_encode() does not serialize
+        // as the element's text, so the field decodes to an empty/missing
+        // value instead of the real string - this is why every order's
+        // status previously mapped to the "unknown" fallback in
+        // UnasOrderMapper::mapOrderHeader(). This flag folds CDATA into
+        // plain text nodes, matching a normal (non-CDATA) element.
+        $xml = simplexml_load_string($body, \SimpleXMLElement::class, LIBXML_NOCDATA);
         libxml_use_internal_errors($previous);
 
         if ($xml === false) {
