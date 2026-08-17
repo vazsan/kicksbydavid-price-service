@@ -20,6 +20,10 @@ declare(strict_types=1);
  *   2. Fetch a small page of orders (POST /getOrder).
  *   3. Fetch a small page of products (POST /getProduct).
  *
+ * Also saves the login response itself (with <Token> redacted) to
+ * storage/logs/unas_sample_login.xml, reusing the already-made login
+ * call - so the real <Expire> field name/format can be confirmed too.
+ *
  * What it does NOT do:
  *   - Never prints or writes the API key or the Bearer token anywhere.
  *   - Never writes to any business table (orders, products, ...) - the
@@ -113,6 +117,18 @@ function saveSample(string $path, string $rawXml): void
     line("  Saved sanitized sample to " . $path . " (" . strlen($rawXml) . " raw bytes).");
 }
 
+/**
+ * Redacts the <Token> element's content specifically - it isn't PII so
+ * redactXml()'s keyword list doesn't catch it, but it's the single most
+ * important thing this script must never persist to disk.
+ */
+function redactToken(string $xml): string
+{
+    $redacted = preg_replace('/<Token>(.*?)<\/Token>/is', '<Token>[REDACTED]</Token>', $xml);
+
+    return $redacted ?? $xml;
+}
+
 line('=== UNAS API connection diagnostic ===');
 line('Base URL: ' . App::config('unas.base_url'));
 line('API key configured: ' . (App::config('unas.api_key') !== '' ? 'yes' : 'NO - set UNAS_API_KEY in .env'));
@@ -145,9 +161,23 @@ line('  Result: SUCCESS');
 line('  HTTP status: ' . ($unas->lastHttpStatus() ?? 'n/a'));
 $expiresAt = $unas->tokenExpiresAt();
 line('  Token expires at: ' . ($expiresAt !== null ? $expiresAt->format(DATE_ATOM) : 'unknown (no Expire field in response, or it did not parse - check storage/logs/unas_api-*.log)'));
-line('');
 
 $storageLogsDir = dirname(__DIR__) . '/storage/logs';
+
+// Reuses the login call already made above - no extra request. Saved
+// specifically so the real <Expire> field name/format can be confirmed
+// (UnasApiService::parseExpiry() currently assumes an absolute UNIX
+// timestamp; if the line above printed "unknown", the field is either
+// named differently or shaped differently - this file is how to tell).
+if (!is_dir($storageLogsDir)) {
+    mkdir($storageLogsDir, 0750, true);
+}
+$loginBody = $unas->lastRawResponseBody();
+if ($loginBody !== '') {
+    file_put_contents($storageLogsDir . '/unas_sample_login.xml', redactXml(redactToken($loginBody)));
+    line('  Saved token-redacted login response to ' . $storageLogsDir . '/unas_sample_login.xml');
+}
+line('');
 $callsMade = 1; // login
 $failures = 0;
 

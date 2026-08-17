@@ -98,25 +98,63 @@ The shop sells into Hungary and Slovakia; `orders.currency` and `orders.customer
 
 ## UNAS API integration status
 
+A live diagnostic (`scripts/test_unas_connection.php`) has since been run successfully on production (HTTP 200 on login/getOrder/getProduct), and its sanitized samples inspected. This section reflects what that confirmed.
+
 ### Confirmed protocol (implemented in `UnasApiService`)
 
 - Base URL `https://api.unas.eu/shop`, all functions HTTP POST, XML request/response bodies.
 - Auth: `POST /login` with `<Params><ApiKey>...</ApiKey></Params>`, response carries `<Token>` and `<Expire>`; subsequent requests send `Authorization: Bearer {token}`. `UnasApiService::authenticate()`/`ensureAuthenticated()` implement this, reusing the token until it's close to expiry.
-- `/getOrder`: documented filter fields `DateStart`, `DateEnd`, `StatusID` (a status serial number, or one of the status *types* `open_normal` | `open_prepare` | `close_ok` | `close_fault`), `InvoiceStatus` (pipe-separated status names). Unfiltered/unlimited requests cap at 500 orders per UNAS's own default.
-- `/getProduct`: documented filter fields `StatusBase`, `LimitNum`, `LimitStart` (pagination), `ContentType` (`getProducts()` defaults this to `full` so price/stock/parameters come back in one call).
-- `/setOrder`: confirmed to exist (writes back in the same shape `/getOrder` returns), not implemented beyond a thin pass-through - V1 only reads orders.
+- `/getOrder`: documented filter fields `DateStart`, `DateEnd`, `StatusID`, `InvoiceStatus`. Response root is `<Orders><Order>...</Order></Orders>` - confirmed live.
+- `/getProduct`: documented filter fields `StatusBase`, `LimitNum`, `LimitStart`, `ContentType` (`getProducts()` defaults this to `full`). Response root is `<Products><Product>...</Product></Products>` - confirmed live.
+- `/setOrder`: confirmed to exist, not implemented beyond a thin pass-through - V1 only reads orders.
 
-### NOT yet confirmed - this environment cannot reach UNAS's docs or API
+### Confirmed order/product field mapping (implemented in the repositories/cron jobs below)
 
-Both `https://unas.hu` (the documentation site) and `https://api.unas.eu` (the live API) are blocked by this sandbox's network egress policy (`curl` to either returns a 403 from the proxy, and `WebFetch`/`WebSearch` cannot retrieve the docs pages directly - only AI-summarized search snippets of them were available, which is not a reliable source for exact XML tag names). Concretely, still unknown and **not guessed anywhere in this codebase**:
+**Orders** (`OrderRepository::upsertHeader()`, header only - see "Order line items" below):
 
-- The exact response XML structure for `/getOrder` and `/getProduct` - line items, customer fields, discount/refund representation, parent-product/variant-SKU nesting.
-- Whether `/getOrder`'s pagination fields are really `LimitNum`/`LimitStart` (confirmed only for `/getProduct`; assumed shared by `getOrders()` but flagged as unconfirmed in its docblock).
-- The exact `/getOrder` single-order filter field name (`getOrderDetails()` assumes `OrderID`, unconfirmed).
-- Whether `Expire` in the login response is an absolute UNIX timestamp or a relative seconds-until-expiry duration (`UnasApiService::parseExpiry()` currently assumes absolute, per the one search snippet that described it that way - confirm against a real login response).
+| UNAS field | Column | Notes |
+|---|---|---|
+| `<Id>` | `orders.unas_order_id` | dedupe key (`UNIQUE`) |
+| `<Key>` | `orders.unas_order_key` | new column (migration 003); purpose beyond "a second identifier" unconfirmed |
+| `<Date>` | `orders.order_date` | |
+| `<DateMod>` | `orders.unas_date_mod` | new column; UNAS's own last-modified timestamp, distinct from our `updated_at` |
+| `<Currency>` | `orders.currency` | |
+| `<Status>` | `orders.status` | human-readable label |
+| `<StatusID>` | `orders.status_id` | new column |
+| `<StatusType>` | `orders.status_type` | new column; NOT mapped to `is_cancelled` - see ASSUMPTIONS.md |
+| `<Payment><Type>` | `orders.payment_method` | |
+| `<Payment><Status>` | `orders.payment_status` | new column |
+| `<Payment><Paid>` | `orders.payment_amount_paid` | new column |
+| `<SumPriceGross>` | `orders.grand_total` | |
+| entire `<Order>` | `orders.raw_payload` | full decoded record (including `<Items>`, `<Shipping>`, `<Customer>`, `<Invoice>`) - nothing is lost even though those aren't mapped into typed columns yet |
 
-### How to unblock this: `scripts/test_unas_connection.php`
+**Products** (`ProductRepository::upsertProductAndVariant()`):
 
-Rather than guess any of the above, this script (added in this pass) does a minimal, safe, read-only live call - login + a 3-record `/getOrder` sample + a 3-record `/getProduct` sample - and saves the raw (PII-redacted) XML to `storage/logs/unas_sample_orders.xml` / `unas_sample_products.xml`. It must be run somewhere with real network access to `api.unas.eu` and the real `UNAS_API_KEY` - i.e. on the production server, not in this development sandbox. See the final summary of this session for exact run instructions.
+| UNAS field | Column | Notes |
+|---|---|---|
+| `<Id>` | `products.unas_product_id` **and** `product_variants.unas_variant_id` | see "Parent/variant grouping" below |
+| `<Sku>` | `product_variants.sku` | dedupe key (`UNIQUE`) |
+| `<Name>` | `products.name` | |
+| `<State>` | `product_variants.unas_state` | new column; raw string, not mapped to `is_active` (unconfirmed values) |
+| `<CreateTime>` / `<LastModTime>` | `product_variants.unas_created_at` / `unas_modified_at` | new columns |
+| `<Url>` | `product_variants.url` | new column |
+| `<Prices><Price type=normal><Gross>` | `product_variants.list_price` | |
+| `<Prices><Price type=normal><Actual>` | `product_variants.current_price` | new column; assumed = currently effective selling price, not 100% confirmed - see ASSUMPTIONS.md |
+| entire `<Prices>` / `<Params>` / `<Statuses>` | `raw_prices` / `raw_params` / `raw_statuses` (new JSON columns) | nothing lost even though size/color/category aren't extracted into typed columns yet |
 
-**Next step once those files exist**: read the exact tag names off them, update the docblocks/TODOs in `UnasApiService` and the field-mapping notes below, then implement `cron/sync_unas_orders.php` and `cron/sync_unas_products.php` (order/product import with de-dupe on `unas_order_id`, SKU upsert into `product_variants`), and only after that `cron/recalculate_profit.php`. Each of those depends on the previous one being correct against real data - do not build them ahead of having the sample XML, per the same "don't guess" principle.
+**Parent/variant grouping**: this account's `/getProduct` returns one `<Product>` per sellable SKU directly (confirmed live: SKU `FZ4625-100-11` was itself a full top-level `<Product>` with size `EU 45` living under `<Params>`, and an **empty** `<Variants>` node). There is no confirmed field that groups sibling sizes under a real parent, so - per "if no explicit parent identifier exists, do not invent one" - each SKU gets its own 1:1 "shadow" `products` parent row (same UNAS `<Id>` on both). `product_variants` remains the true sellable unit everywhere it matters (order_items, FIFO, profit calc). See `ProductRepository`'s docblock for how to correct this later if a real grouping field turns out to exist for other products in the catalog.
+
+### Still NOT confirmed (deliberately not mapped/guessed anywhere)
+
+- **Order line items** (`<Order><Items><Item>`): confirmed present fields are `<Id>`, `<Sku>`, `<Name>`, `<ProductParams>`. The quantity and per-unit price/discount child element names are **not confirmed** - `order_items.quantity`/`list_price_per_unit`/`actual_price_per_unit` are `NOT NULL` financial columns, so `cron/sync_unas_orders.php` deliberately does **not** insert `order_items` rows yet rather than guess these (see that file's header comment and the double-discount guard in the "Profit formula" section above). The full item data is preserved in `orders.raw_payload` for a later backfill.
+- **Shipping** (`<Order><Shipping>`), **Customer** (`<Order><Customer>`, incl. country), **Invoice** (`<Order><Invoice>`): full sub-structure not yet inspected/shared - `orders.shipping_method`/`shipping_fee_charged`/`customer_email`/`customer_country` are left unpopulated by the sync job. Preserved in `raw_payload`.
+- **Which `<Param>` entry means "size" vs. other attributes** for products: the live sample confirms a size value (`EU 45`) exists somewhere under `<Params>`, but not which sibling `<Name>`/`<Type>` value identifies it as size specifically - `product_variants.size`/`color` are left unpopulated; the raw block is in `raw_params`.
+- **Stock**: no confirmed stock field was seen in the inspected `/getProduct` sample - `product_variants.current_stock_cached` is left `NULL` (migration 003 made it nullable specifically so "unknown" (`NULL`) stays distinguishable from "confirmed zero" (`0`)).
+- **`Expire`'s exact format**: `scripts/test_unas_connection.php` now also saves a token-redacted `storage/logs/unas_sample_login.xml` (added this pass, reusing the already-made login call - zero extra API calls) specifically so this can be confirmed on the next diagnostic run.
+- **`/getOrder`'s exact date-filter format**: `DateStart`/`DateEnd` are sent as `Y-m-d` by `cron/sync_unas_orders.php` - this is the most common convention, not a confirmed one; if wrong it will surface directly in that job's console output / `sync_logs.error_message`.
+
+### `cron/sync_unas_orders.php` / `cron/sync_unas_products.php`
+
+Implemented this pass - see each file's header comment for full behavior (idempotent upsert, per-record error isolation, pagination, `sync_logs` run tracking + stale-lock detection, `--dry-run`, incremental sync for orders via a `settings` watermark). Both were verified against a local MariaDB instance: mapping functions unit-tested against synthetic data shaped exactly like the real live decode (single-vs-list XML→array quirk, malformed-record handling), repository upserts verified idempotent (re-running never duplicates), and the lock/dry-run/failure-logging paths verified against a real (network-refused) run. The one thing that could not be tested in this sandbox is the actual live pagination/date-filter behavior against `api.unas.eu` - see "Still NOT confirmed" above.
+
+**`cron/recalculate_profit.php` is intentionally not built yet** - it depends on `order_items` being populated, which depends on the item-level field mapping above being confirmed first.
