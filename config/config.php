@@ -47,6 +47,13 @@ return [
         'rate_limit_per_minute' => (int) Env::get('UNAS_RATE_LIMIT_PER_MINUTE', 60),
     ],
 
+    'turum' => [
+        'base_url' => rtrim((string) Env::get('TURUM_API_BASE_URL', 'https://api.b2b.turum.pl'), '/'),
+        'username' => Env::get('TURUM_USERNAME', ''),
+        'password' => Env::get('TURUM_PASSWORD', ''),
+        'rate_limit_per_minute' => (int) Env::get('TURUM_RATE_LIMIT_PER_MINUTE', 30),
+    ],
+
     'meta' => [
         'app_id' => Env::get('META_APP_ID', ''),
         'app_secret' => Env::get('META_APP_SECRET', ''),

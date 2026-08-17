@@ -227,3 +227,48 @@ For every synced order (with at least one parsed `<Item>`): `difference = SumPri
 Order sync now imports header + merchandise line items + adjustments + reconciliation in one pass; product sync is unchanged from the previous pass. Both scripts are thin orchestration - the actual field mapping (`UnasOrderMapper`) and reconciliation math (`OrderReconciler`) are separate, dependency-free Services, unit tested in `tests/` without a database or live API call (classifier, mapper, and reconciler: 47 assertions across normal merchandise, shipping-cost, discount-percent, gift, an unrecognized synthetic row, and a full mixed order both reconciling and deliberately mismatched). The full write pipeline (header → items → adjustments → aggregates → reconciliation, including a second run to check idempotency) was additionally verified end-to-end against a local MariaDB instance - a real bug (a SQL prepared statement reusing the same named placeholder twice, which native/non-emulated MySQL prepares reject) was caught and fixed by this testing, underscoring why "verified" here means "actually executed against a database", not just "type-checked". The one thing that could not be tested in this sandbox is the actual live pagination/date-filter behavior against `api.unas.eu` - see "Still NOT confirmed" above.
 
 **`cron/recalculate_profit.php` is still intentionally not built** - per the project owner's explicit instruction, it waits until reconciliation has been proven against real production order data (this pass only proved it against synthetic fixtures shaped like the real examples), not just against a synthetic test suite.
+
+## Turum integration status
+
+Turum is a B2B supplier (sneaker/streetwear resale stock) being integrated as a **cost source** - separate from UNAS, which remains the sales/order source of truth. Phase 1 (this pass) is diagnostic-only: `app/Services/TurumApiService.php` and `scripts/test_turum_connection.php`. No product/order sync, no `inventory_batches`/FIFO writes, no `ProfitService`, no cron job.
+
+**This environment does not have direct access to the Turum OpenAPI YAML spec file** the project owner referenced - only the endpoint/field details they relayed in-conversation were used. Anything not explicitly listed there is treated as unconfirmed (see `TurumApiService`'s docblock for the exact confirmed-vs-not split) rather than guessed - same principle as the UNAS integration.
+
+### Confirmed protocol (implemented in `TurumApiService`)
+
+- Base URL `https://api.b2b.turum.pl`, JSON request/response bodies (not XML, unlike UNAS).
+- Auth: `POST /v1/account/login` with `{"username":..,"password":..}`, response has `access_token`/`token_type`. Documented as valid 24h; **no expiry field is confirmed in the response**, so `TurumApiService::authenticate()` computes `now + 24h` rather than reading one - if `storage/logs/turum_sample_login.json`-equivalent inspection ever reveals an `expires_in`/`expires_at` field, prefer that.
+- `GET /v1/account/me`, `GET /v1/products_full_list_new`, `GET /v1/reservations`, `GET /v1/reservation/{id}` - all implemented as thin pass-throughs.
+- **Confirmed hard rule**: never more than 1 request/minute to `/v1/products_full_list_new` - enforced via a dedicated `RateLimiter` instance separate from the general one, so it can never be starved or over-consumed by other endpoint traffic.
+- `POST /v1/products/check_stocks_and_prices` - confirmed to exist, **not implemented** (no diagnostic use for it in Phase 1).
+
+### Two distinct price concepts - do not conflate them
+
+Per the project owner's explicit architectural intent:
+
+1. **CURRENT supplier price/stock** - from a product variant's `price`/`stock` in `/v1/products_full_list_new`. Useful for assortment decisions and present-day replacement cost. Currency and exact COGS semantics of this field are **not yet confirmed** (documented only as "Price of the product variant").
+2. **HISTORICAL actual purchase cost** - from `reservation_items[].item_price` in a `/v1/reservation/{id}` response. This is what should eventually feed `inventory_batches.unit_cost` (FIFO), since it reflects what was actually paid for a specific purchased quantity, not today's price.
+
+**Today's supplier price must never be used to retroactively compute historical order COGS** - that would silently misprice every past sale whenever Turum's price changes.
+
+### SKU/variant matching - not implemented, no heuristic stripping
+
+UNAS sellable SKUs (`FZ4625-100-11`) do not equal Turum's `product.sku` (`FZ4625-100`, without the size suffix) - Turum's sellable unit is `product.sku` + `variant.eu_size`. Per explicit instruction, this pass does **not** implement any heuristic SKU-stripping/matching logic. The validated hierarchy to build later, once real samples across multiple brands are inspected: (1) EAN, if both sides supply one; (2) model SKU + normalized EU size; (3) an explicitly reviewed manual mapping table.
+
+### Existing schema readiness for Turum data (no migration made this pass)
+
+| Need | Table | Status |
+|---|---|---|
+| A "Turum" supplier record | `suppliers` | **Ready now** - `inventory_source` is already `ENUM('OWN','EXTERNAL','TURUM','UNKNOWN')`, i.e. `'TURUM'` was anticipated from the very first schema pass. Just needs one row inserted. |
+| Historical purchase batches (FIFO cost lots) | `inventory_batches` | **Ready now** - `supplier_id` (→ the Turum `suppliers` row), `purchase_date`, `quantity_purchased`/`quantity_remaining`, `unit_cost`, `currency`, `inventory_source`, and `source_reference` (could hold a reservation/reservation-item id) already cover a Turum-sourced batch. No new column needed to represent "this batch came from Turum reservation X". |
+| FIFO COGS consumption | `inventory_movements` | **Ready now** - already generic per-batch movement tracking (`SALE`/`RETURN_RESTOCK`/`ADJUSTMENT`/`MANUAL`), not UNAS/Turum-specific. |
+| Recording *how* a batch/cost was imported | `purchase_costs` | **Ready now** - `import_source` is already `ENUM('MANUAL','CSV','API')`; `'API'` was anticipated for exactly this case (a supplier API import, not just CSV/manual entry). |
+| API call audit trail | `api_logs` | **Ready now** - `provider` is a free-text `VARCHAR(30)` (not an enum), so `'TURUM'` needs no schema change; used as-is by `TurumApiService`. |
+| **Current** supplier price/stock/variant id (item 1 in the two-price-concepts split above) | `product_variants` | **NOT ready - future migration needed.** There is currently no column for "Turum's current price for this variant", "Turum's variant_id", or "Turum's reported stock" - `list_price`/`current_price`/`current_stock_cached` are already spoken for by UNAS's own selling price/stock. A future migration would add e.g. `turum_variant_id`, `turum_current_price`, `turum_current_stock`, `turum_synced_at` (additive, nullable, following the same pattern as migration 003's UNAS-specific columns) - **not created in this pass**, since Phase 1 makes no DB writes at all and the project owner asked not to migrate ahead of validating real response samples. |
+| SKU/EAN matching between UNAS and Turum | *(none yet)* | Neither `product_variants.barcode` (unused/unpopulated so far) nor a dedicated mapping table exists yet. Once the matching hierarchy above is validated against real samples, this likely needs either populating `product_variants.barcode` from UNAS's own EAN (if UNAS exposes one - unconfirmed) or a small new mapping table - deferred, per instruction, until Phase 2. |
+
+### Phase 1 diagnostic (`scripts/test_turum_connection.php`)
+
+Makes at most 5 API calls (login, account/me, products-full-list once, reservations-list, one reservation detail - skipped if none exist), no retries, no DB writes beyond the existing `api_logs` trail. Verified against a local MariaDB instance: correctly aborts after the single login attempt on network failure or missing credentials (this sandbox has no route to `api.b2b.turum.pl`, same situation as `api.unas.eu` earlier), and never writes the username/password/token to `api_logs` or any log file. The redaction/extraction logic (product field allow-list; account/reservation keyword-based redaction) was unit-verified against synthetic data shaped like the confirmed field examples before being wired into the live script - see the assertions listed in this session's summary.
+
+**Next step**: run the diagnostic on a machine with real Turum credentials and network access, then share back `storage/logs/turum_sample_{account,products,reservation}.json` so Phase 2 (real field mapping, matching hierarchy, and only then a migration for the "current supplier price" columns) can be built against confirmed data instead of guesses.
