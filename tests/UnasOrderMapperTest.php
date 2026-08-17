@@ -111,4 +111,34 @@ $t->assertSame('DISCOUNT', $discount['adjustment_type'], 'discount-percent maps 
 $t->assertSame('10', $discount['percent'], 'discount-percent <Percent> preserved');
 $t->assertSame('-10.90', $discount['price_gross'], 'discount-percent price_gross stays negative (sign preserved, not pre-summed)');
 
+$discountAmount = $mapper->mapAdjustmentItem($fixtures['discount_amount'], \App\Services\UnasOrderItemClassifier::DISCOUNT);
+$t->assertSame('DISCOUNT', $discountAmount['adjustment_type'], 'discount-amount maps to adjustment_type DISCOUNT');
+$t->assertSame('-5', $discountAmount['price_gross'], 'discount-amount price_gross stays negative (sign preserved exactly)');
+
+$handling = $mapper->mapAdjustmentItem($fixtures['handel_cost'], \App\Services\UnasOrderItemClassifier::HANDLING);
+$t->assertSame('HANDLING', $handling['adjustment_type'], 'handel-cost maps to adjustment_type HANDLING');
+$t->assertSame('2.50', $handling['price_gross'], 'handel-cost price_gross preserved verbatim as a positive charge');
+
+// --- Regression test: mapOrderHeader() must never emit the literal string
+// "Array" for a field that decoded to an array instead of a scalar
+// (confirmed production bug: "would upsert order X (Array, 43228 HUF)") ---
+$arrayStatusOrder = $mapper->mapOrderHeader([
+    'Id' => '700001',
+    'Date' => '2026.03.24 20:15:35',
+    // Simulates the one confirmed SimpleXML/json_encode shape for an
+    // element with both attributes and text content: the text lands at
+    // numeric key 0 alongside an "@attributes" sibling.
+    'Status' => ['@attributes' => ['modified' => '1'], 0 => 'Teljesítve'],
+], 'EUR');
+$t->assertSame('Teljesítve', $arrayStatusOrder['status'], 'a <Status> that decodes with attributes (text at key 0) is resolved to its real text, not the literal string "Array"');
+$t->assertTrue($arrayStatusOrder['status'] !== 'Array', 'status is never the literal string "Array"');
+
+$unresolvableArrayOrder = $mapper->mapOrderHeader([
+    'Id' => '700002',
+    'Date' => '2026.03.24 20:15:35',
+    // A shape with no plausible scalar to extract at all.
+    'Status' => ['@attributes' => ['modified' => '1']],
+], 'EUR');
+$t->assertSame('unknown', $unresolvableArrayOrder['status'], 'a <Status> that decodes to an array with no extractable scalar falls back to "unknown" rather than fabricating or printing "Array"');
+
 exit($t->summary() ? 0 : 1);

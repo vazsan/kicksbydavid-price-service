@@ -44,6 +44,30 @@ $t->assertSame(
 );
 
 $t->assertSame(
+    UnasOrderItemClassifier::DISCOUNT,
+    $classifier->classify($fixtures['discount_amount']),
+    'discount-amount (fixed-amount discount sibling to discount-percent) classifies as discount'
+);
+
+$t->assertSame(
+    UnasOrderItemClassifier::HANDLING,
+    $classifier->classify($fixtures['handel_cost']),
+    'handel-cost (confirmed positive handling/processing charge) classifies as handling, not merchandise and not unknown_synthetic'
+);
+
+// Normal merchandise SKUs are unaffected by adding discount-amount/handel-cost to the known map.
+$t->assertSame(
+    UnasOrderItemClassifier::MERCHANDISE,
+    $classifier->classify($fixtures['merchandise_sneaker']),
+    'normal SKU (sneakershieldL) still classifies as merchandise after adding new known synthetic identifiers'
+);
+$t->assertSame(
+    UnasOrderItemClassifier::MERCHANDISE,
+    $classifier->classify($fixtures['merchandise_shoe']),
+    'normal SKU (CW2288-111) still classifies as merchandise after adding new known synthetic identifiers'
+);
+
+$t->assertSame(
     UnasOrderItemClassifier::UNKNOWN_SYNTHETIC,
     $classifier->classify($fixtures['unknown_synthetic_fee']),
     'an unrecognized lowercase-slug SKU ("handling-fee") is NOT silently treated as merchandise'

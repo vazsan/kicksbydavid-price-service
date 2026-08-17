@@ -60,6 +60,26 @@ return [
         'PriceGross' => '-10.90',
     ],
 
+    // Fixed-amount discount sibling to discount-percent - no <Percent>,
+    // just a negative fixed amount.
+    'discount_amount' => [
+        'Id' => 'discount-amount',
+        'Sku' => 'discount-amount',
+        'Quantity' => '1',
+        'PriceNet' => '-5',
+        'PriceGross' => '-5',
+    ],
+
+    // Confirmed live: a positive per-order handling/processing charge.
+    // "handel-cost" is UNAS's own spelling, not a typo introduced here.
+    'handel_cost' => [
+        'Id' => 'handel-cost',
+        'Sku' => 'handel-cost',
+        'Quantity' => '1',
+        'PriceNet' => '2.50',
+        'PriceGross' => '2.50',
+    ],
+
     // A malformed row (no Sku at all) - must be rejected, never silently
     // treated as merchandise with an empty SKU.
     'malformed_no_sku' => [

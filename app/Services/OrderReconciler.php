@@ -11,8 +11,9 @@ namespace App\Services;
  *
  * The reconciliation formula is exactly what it sounds like:
  *   SUM(all Item PriceGross * Quantity) - merchandise AND synthetic rows
- *   alike (shipping/discount/gift/unknown) - compared against
- *   SumPriceGross, within a small currency tolerance.
+ *   alike (shipping/discount/gift/handling/unknown) - compared against
+ *   SumPriceGross, within a currency-specific tolerance (see
+ *   TOLERANCE_MAP).
  * See ARCHITECTURE.md "Order line item financial model" for why this,
  * rather than e.g. only summing merchandise, is the correct check: the
  * whole point is confirming that *every* row UNAS returns (including the
@@ -21,8 +22,39 @@ namespace App\Services;
  */
 final class OrderReconciler
 {
+    /**
+     * Reconciliation tolerance per currency, in that currency's own
+     * units. Confirmed empirically against a real 14-order production
+     * dry-run: EUR needs only sub-cent tolerance (0.02); HUF (in
+     * practice an integer-denominated currency in this shop's data - no
+     * minor unit) showed rounding residuals up to ~0.44 from percentage-
+     * discount arithmetic, so 1.00 HUF was chosen to absorb that
+     * specific, observed rounding noise without being wide enough to
+     * hide a real mismatch (a missing/extra line item would produce a
+     * difference of at least one full merchandise or adjustment price,
+     * far larger than 1 HUF).
+     */
+    public const TOLERANCE_MAP = [
+        'EUR' => 0.02,
+        'HUF' => 1.00,
+    ];
+
+    /**
+     * Used for a currency not in TOLERANCE_MAP. Deliberately as tight as
+     * EUR's (not wider) so an unrecognized currency never gets a more
+     * lenient pass than a known one - callers should log when this
+     * fallback is hit (see cron/sync_unas_orders.php) so a real
+     * tolerance can be added to the map once that currency is confirmed.
+     */
+    public const DEFAULT_TOLERANCE = 0.02;
+
     public function __construct(private readonly UnasOrderItemClassifier $classifier)
     {
+    }
+
+    public function toleranceForCurrency(string $currency): float
+    {
+        return self::TOLERANCE_MAP[$currency] ?? self::DEFAULT_TOLERANCE;
     }
 
     /**
@@ -33,10 +65,12 @@ final class OrderReconciler
      *     discount_gross: float,
      *     all_items_gross: float,
      *     is_reconciled: ?bool,
-     *     difference: ?float
+     *     difference: ?float,
+     *     tolerance: float,
+     *     currency: string
      * } is_reconciled/difference are null when $items is empty (nothing to check).
      */
-    public function reconcile(array $items, string $grandTotal, float $tolerance): array
+    public function reconcile(array $items, string $grandTotal, string $currency): array
     {
         $merchandiseGross = 0.0;
         $shippingGross = 0.0;
@@ -58,8 +92,13 @@ final class OrderReconciler
                 // Stored/reported as a positive magnitude (orders.discount_total convention).
                 $discountGross += abs($lineGross);
             }
+            // GIFT/HANDLING/UNKNOWN_SYNTHETIC are counted in all_items_gross
+            // (so reconciliation still accounts for them) but deliberately
+            // not bucketed into a dedicated summary column yet - see
+            // ARCHITECTURE.md "Order line item financial model".
         }
 
+        $tolerance = $this->toleranceForCurrency($currency);
         $isReconciled = null;
         $difference = null;
 
@@ -75,6 +114,8 @@ final class OrderReconciler
             'all_items_gross' => $allItemsGross,
             'is_reconciled' => $isReconciled,
             'difference' => $difference,
+            'tolerance' => $tolerance,
+            'currency' => $currency,
         ];
     }
 }

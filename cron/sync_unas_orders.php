@@ -26,11 +26,14 @@ declare(strict_types=1);
  *
  * Reconciliation: for every order, SUM(all Item PriceGross * Quantity) -
  * merchandise AND synthetic rows alike - is compared against
- * <SumPriceGross> (orders.grand_total). A match within
- * RECONCILIATION_TOLERANCE sets orders.is_reconciled = 1; a mismatch
- * sets it to 0 and logs the order id/key + difference. Never "corrects"
- * either number - a mismatch is a signal to investigate, not something
- * this job silently papers over.
+ * <SumPriceGross> (orders.grand_total), within a currency-specific
+ * tolerance (OrderReconciler::TOLERANCE_MAP - confirmed from a real
+ * 14-order production dry-run: EUR 0.02, HUF 1.00, to absorb HUF's
+ * observed percentage-discount rounding noise without hiding a real
+ * mismatch). A match sets orders.is_reconciled = 1; a mismatch sets it
+ * to 0 and logs the order id/key + currency + difference + tolerance
+ * used. Never "corrects" either number - a mismatch is a signal to
+ * investigate, not something this job silently papers over.
  *
  * Idempotent: orders/order_items/order_adjustments are all upserted on
  * unique keys (unas_order_id; (order_id, unas_item_id) for both item
@@ -80,8 +83,7 @@ const JOB_NAME = 'sync_unas_orders';
 const WATERMARK_KEY = 'unas_sync.orders_last_synced_to';
 const PAGE_SIZE = 50;
 const OVERLAP_BUFFER_HOURS = 1;
-/** Currency-unit tolerance for the SumPriceGross reconciliation check. */
-const RECONCILIATION_TOLERANCE = 0.02;
+// Reconciliation tolerance is currency-specific - see OrderReconciler::TOLERANCE_MAP.
 
 if (php_sapi_name() !== 'cli') {
     http_response_code(403);
@@ -183,7 +185,14 @@ function processOrderItems(
         }
     }
 
-    $result = $reconciler->reconcile($items, $grandTotal, RECONCILIATION_TOLERANCE);
+    $result = $reconciler->reconcile($items, $grandTotal, $currency);
+
+    if ($items !== [] && !array_key_exists($currency, OrderReconciler::TOLERANCE_MAP)) {
+        Logger::warning('sync_unas_orders', 'Using default reconciliation tolerance for an unrecognized currency', [
+            'currency' => $currency,
+            'tolerance' => $result['tolerance'],
+        ]);
+    }
 
     if (!$dryRun && $localOrderId !== null && $items !== []) {
         $orders->updateAggregates(
@@ -201,6 +210,8 @@ function processOrderItems(
         'item_failures' => $itemFailures,
         'is_reconciled' => $result['is_reconciled'],
         'difference' => $result['difference'] !== null ? number_format($result['difference'], 4, '.', '') : null,
+        'tolerance' => $result['tolerance'],
+        'currency' => $currency,
     ];
 }
 
@@ -303,11 +314,13 @@ try {
                     $reconciledTotal++;
                 } elseif ($itemStats['is_reconciled'] === false) {
                     $unreconciledTotal++;
-                    line('  RECONCILIATION MISMATCH order ' . $mapped['unas_order_id'] . ' (key ' . ($mapped['unas_order_key'] ?? 'n/a') . '): difference ' . $itemStats['difference'] . ' ' . $mapped['currency']);
+                    line('  RECONCILIATION MISMATCH order ' . $mapped['unas_order_id'] . ' (key ' . ($mapped['unas_order_key'] ?? 'n/a') . '): difference ' . $itemStats['difference'] . ' ' . $itemStats['currency'] . ' (tolerance ' . $itemStats['tolerance'] . ' ' . $itemStats['currency'] . ')');
                     Logger::warning('sync_unas_orders', 'Order did not reconcile against SumPriceGross', [
                         'unas_order_id' => $mapped['unas_order_id'],
                         'unas_order_key' => $mapped['unas_order_key'],
+                        'currency' => $itemStats['currency'],
                         'difference' => $itemStats['difference'],
+                        'tolerance' => $itemStats['tolerance'],
                     ]);
                 }
             } catch (\Throwable $e) {
@@ -329,8 +342,8 @@ try {
     }
 
     line('=== Done: ' . $seen . ' order(s) seen, ' . $upserted . ' upserted, ' . $failed . ' order failure(s), ' . $page . ' page(s). ===');
-    line('Items: ' . $merchandiseTotal . ' merchandise, ' . $adjustmentsTotal . ' adjustment(s) (shipping/discount/gift/unknown), ' . $itemFailuresTotal . ' item failure(s).');
-    line('Reconciliation: ' . $reconciledTotal . ' order(s) matched SumPriceGross within ' . RECONCILIATION_TOLERANCE . ', ' . $unreconciledTotal . ' did not (see warnings above / storage/logs/sync_unas_orders-*.log).');
+    line('Items: ' . $merchandiseTotal . ' merchandise, ' . $adjustmentsTotal . ' adjustment(s) (shipping/discount/handling/gift/unknown), ' . $itemFailuresTotal . ' item failure(s).');
+    line('Reconciliation: ' . $reconciledTotal . ' order(s) matched SumPriceGross within their currency-specific tolerance (see OrderReconciler::TOLERANCE_MAP), ' . $unreconciledTotal . ' did not (see warnings above / storage/logs/sync_unas_orders-*.log).');
     exit($failed > 0 && $upserted === 0 ? 1 : 0);
 } catch (\Throwable $e) {
     Logger::error('sync_unas_orders', 'Run aborted', ['error' => $e->getMessage()]);

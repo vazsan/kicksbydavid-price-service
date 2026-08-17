@@ -16,6 +16,37 @@ namespace App\Services;
 final class UnasOrderMapper
 {
     /**
+     * Safely extracts a scalar (string) from a decoded XML field without
+     * ever producing PHP's "Array to string conversion" -> literal
+     * "Array" that a blind (string) cast would (confirmed live bug: a
+     * production dry-run printed "would upsert order X (Array, ...)"
+     * because some element - observed on <Status> - decodes to an array,
+     * not a plain string, presumably when UNAS's XML gives it attributes
+     * or nested structure rather than plain text; the real UNAS field
+     * shape for that case has not been sampled). Handles the one
+     * confirmed SimpleXML/json_encode shape for "element with both
+     * attributes and text content" (text lands at numeric key 0);
+     * anything else unresolvable returns null rather than guessing at a
+     * value or silently emitting "Array".
+     */
+    private function scalarOrNull(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_scalar($value)) {
+            return (string) $value;
+        }
+
+        if (is_array($value) && isset($value[0]) && is_scalar($value[0])) {
+            return (string) $value[0];
+        }
+
+        return null;
+    }
+
+    /**
      * UNAS's XML-to-array decoding collapses a single repeated child
      * element into an associative array (not a list) when there's only
      * one of it - a classic SimpleXML/json_encode quirk. This normalizes
@@ -75,15 +106,15 @@ final class UnasOrderMapper
 
         return [
             'unas_order_id' => (string) $unasOrderId,
-            'unas_order_key' => isset($order['Key']) ? (string) $order['Key'] : null,
+            'unas_order_key' => $this->scalarOrNull($order['Key'] ?? null),
             'order_date' => $orderDate,
             'unas_date_mod' => $this->parseUnasDate($order['DateMod'] ?? null),
-            'currency' => isset($order['Currency']) && $order['Currency'] !== '' ? (string) $order['Currency'] : $fallbackCurrency,
-            'status' => isset($order['Status']) ? (string) $order['Status'] : 'unknown',
-            'status_id' => isset($order['StatusID']) ? (string) $order['StatusID'] : null,
-            'status_type' => isset($order['StatusType']) ? (string) $order['StatusType'] : null,
-            'payment_method' => isset($payment['Type']) ? (string) $payment['Type'] : null,
-            'payment_status' => isset($payment['Status']) ? (string) $payment['Status'] : null,
+            'currency' => $this->scalarOrNull($order['Currency'] ?? null) ?: $fallbackCurrency,
+            'status' => $this->scalarOrNull($order['Status'] ?? null) ?? 'unknown',
+            'status_id' => $this->scalarOrNull($order['StatusID'] ?? null),
+            'status_type' => $this->scalarOrNull($order['StatusType'] ?? null),
+            'payment_method' => $this->scalarOrNull($payment['Type'] ?? null),
+            'payment_status' => $this->scalarOrNull($payment['Status'] ?? null),
             'payment_amount_paid' => isset($payment['Paid']) && is_numeric($payment['Paid']) ? (string) $payment['Paid'] : null,
             'grand_total' => isset($order['SumPriceGross']) && is_numeric($order['SumPriceGross']) ? (string) $order['SumPriceGross'] : '0',
             'raw_payload' => json_encode($order, JSON_UNESCAPED_UNICODE) ?: '{}',
@@ -138,6 +169,7 @@ final class UnasOrderMapper
             UnasOrderItemClassifier::SHIPPING => 'SHIPPING',
             UnasOrderItemClassifier::DISCOUNT => 'DISCOUNT',
             UnasOrderItemClassifier::GIFT => 'GIFT',
+            UnasOrderItemClassifier::HANDLING => 'HANDLING',
             UnasOrderItemClassifier::UNKNOWN_SYNTHETIC => 'UNKNOWN_SYNTHETIC',
         ];
 

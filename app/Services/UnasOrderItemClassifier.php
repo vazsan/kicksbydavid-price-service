@@ -21,21 +21,31 @@ namespace App\Services;
  *         <PriceNet>-4</PriceNet><PriceGross>-4</PriceGross></Item>
  *   <Item><Id>discount-percent</Id><Sku>discount-percent</Sku><Quantity>1</Quantity>
  *         <Percent>100</Percent><PriceNet>-202</PriceNet><PriceGross>-202</PriceGross></Item>
+ *   <Item><Id>discount-amount</Id><Sku>discount-amount</Sku><Quantity>1</Quantity>
+ *         <PriceNet>-X</PriceNet><PriceGross>-X</PriceGross></Item>
+ *   <Item><Id>handel-cost</Id><Sku>handel-cost</Sku><Quantity>1</Quantity>
+ *         <PriceNet>X</PriceNet><PriceGross>X</PriceGross></Item>
+ *
+ * ("handel-cost" is UNAS's own spelling, confirmed live - not a typo
+ * introduced here.) Confirmed live: discount-amount is a negative
+ * fixed-amount discount (the counterpart to discount-percent's
+ * percentage-based one); handel-cost is a positive per-order handling/
+ * processing charge, distinct from shipping-cost.
  *
  * Treating a synthetic row as merchandise would create a fake SKU/product
  * and, worse, give it COGS it never should have. This class exists to
  * make that classification an explicit, single, testable decision point
  * instead of scattered ad-hoc checks in the sync job.
  *
- * Only shipping-cost / discount-percent / gift are CONFIRMED synthetic
- * identifiers. Anything else that merely *looks* synthetic (see
- * looksLikeSyntheticSlug()) is classified UNKNOWN_SYNTHETIC, not
- * MERCHANDISE - i.e. when unsure, this errs toward excluding a row from
- * order_items (where it could pollute revenue/COGS) rather than
- * excluding it from the "definitely fine to treat as a normal sale" set.
- * UNKNOWN_SYNTHETIC rows are still persisted (to order_adjustments, with
- * their full raw payload) so nothing is silently lost - they just aren't
- * assumed to be a specific known type either.
+ * Only the identifiers in KNOWN_SYNTHETIC are CONFIRMED. Anything else
+ * that merely *looks* synthetic (see looksLikeSyntheticSlug()) is
+ * classified UNKNOWN_SYNTHETIC, not MERCHANDISE - i.e. when unsure, this
+ * errs toward excluding a row from order_items (where it could pollute
+ * revenue/COGS) rather than excluding it from the "definitely fine to
+ * treat as a normal sale" set. UNKNOWN_SYNTHETIC rows are still
+ * persisted (to order_adjustments, with their full raw payload) so
+ * nothing is silently lost - they just aren't assumed to be a specific
+ * known type either.
  */
 final class UnasOrderItemClassifier
 {
@@ -43,6 +53,7 @@ final class UnasOrderItemClassifier
     public const SHIPPING = 'shipping';
     public const DISCOUNT = 'discount';
     public const GIFT = 'gift';
+    public const HANDLING = 'handling';
     public const UNKNOWN_SYNTHETIC = 'unknown_synthetic';
 
     /**
@@ -53,7 +64,9 @@ final class UnasOrderItemClassifier
     private const KNOWN_SYNTHETIC = [
         'shipping-cost' => self::SHIPPING,
         'discount-percent' => self::DISCOUNT,
+        'discount-amount' => self::DISCOUNT,
         'gift' => self::GIFT,
+        'handel-cost' => self::HANDLING,
     ];
 
     /**
