@@ -3,25 +3,45 @@
 declare(strict_types=1);
 
 /**
- * Syncs UNAS orders into the local `orders` table (HEADER FIELDS ONLY).
+ * Syncs UNAS orders into `orders`, merchandise line items into
+ * `order_items`, and synthetic financial rows (shipping/discount/gift/
+ * unknown) into `order_adjustments`.
  *
- * Deliberately does NOT import order_items yet. The UNAS <Item> child
- * element names for quantity/unit price/discount are not yet confirmed
- * against a live response (see ARCHITECTURE.md "UNAS API integration
- * status"), and those columns are NOT NULL - inserting guessed values
- * would silently write wrong revenue numbers into a financial system.
- * Every order's full raw XML-derived array is stored in
- * orders.raw_payload (including its Items), so nothing is lost - once
- * the item field mapping is confirmed, a follow-up backfill can read it
- * from there without re-hitting the API.
+ * UNAS mixes real merchandise with synthetic financial rows in the same
+ * <Order><Items><Item> list - confirmed live examples: a normal
+ * merchandise row (<Sku>sneakershieldL</Sku><Quantity>1</Quantity>
+ * <PriceGross>4</PriceGross>), and synthetic rows keyed by fixed SKUs
+ * like "shipping-cost" (positive), "discount-percent" and "gift" (both
+ * negative). UnasOrderItemClassifier decides which is which; only
+ * MERCHANDISE rows become order_items (and only those can ever get
+ * FIFO/COGS later) - everything else goes to order_adjustments. See
+ * that class's docblock and ARCHITECTURE.md "Order line item financial
+ * model" for the full reasoning, including what's still unconfirmed
+ * (per-unit vs line-total pricing, shipping/customer sub-fields).
  *
- * Idempotent: orders are upserted keyed on the UNAS <Id> (unas_order_id,
- * UNIQUE), so re-running this script (including overlapping date ranges)
- * never creates duplicates - see OrderRepository::upsertHeader().
+ * This script is thin orchestration + persistence only - the actual
+ * field mapping (UnasOrderMapper) and reconciliation math
+ * (OrderReconciler) are separate, dependency-free Services so they can
+ * be unit tested without a database or a live API call - see tests/.
  *
- * One malformed order record never aborts the batch: each record is
- * processed in its own try/catch; failures are counted and logged
- * (Logger + sync_logs.records_failed), and the loop continues.
+ * Reconciliation: for every order, SUM(all Item PriceGross * Quantity) -
+ * merchandise AND synthetic rows alike - is compared against
+ * <SumPriceGross> (orders.grand_total). A match within
+ * RECONCILIATION_TOLERANCE sets orders.is_reconciled = 1; a mismatch
+ * sets it to 0 and logs the order id/key + difference. Never "corrects"
+ * either number - a mismatch is a signal to investigate, not something
+ * this job silently papers over.
+ *
+ * Idempotent: orders/order_items/order_adjustments are all upserted on
+ * unique keys (unas_order_id; (order_id, unas_item_id) for both item
+ * tables) - re-running this script (including overlapping date ranges)
+ * never creates duplicates. KNOWN LIMITATION: an item UNAS stops
+ * returning for an order (e.g. a manual edit) is not pruned locally -
+ * see OrderRepository's docblock.
+ *
+ * One malformed order OR item never aborts the batch: both are
+ * processed in their own try/catch; failures are counted and logged,
+ * and processing continues.
  *
  * Incremental sync: DateStart is read from a `settings` watermark
  * (`unas_sync.orders_last_synced_to`) left by the previous successful
@@ -33,10 +53,7 @@ declare(strict_types=1);
  * UNCONFIRMED: the exact date format /getOrder expects for
  * DateStart/DateEnd. This script sends plain "Y-m-d" as the most common
  * REST/XML API convention; if UNAS rejects or ignores it, that will show
- * up directly in this run's console output and sync_logs.error_message -
- * check storage/logs/unas_sample_orders.xml or a fresh
- * scripts/test_unas_connection.php run to confirm, then fix the format
- * used below (search for "Y-m-d" in this file).
+ * up directly in this run's console output and sync_logs.error_message.
  *
  * Usage:
  *   php cron/sync_unas_orders.php                  Incremental sync (or last 30 days on first run)
@@ -49,15 +66,22 @@ require __DIR__ . '/../app/Core/Autoloader.php';
 
 use App\Core\App;
 use App\Core\Logger;
+use App\Repositories\OrderAdjustmentRepository;
 use App\Repositories\OrderRepository;
+use App\Repositories\ProductRepository;
 use App\Repositories\SettingsRepository;
 use App\Repositories\SyncLogRepository;
+use App\Services\OrderReconciler;
 use App\Services\UnasApiService;
+use App\Services\UnasOrderItemClassifier;
+use App\Services\UnasOrderMapper;
 
 const JOB_NAME = 'sync_unas_orders';
 const WATERMARK_KEY = 'unas_sync.orders_last_synced_to';
 const PAGE_SIZE = 50;
 const OVERLAP_BUFFER_HOURS = 1;
+/** Currency-unit tolerance for the SumPriceGross reconciliation check. */
+const RECONCILIATION_TOLERANCE = 0.02;
 
 if (php_sapi_name() !== 'cli') {
     http_response_code(403);
@@ -96,79 +120,87 @@ function parseArgs(array $argv): array
 }
 
 /**
- * UNAS's XML-to-array decoding collapses a single repeated child element
- * into an associative array (not a list) when there's only one of it -
- * a classic SimpleXML/json_encode quirk. This normalizes either shape
- * into a plain list so callers never have to special-case "one result".
+ * Classifies, persists (unless dry-run) and reconciles every Item on one
+ * order. Returns per-order stats folded into the run's overall summary
+ * by the caller.
  *
- * @return array<int, array<string, mixed>>
- */
-function normalizeToList(mixed $value): array
-{
-    if ($value === null) {
-        return [];
-    }
-
-    if (!is_array($value)) {
-        return [];
-    }
-
-    // Sequential (list) array => already multiple records.
-    if (array_is_list($value)) {
-        return $value;
-    }
-
-    // Associative array => a single record.
-    return [$value];
-}
-
-function parseUnasDate(mixed $value): ?string
-{
-    if (!is_string($value) || $value === '') {
-        return null;
-    }
-
-    try {
-        return (new DateTimeImmutable($value))->format('Y-m-d H:i:s');
-    } catch (\Exception) {
-        return null;
-    }
-}
-
-/**
  * @param array<string, mixed> $order
- * @return array<string, mixed>
+ * @return array{merchandise: int, adjustments: int, item_failures: int, is_reconciled: ?bool, difference: ?string}
  */
-function mapOrderHeader(array $order): array
-{
-    $unasOrderId = $order['Id'] ?? null;
-    if (!is_scalar($unasOrderId) || (string) $unasOrderId === '') {
-        throw new \RuntimeException('Order record has no <Id> - cannot dedupe/upsert it, skipping.');
+function processOrderItems(
+    array $order,
+    ?int $localOrderId,
+    string $grandTotal,
+    string $currency,
+    UnasOrderMapper $mapper,
+    UnasOrderItemClassifier $classifier,
+    OrderReconciler $reconciler,
+    ProductRepository $products,
+    OrderRepository $orders,
+    OrderAdjustmentRepository $adjustments,
+    bool $dryRun
+): array {
+    $items = $mapper->normalizeToList($order['Items']['Item'] ?? null);
+
+    $merchandiseCount = 0;
+    $adjustmentCount = 0;
+    $itemFailures = 0;
+
+    foreach ($items as $rawItem) {
+        try {
+            $classification = $classifier->classify($rawItem);
+
+            if ($classification === UnasOrderItemClassifier::MERCHANDISE) {
+                $itemData = $mapper->mapMerchandiseItem($rawItem);
+                $itemData['product_variant_id'] = $products->findVariantIdBySku($itemData['sku']);
+                $itemData['currency'] = $currency;
+
+                if ($dryRun) {
+                    line('    [DRY RUN] would upsert item SKU ' . $itemData['sku'] . ' qty ' . $itemData['quantity'] . ' @ ' . $itemData['unit_price_gross'] . ' ' . $currency);
+                } elseif ($localOrderId !== null) {
+                    $orders->upsertItem($localOrderId, $itemData);
+                }
+
+                $merchandiseCount++;
+            } else {
+                $adjustmentData = $mapper->mapAdjustmentItem($rawItem, $classification);
+                $adjustmentData['currency'] = $currency;
+
+                if ($dryRun) {
+                    line('    [DRY RUN] would upsert adjustment (' . $adjustmentData['adjustment_type'] . ') SKU ' . $adjustmentData['sku'] . ' = ' . ($adjustmentData['price_gross'] ?? 'n/a') . ' ' . $currency);
+                } elseif ($localOrderId !== null) {
+                    $adjustments->upsert($localOrderId, $adjustmentData);
+                }
+
+                $adjustmentCount++;
+            }
+        } catch (\Throwable $e) {
+            $itemFailures++;
+            Logger::error('sync_unas_orders', 'Skipped one malformed order item', [
+                'unas_order_item_sku' => $rawItem['Sku'] ?? 'unknown',
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
-    $orderDate = parseUnasDate($order['Date'] ?? null);
-    if ($orderDate === null) {
-        throw new \RuntimeException('Order ' . $unasOrderId . ' has no parseable <Date>.');
-    }
+    $result = $reconciler->reconcile($items, $grandTotal, RECONCILIATION_TOLERANCE);
 
-    $payment = is_array($order['Payment'] ?? null) ? $order['Payment'] : [];
+    if (!$dryRun && $localOrderId !== null && $items !== []) {
+        $orders->updateAggregates(
+            $localOrderId,
+            number_format($result['merchandise_gross'], 4, '.', ''),
+            number_format($result['shipping_gross'], 4, '.', ''),
+            number_format($result['discount_gross'], 4, '.', '')
+        );
+        $orders->updateReconciliation($localOrderId, (bool) $result['is_reconciled'], number_format($result['difference'], 4, '.', ''));
+    }
 
     return [
-        'unas_order_id' => (string) $unasOrderId,
-        'unas_order_key' => isset($order['Key']) ? (string) $order['Key'] : null,
-        'order_date' => $orderDate,
-        'unas_date_mod' => parseUnasDate($order['DateMod'] ?? null),
-        'currency' => isset($order['Currency']) && $order['Currency'] !== ''
-            ? (string) $order['Currency']
-            : (string) App::config('app.base_currency'),
-        'status' => isset($order['Status']) ? (string) $order['Status'] : 'unknown',
-        'status_id' => isset($order['StatusID']) ? (string) $order['StatusID'] : null,
-        'status_type' => isset($order['StatusType']) ? (string) $order['StatusType'] : null,
-        'payment_method' => isset($payment['Type']) ? (string) $payment['Type'] : null,
-        'payment_status' => isset($payment['Status']) ? (string) $payment['Status'] : null,
-        'payment_amount_paid' => isset($payment['Paid']) && is_numeric($payment['Paid']) ? (string) $payment['Paid'] : null,
-        'grand_total' => isset($order['SumPriceGross']) && is_numeric($order['SumPriceGross']) ? (string) $order['SumPriceGross'] : '0',
-        'raw_payload' => json_encode($order, JSON_UNESCAPED_UNICODE) ?: '{}',
+        'merchandise' => $merchandiseCount,
+        'adjustments' => $adjustmentCount,
+        'item_failures' => $itemFailures,
+        'is_reconciled' => $result['is_reconciled'],
+        'difference' => $result['difference'] !== null ? number_format($result['difference'], 4, '.', '') : null,
     ];
 }
 
@@ -176,6 +208,11 @@ $options = parseArgs($argv);
 $settings = new SettingsRepository();
 $syncLogs = new SyncLogRepository();
 $orders = new OrderRepository();
+$adjustments = new OrderAdjustmentRepository();
+$products = new ProductRepository();
+$mapper = new UnasOrderMapper();
+$classifier = new UnasOrderItemClassifier();
+$reconciler = new OrderReconciler($classifier);
 
 line('=== sync_unas_orders ' . ($options['dry_run'] ? '(DRY RUN)' : '') . ' ===');
 
@@ -204,6 +241,11 @@ $seen = 0;
 $upserted = 0;
 $failed = 0;
 $page = 0;
+$merchandiseTotal = 0;
+$adjustmentsTotal = 0;
+$itemFailuresTotal = 0;
+$reconciledTotal = 0;
+$unreconciledTotal = 0;
 
 try {
     $unas = new UnasApiService(
@@ -211,6 +253,7 @@ try {
         (string) App::config('unas.base_url'),
         (int) App::config('unas.rate_limit_per_minute')
     );
+    $baseCurrency = (string) App::config('app.base_currency');
 
     do {
         $limitStart = $page * PAGE_SIZE;
@@ -221,22 +264,52 @@ try {
             'LimitStart' => $limitStart,
         ]);
 
-        $pageOrders = normalizeToList($response['Order'] ?? null);
+        $pageOrders = $mapper->normalizeToList($response['Order'] ?? null);
         $pageCount = count($pageOrders);
         line('Page ' . ($page + 1) . ': ' . $pageCount . ' order(s).');
 
         foreach ($pageOrders as $rawOrder) {
             $seen++;
             try {
-                $mapped = mapOrderHeader($rawOrder);
+                $mapped = $mapper->mapOrderHeader($rawOrder, $baseCurrency);
+                $localOrderId = null;
 
                 if ($options['dry_run']) {
                     line('  [DRY RUN] would upsert order ' . $mapped['unas_order_id'] . ' (' . $mapped['status'] . ', ' . $mapped['grand_total'] . ' ' . $mapped['currency'] . ')');
                 } else {
-                    $orders->upsertHeader($mapped);
+                    $localOrderId = $orders->upsertHeader($mapped);
                 }
 
+                $itemStats = processOrderItems(
+                    $rawOrder,
+                    $localOrderId,
+                    $mapped['grand_total'],
+                    $mapped['currency'],
+                    $mapper,
+                    $classifier,
+                    $reconciler,
+                    $products,
+                    $orders,
+                    $adjustments,
+                    $options['dry_run']
+                );
+
                 $upserted++;
+                $merchandiseTotal += $itemStats['merchandise'];
+                $adjustmentsTotal += $itemStats['adjustments'];
+                $itemFailuresTotal += $itemStats['item_failures'];
+
+                if ($itemStats['is_reconciled'] === true) {
+                    $reconciledTotal++;
+                } elseif ($itemStats['is_reconciled'] === false) {
+                    $unreconciledTotal++;
+                    line('  RECONCILIATION MISMATCH order ' . $mapped['unas_order_id'] . ' (key ' . ($mapped['unas_order_key'] ?? 'n/a') . '): difference ' . $itemStats['difference'] . ' ' . $mapped['currency']);
+                    Logger::warning('sync_unas_orders', 'Order did not reconcile against SumPriceGross', [
+                        'unas_order_id' => $mapped['unas_order_id'],
+                        'unas_order_key' => $mapped['unas_order_key'],
+                        'difference' => $itemStats['difference'],
+                    ]);
+                }
             } catch (\Throwable $e) {
                 $failed++;
                 Logger::error('sync_unas_orders', 'Skipped one malformed order record', [
@@ -255,8 +328,9 @@ try {
         $syncLogs->finish($runId, $failed > 0 && $upserted === 0 ? 'ERROR' : 'SUCCESS', $upserted, $failed, null);
     }
 
-    line('=== Done: ' . $seen . ' order(s) seen, ' . $upserted . ' upserted, ' . $failed . ' failed, ' . $page . ' page(s). ===');
-    line('NOTE: order line items were NOT imported (quantity/price field mapping pending) - see file header comment.');
+    line('=== Done: ' . $seen . ' order(s) seen, ' . $upserted . ' upserted, ' . $failed . ' order failure(s), ' . $page . ' page(s). ===');
+    line('Items: ' . $merchandiseTotal . ' merchandise, ' . $adjustmentsTotal . ' adjustment(s) (shipping/discount/gift/unknown), ' . $itemFailuresTotal . ' item failure(s).');
+    line('Reconciliation: ' . $reconciledTotal . ' order(s) matched SumPriceGross within ' . RECONCILIATION_TOLERANCE . ', ' . $unreconciledTotal . ' did not (see warnings above / storage/logs/sync_unas_orders-*.log).');
     exit($failed > 0 && $upserted === 0 ? 1 : 0);
 } catch (\Throwable $e) {
     Logger::error('sync_unas_orders', 'Run aborted', ['error' => $e->getMessage()]);

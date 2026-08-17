@@ -12,20 +12,24 @@ use App\Repositories\ApiLogRepository;
  * Client for the UNAS Webshop API (https://unas.hu/tudastar/api).
  *
  * STATUS: authentication and the low-level request pipeline are confirmed
- * against the official documentation. getOrders()/getProducts() accept and
- * send the documented filter fields, but the RESPONSE field mapping (i.e.
- * turning UNAS's XML back into order_items/product_variants rows) is not
- * implemented here yet - see cron/sync_unas_orders.php and
- * cron/sync_unas_products.php (not yet built) and ARCHITECTURE.md "Next
- * step". This class only speaks the wire protocol; it does not know what
- * an Order or a Product XML tree looks like beyond what's documented
- * below, on purpose - see "Do not guess" in ARCHITECTURE.md.
+ * against real, live responses (production). getOrders()/getProducts()
+ * accept and send the documented filter fields. RESPONSE field mapping
+ * (turning UNAS's XML into orders/order_items/order_adjustments/
+ * product_variants rows) lives in cron/sync_unas_orders.php and
+ * cron/sync_unas_products.php, using only fields confirmed against real
+ * samples - see ARCHITECTURE.md "UNAS API integration status" for the
+ * full mapping table and what's still unconfirmed. This class itself only
+ * speaks the wire protocol; it does not know what an Order or a Product
+ * XML tree looks like beyond auth, on purpose - see "Do not guess" in
+ * ARCHITECTURE.md.
  *
  * Confirmed protocol (https://unas.hu/tudastar/api and linked pages):
  *   - Base URL: https://api.unas.eu/shop , all functions use HTTP POST.
  *   - Request and response bodies are XML (not JSON).
  *   - Auth is two-step: POST <Params><ApiKey>...</ApiKey></Params> to
- *     /login; the response contains <Token> and <Expire>. Every
+ *     /login; the response (root <Login>) contains <Token>, <Expire>
+ *     (formatted "Y.m.d H:i:s") and <ExpireTime> (the same expiry as a
+ *     UNIX timestamp - authoritative, see parseExpiry()). Every
  *     subsequent request sends that token as
  *     "Authorization: Bearer {token}". Within the expiry window the same
  *     token is reused - no need to re-login before every call.
@@ -96,6 +100,7 @@ final class UnasApiService
         ], authenticated: false);
 
         $token = $response['Token'] ?? null;
+        $expireTime = $response['ExpireTime'] ?? null;
         $expire = $response['Expire'] ?? null;
 
         if (!is_string($token) || $token === '') {
@@ -103,34 +108,45 @@ final class UnasApiService
         }
 
         $this->token = $token;
-        $this->tokenExpiresAt = $this->parseExpiry($expire);
+        $this->tokenExpiresAt = $this->parseExpiry($expireTime, $expire);
     }
 
     /**
-     * UNAS's own docs describe Expire as "the token expiration time as a
-     * UNIX timestamp" (an absolute point in time), which is how this is
-     * interpreted below. If a live response instead turns out to carry a
-     * relative seconds-until-expiry value, this is the one place to fix
-     * it - confirm with scripts/test_unas_connection.php's printed
-     * "Token expires at" line against the account's actual login time.
+     * Confirmed against a real login response (2026-08, production):
+     *   <Login>
+     *       <Token>...</Token>
+     *       <Expire>2026.08.17 05:01:35</Expire>
+     *       <ExpireTime>1786935695</ExpireTime>
+     *       <ShopId>...</ShopId>
+     *       <Status>ok</Status>
+     *   </Login>
+     * ExpireTime is the authoritative absolute UNIX timestamp and is used
+     * whenever present; Expire (format "Y.m.d H:i:s", dot-separated date -
+     * note this is NOT the same as the ISO "Y-m-d" used elsewhere in this
+     * codebase for UNAS request filters) is only a fallback for a response
+     * that somehow omits ExpireTime.
      */
-    private function parseExpiry(mixed $expire): ?\DateTimeImmutable
+    private function parseExpiry(mixed $expireTime, mixed $expire): ?\DateTimeImmutable
     {
-        if ($expire === null || $expire === '') {
-            return null;
+        if (is_numeric($expireTime)) {
+            return (new \DateTimeImmutable())->setTimestamp((int) $expireTime);
         }
 
-        if (is_numeric($expire)) {
-            return (new \DateTimeImmutable())->setTimestamp((int) $expire);
+        if (is_string($expire) && $expire !== '') {
+            $parsed = \DateTimeImmutable::createFromFormat('Y.m.d H:i:s', $expire);
+            if ($parsed !== false) {
+                return $parsed;
+            }
+
+            // Last-resort fallback in case the format ever changes.
+            try {
+                return new \DateTimeImmutable($expire);
+            } catch (\Exception) {
+                return null;
+            }
         }
 
-        // Fall back to letting DateTimeImmutable parse a textual date
-        // (e.g. "Y-m-d H:i:s") in case the field isn't a bare timestamp.
-        try {
-            return new \DateTimeImmutable((string) $expire);
-        } catch (\Exception) {
-            return null;
-        }
+        return null;
     }
 
     private function ensureAuthenticated(): void

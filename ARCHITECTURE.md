@@ -103,7 +103,7 @@ A live diagnostic (`scripts/test_unas_connection.php`) has since been run succes
 ### Confirmed protocol (implemented in `UnasApiService`)
 
 - Base URL `https://api.unas.eu/shop`, all functions HTTP POST, XML request/response bodies.
-- Auth: `POST /login` with `<Params><ApiKey>...</ApiKey></Params>`, response carries `<Token>` and `<Expire>`; subsequent requests send `Authorization: Bearer {token}`. `UnasApiService::authenticate()`/`ensureAuthenticated()` implement this, reusing the token until it's close to expiry.
+- Auth: `POST /login` with `<Params><ApiKey>...</ApiKey></Params>`, response root `<Login>` carries `<Token>`, `<Expire>` (`"Y.m.d H:i:s"`) and `<ExpireTime>` (the same expiry as a UNIX timestamp - authoritative, preferred whenever present); subsequent requests send `Authorization: Bearer {token}`. `UnasApiService::authenticate()`/`parseExpiry()`/`ensureAuthenticated()` implement this, reusing the token until it's close to expiry.
 - `/getOrder`: documented filter fields `DateStart`, `DateEnd`, `StatusID`, `InvoiceStatus`. Response root is `<Orders><Order>...</Order></Orders>` - confirmed live.
 - `/getProduct`: documented filter fields `StatusBase`, `LimitNum`, `LimitStart`, `ContentType` (`getProducts()` defaults this to `full`). Response root is `<Products><Product>...</Product></Products>` - confirmed live.
 - `/setOrder`: confirmed to exist, not implemented beyond a thin pass-through - V1 only reads orders.
@@ -146,15 +146,84 @@ A live diagnostic (`scripts/test_unas_connection.php`) has since been run succes
 
 ### Still NOT confirmed (deliberately not mapped/guessed anywhere)
 
-- **Order line items** (`<Order><Items><Item>`): confirmed present fields are `<Id>`, `<Sku>`, `<Name>`, `<ProductParams>`. The quantity and per-unit price/discount child element names are **not confirmed** - `order_items.quantity`/`list_price_per_unit`/`actual_price_per_unit` are `NOT NULL` financial columns, so `cron/sync_unas_orders.php` deliberately does **not** insert `order_items` rows yet rather than guess these (see that file's header comment and the double-discount guard in the "Profit formula" section above). The full item data is preserved in `orders.raw_payload` for a later backfill.
-- **Shipping** (`<Order><Shipping>`), **Customer** (`<Order><Customer>`, incl. country), **Invoice** (`<Order><Invoice>`): full sub-structure not yet inspected/shared - `orders.shipping_method`/`shipping_fee_charged`/`customer_email`/`customer_country` are left unpopulated by the sync job. Preserved in `raw_payload`.
+- **Shipping** (`<Order><Shipping>`), **Customer** (`<Order><Customer>`, incl. country), **Invoice** (`<Order><Invoice>`): full sub-structure not yet inspected/shared - `orders.customer_email`/`customer_country` are left unpopulated by the sync job (`shipping_fee_charged`/`discount_total` ARE now populated, but from the `<Items>` list, not from `<Shipping>` - see "Order line item financial model" below). Preserved in `raw_payload`.
 - **Which `<Param>` entry means "size" vs. other attributes** for products: the live sample confirms a size value (`EU 45`) exists somewhere under `<Params>`, but not which sibling `<Name>`/`<Type>` value identifies it as size specifically - `product_variants.size`/`color` are left unpopulated; the raw block is in `raw_params`.
 - **Stock**: no confirmed stock field was seen in the inspected `/getProduct` sample - `product_variants.current_stock_cached` is left `NULL` (migration 003 made it nullable specifically so "unknown" (`NULL`) stays distinguishable from "confirmed zero" (`0`)).
-- **`Expire`'s exact format**: `scripts/test_unas_connection.php` now also saves a token-redacted `storage/logs/unas_sample_login.xml` (added this pass, reusing the already-made login call - zero extra API calls) specifically so this can be confirmed on the next diagnostic run.
 - **`/getOrder`'s exact date-filter format**: `DateStart`/`DateEnd` are sent as `Y-m-d` by `cron/sync_unas_orders.php` - this is the most common convention, not a confirmed one; if wrong it will surface directly in that job's console output / `sync_logs.error_message`.
+- **Whether `PriceGross`/`PriceNet` on an `<Item>` are per-unit or a line total** - see "Per-unit vs. line-total pricing" below for how this was resolved without a multi-quantity example to test against.
+
+## Order line item financial model
+
+Confirmed live from production (`storage/logs/unas_sample_orders.xml` after redaction, plus a hand-inspected real order): a normal merchandise row -
+
+```xml
+<Item>
+    <Id>1420349296</Id>
+    <Sku>sneakershieldL</Sku>
+    <Name>...</Name>
+    <ProductParams>...</ProductParams>
+    <Unit>db</Unit>
+    <Quantity>1</Quantity>
+    <PriceNet>4</PriceNet>
+    <PriceGross>4</PriceGross>
+    <Vat>0%</Vat>
+    <Status></Status>
+</Item>
+```
+
+- alongside **synthetic financial rows in the same `<Items>` list**, keyed by fixed SKUs, confirmed examples: `shipping-cost` (positive `PriceGross`), `discount-percent` (negative, carries `<Percent>`), `gift` (negative). None of these are sellable products.
+
+### Classification (`UnasOrderItemClassifier`)
+
+Every `<Item>` is classified before persistence into exactly one of: `MERCHANDISE`, `SHIPPING`, `DISCOUNT`, `GIFT`, `UNKNOWN_SYNTHETIC`.
+
+1. **Known map** (extend as new synthetic identifiers are confirmed): `shipping-cost` → SHIPPING, `discount-percent` → DISCOUNT, `gift` → GIFT.
+2. Anything else whose `<Sku>` looks like a synthetic "slug" (lowercase letters and hyphens only, no digits - unlike confirmed merchandise SKUs `sneakershieldL`/`CW2288-111`, which have mixed case and/or digits) → `UNKNOWN_SYNTHETIC`, **not** merchandise.
+3. Anything else with a negative `<PriceGross>` → `UNKNOWN_SYNTHETIC` too (a real sale is never negatively priced) - a safety net for a future synthetic type that doesn't follow the slug-naming convention.
+4. Otherwise → `MERCHANDISE`.
+
+This deliberately errs toward excluding an ambiguous row from `order_items` (where it could pollute revenue/COGS) rather than risking a false merchandise classification - the accepted tradeoff is a false positive on an all-lowercase-letters real SKU (rare), which gets excluded and logged rather than silently mispriced. `UNKNOWN_SYNTHETIC` rows are still fully persisted (to `order_adjustments`, raw payload included) - "unrecognized" never means "discarded".
+
+### Per-unit vs. line-total pricing
+
+Both confirmed examples had `<Quantity>1</Quantity>`, so there was no way to observe from the data alone whether `PriceGross`/`PriceNet` are a **per-unit** price or an already-computed **line total**. This was resolved by taking the reconciliation formula as specified - `SUM(all Item PriceGross * Quantity)` - at face value: that formula is only dimensionally correct if `PriceGross` is per-unit (multiplying an already-summed line total by `Quantity` again would double-count any row with `Quantity > 1`). `order_items.actual_price_per_unit`/`list_price_per_unit` are therefore set directly from `PriceGross` (see "why list = actual" below), and `line_total = PriceGross * Quantity` is computed, not read from the API. **This is inferred, not independently confirmed against a multi-quantity order** - if a real order with `Quantity > 1` fails reconciliation, this is the first thing to re-check.
+
+### Why `list_price_per_unit` equals `actual_price_per_unit` on merchandise rows
+
+No separate "before discount" price field was found on merchandise `<Item>` rows (only `PriceNet`/`PriceGross` - a net/gross pair, not a list/discounted pair). Discounting is represented as a **separate, order-level, negative synthetic row** (`discount-percent`) rather than baked into each merchandise line's price. Consequently:
+
+- `order_items.list_price_per_unit` = `order_items.actual_price_per_unit` = `<PriceGross>` (nothing to subtract - there's only one observed price).
+- `order_items.discount_amount` = `0` for every merchandise row.
+- **Double-discount guard, satisfied by construction**: `ProfitService` (not yet built) must compute merchandise revenue as `SUM(order_items.actual_price_per_unit * quantity)` and separately subtract `orders.discount_total` (or read `order_adjustments` directly) - never both "a per-item discount" and "the order-level discount row", because the former doesn't exist in this data model.
+
+### How merchandise/shipping/discount/gift combine into `SumPriceGross`
+
+There is exactly one formula, and the categorized columns below are a reporting-friendly decomposition of it, not a second independent truth:
+
+```
+SumPriceGross (orders.grand_total)
+    ≈ SUM( Item.PriceGross * Item.Quantity )   for EVERY <Item> row - merchandise AND synthetic alike
+
+  = orders.subtotal                              SUM over MERCHANDISE rows only
+  + orders.shipping_fee_charged                  SUM over rows classified SHIPPING (normally one "shipping-cost" row)
+  - orders.discount_total                        SUM of |PriceGross*Quantity| over rows classified DISCOUNT (stored as a positive magnitude)
+  + (gift / unknown_synthetic rows)               NOT folded into a dedicated orders column yet - see order_adjustments
+```
+
+`gift` and `UNKNOWN_SYNTHETIC` rows are captured in full in `order_adjustments` (with sign preserved) but are not yet summed into a dedicated `orders` column, since only one real example of each has been seen - inventing a column for "how gifts should net against revenue" before seeing more examples would be exactly the kind of guess this project avoids. They are still fully accounted for in the reconciliation check below, which is what matters for correctness.
+
+### Reconciliation (`OrderReconciler`, `orders.is_reconciled`/`reconciliation_difference`/`reconciled_at`)
+
+For every synced order (with at least one parsed `<Item>`): `difference = SumPriceGross - SUM(all Item PriceGross * Quantity)`. If `|difference| <= 0.02` (currency units), `is_reconciled = 1`; otherwise `is_reconciled = 0` and the order id/key + difference are logged (`Logger::warning` + printed to console) - **never auto-corrected**. `is_reconciled` stays `NULL` for an order with zero parsed items (nothing to check, not a pass). See `cron/sync_unas_orders.php`'s `RECONCILIATION_TOLERANCE` constant to adjust the tolerance.
+
+### Persistence (migration 004)
+
+- `order_items` gained `unas_item_id` + a `(order_id, unas_item_id)` unique key (idempotent re-sync); only `MERCHANDISE`-classified rows are ever written here.
+- **New `order_adjustments` table**: one row per non-merchandise `<Item>` (`adjustment_type` = `SHIPPING`/`DISCOUNT`/`GIFT`/`UNKNOWN_SYNTHETIC`), with `price_net`/`price_gross`/`percent` and the full raw payload. Created rather than overloading `order_items` or an existing column specifically so a synthetic row can never accidentally receive FIFO/COGS treatment - see its migration comment and `UnasOrderItemClassifier`'s docblock.
+- `orders` gained `is_reconciled`, `reconciliation_difference`, `reconciled_at`.
 
 ### `cron/sync_unas_orders.php` / `cron/sync_unas_products.php`
 
-Implemented this pass - see each file's header comment for full behavior (idempotent upsert, per-record error isolation, pagination, `sync_logs` run tracking + stale-lock detection, `--dry-run`, incremental sync for orders via a `settings` watermark). Both were verified against a local MariaDB instance: mapping functions unit-tested against synthetic data shaped exactly like the real live decode (single-vs-list XML→array quirk, malformed-record handling), repository upserts verified idempotent (re-running never duplicates), and the lock/dry-run/failure-logging paths verified against a real (network-refused) run. The one thing that could not be tested in this sandbox is the actual live pagination/date-filter behavior against `api.unas.eu` - see "Still NOT confirmed" above.
+Order sync now imports header + merchandise line items + adjustments + reconciliation in one pass; product sync is unchanged from the previous pass. Both scripts are thin orchestration - the actual field mapping (`UnasOrderMapper`) and reconciliation math (`OrderReconciler`) are separate, dependency-free Services, unit tested in `tests/` without a database or live API call (classifier, mapper, and reconciler: 47 assertions across normal merchandise, shipping-cost, discount-percent, gift, an unrecognized synthetic row, and a full mixed order both reconciling and deliberately mismatched). The full write pipeline (header → items → adjustments → aggregates → reconciliation, including a second run to check idempotency) was additionally verified end-to-end against a local MariaDB instance - a real bug (a SQL prepared statement reusing the same named placeholder twice, which native/non-emulated MySQL prepares reject) was caught and fixed by this testing, underscoring why "verified" here means "actually executed against a database", not just "type-checked". The one thing that could not be tested in this sandbox is the actual live pagination/date-filter behavior against `api.unas.eu` - see "Still NOT confirmed" above.
 
-**`cron/recalculate_profit.php` is intentionally not built yet** - it depends on `order_items` being populated, which depends on the item-level field mapping above being confirmed first.
+**`cron/recalculate_profit.php` is still intentionally not built** - per the project owner's explicit instruction, it waits until reconciliation has been proven against real production order data (this pass only proved it against synthetic fixtures shaped like the real examples), not just against a synthetic test suite.

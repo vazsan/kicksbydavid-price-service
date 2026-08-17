@@ -26,6 +26,23 @@ use App\Core\Database;
 final class ProductRepository
 {
     /**
+     * Looks up a variant by SKU for linking order_items.product_variant_id.
+     * Returns null if the SKU hasn't been synced by
+     * cron/sync_unas_products.php yet - order_items.product_variant_id is
+     * nullable specifically for this case (see its schema comment).
+     */
+    public function findVariantIdBySku(string $sku): ?int
+    {
+        $stmt = Database::connection()->prepare(
+            'SELECT id FROM product_variants WHERE sku = :sku LIMIT 1'
+        );
+        $stmt->execute(['sku' => $sku]);
+        $id = $stmt->fetchColumn();
+
+        return $id === false ? null : (int) $id;
+    }
+
+    /**
      * @param array{unas_product_id: string, name: string} $productData
      * @param array{
      *     sku: string,
