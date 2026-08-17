@@ -37,10 +37,17 @@ declare(strict_types=1);
  * unconfirmed).
  *
  * Usage:
- *   php cron/sync_unas_products.php                    Full re-sync
- *   php cron/sync_unas_products.php --dry-run           Fetch and print only, write nothing
- *   php cron/sync_unas_products.php --status-base=live  Pass-through StatusBase filter (unconfirmed accepted values)
- *   php cron/sync_unas_products.php --limit-pages=5     Safety cap on pages fetched (default 200)
+ *   php cron/sync_unas_products.php                       Full re-sync from the start of the catalog
+ *   php cron/sync_unas_products.php --dry-run              Fetch and print only, write nothing
+ *   php cron/sync_unas_products.php --status-base=live      Pass-through StatusBase filter (unconfirmed accepted values)
+ *   php cron/sync_unas_products.php --limit-pages=5          Safety cap on pages fetched THIS RUN (default 200)
+ *   php cron/sync_unas_products.php --start-page=200          Resume after 200 already-completed pages (= --start-offset=10000 at PAGE_SIZE=50)
+ *   php cron/sync_unas_products.php --start-offset=10000        Resume from an exact UNAS LimitStart value
+ *
+ * --start-page/--start-offset exist because the safety page cap can be
+ * reached before the real end of the catalog (confirmed production case:
+ * 200 pages x 50 = 10,000 records seen, and page 200 was still full) -
+ * see UnasProductSyncPagination's docblock for the exact resume math.
  */
 
 require __DIR__ . '/../app/Core/Autoloader.php';
@@ -51,11 +58,14 @@ use App\Repositories\ProductRepository;
 use App\Repositories\SyncLogRepository;
 use App\Services\UnasApiService;
 use App\Services\UnasProductPriceMapper;
+use App\Services\UnasProductSyncPagination;
 
 const JOB_NAME = 'sync_unas_products';
 const PAGE_SIZE = 50;
 /** How many SKU | list_price | current_price rows the dry-run prints, so a full-catalog run doesn't flood the console. */
 const DRY_RUN_PRICE_SAMPLE_LIMIT = 10;
+/** How many duplicate SKU identifiers to keep/log/print - not a secret/PII, just capped so a heavily-duplicated catalog doesn't spam the log. */
+const DUPLICATE_SKU_SAMPLE_LIMIT = 50;
 
 if (php_sapi_name() !== 'cli') {
     http_response_code(403);
@@ -72,11 +82,17 @@ function line(string $message): void
 
 /**
  * @param array<int, string> $argv
- * @return array{dry_run: bool, status_base: ?string, limit_pages: int}
+ * @return array{dry_run: bool, status_base: ?string, limit_pages: int, start_page: ?int, start_offset: ?int}
  */
 function parseArgs(array $argv): array
 {
-    $options = ['dry_run' => false, 'status_base' => null, 'limit_pages' => 200];
+    $options = [
+        'dry_run' => false,
+        'status_base' => null,
+        'limit_pages' => 200,
+        'start_page' => null,
+        'start_offset' => null,
+    ];
 
     foreach (array_slice($argv, 1) as $arg) {
         if ($arg === '--dry-run') {
@@ -85,6 +101,10 @@ function parseArgs(array $argv): array
             $options['status_base'] = substr($arg, strlen('--status-base='));
         } elseif (str_starts_with($arg, '--limit-pages=')) {
             $options['limit_pages'] = max(1, (int) substr($arg, strlen('--limit-pages=')));
+        } elseif (str_starts_with($arg, '--start-page=')) {
+            $options['start_page'] = (int) substr($arg, strlen('--start-page='));
+        } elseif (str_starts_with($arg, '--start-offset=')) {
+            $options['start_offset'] = (int) substr($arg, strlen('--start-offset='));
         }
     }
 
@@ -158,6 +178,7 @@ $options = parseArgs($argv);
 $syncLogs = new SyncLogRepository();
 $products = new ProductRepository();
 $priceMapper = new UnasProductPriceMapper();
+$pagination = new UnasProductSyncPagination();
 
 line('=== sync_unas_products ' . ($options['dry_run'] ? '(DRY RUN)' : '') . ' ===');
 
@@ -167,12 +188,20 @@ if ($activeRun !== null) {
     exit(0);
 }
 
+$startOffset = $pagination->resolveStartOffset($options['start_page'], $options['start_offset'], PAGE_SIZE);
+if ($startOffset > 0) {
+    line('Resuming from LimitStart=' . $startOffset . ' (logical page ' . $pagination->logicalPageNumber($startOffset, PAGE_SIZE) . ').');
+}
+
 $runId = $options['dry_run'] ? null : $syncLogs->start(JOB_NAME);
 $seen = 0;
 $upserted = 0;
 $failed = 0;
-$page = 0;
+$localPageIndex = 0;
 $priceSamplesShown = 0;
+$seenSkus = [];
+$duplicateCount = 0;
+$duplicateSkuSample = [];
 
 try {
     $unas = new UnasApiService(
@@ -182,7 +211,10 @@ try {
     );
 
     do {
-        $filters = ['LimitNum' => PAGE_SIZE, 'LimitStart' => $page * PAGE_SIZE];
+        $limitStart = $pagination->limitStartForLocalPage($startOffset, $localPageIndex, PAGE_SIZE);
+        $logicalPage = $pagination->logicalPageNumber($limitStart, PAGE_SIZE);
+
+        $filters = ['LimitNum' => PAGE_SIZE, 'LimitStart' => $limitStart];
         if ($options['status_base'] !== null) {
             $filters['StatusBase'] = $options['status_base'];
         }
@@ -191,19 +223,29 @@ try {
 
         $pageProducts = normalizeToList($response['Product'] ?? null);
         $pageCount = count($pageProducts);
-        line('Page ' . ($page + 1) . ': ' . $pageCount . ' product(s).');
+        line('Page ' . $logicalPage . ' (LimitStart=' . $limitStart . '): ' . $pageCount . ' product(s).');
 
         foreach ($pageProducts as $rawProduct) {
             $seen++;
             try {
                 $mapped = mapProduct($rawProduct, $priceMapper);
+                $sku = $mapped['variant']['sku'];
+
+                if (isset($seenSkus[$sku])) {
+                    $duplicateCount++;
+                    if (count($duplicateSkuSample) < DUPLICATE_SKU_SAMPLE_LIMIT) {
+                        $duplicateSkuSample[] = $sku;
+                    }
+                } else {
+                    $seenSkus[$sku] = true;
+                }
 
                 if ($options['dry_run']) {
                     if ($priceSamplesShown < DRY_RUN_PRICE_SAMPLE_LIMIT) {
                         if ($priceSamplesShown === 0) {
                             line('  SKU | list_price | current_price');
                         }
-                        line('  ' . $mapped['variant']['sku'] . ' | ' . ($mapped['variant']['list_price'] ?? 'null') . ' | ' . ($mapped['variant']['current_price'] ?? 'null'));
+                        line('  ' . $sku . ' | ' . ($mapped['variant']['list_price'] ?? 'null') . ' | ' . ($mapped['variant']['current_price'] ?? 'null'));
                         $priceSamplesShown++;
                     }
                 } else {
@@ -221,14 +263,32 @@ try {
             }
         }
 
-        $page++;
-    } while ($pageCount === PAGE_SIZE && $page < $options['limit_pages']);
+        $localPageIndex++;
+    } while ($pageCount === PAGE_SIZE && $localPageIndex < $options['limit_pages']);
+
+    // If the loop only stopped because the safety cap was hit, the last
+    // fetched page was still full - i.e. there was no natural end. A
+    // short/empty final page (the normal end-of-catalog case) never
+    // reaches here since $pageCount would be < PAGE_SIZE.
+    $safetyLimitReached = $pageCount === PAGE_SIZE;
+    if ($safetyLimitReached) {
+        $nextOffset = $pagination->limitStartForLocalPage($startOffset, $localPageIndex, PAGE_SIZE);
+        line('WARNING: Safety page limit reached; catalog may contain additional products.');
+        line('  Continue with: php cron/sync_unas_products.php --start-offset=' . $nextOffset . ($options['dry_run'] ? ' --dry-run' : ''));
+    }
 
     if (!$options['dry_run']) {
         $syncLogs->finish($runId, $failed > 0 && $upserted === 0 ? 'ERROR' : 'SUCCESS', $upserted, $failed, null);
     }
 
-    line('=== Done: ' . $seen . ' product(s) seen, ' . $upserted . ' upserted, ' . $failed . ' failed, ' . $page . ' page(s). ===');
+    line('=== Done: ' . $seen . ' product(s) seen, ' . $upserted . ' upserted, ' . $failed . ' failed, ' . $localPageIndex . ' page(s) fetched this run. ===');
+    line('Duplicate SKUs seen this run: ' . $duplicateCount . ($duplicateSkuSample !== [] ? ' (sample: ' . implode(', ', $duplicateSkuSample) . ($duplicateCount > count($duplicateSkuSample) ? ', ...' : '') . ')' : '') . '.');
+    if ($duplicateCount > 0) {
+        Logger::warning('sync_unas_products', 'Duplicate SKUs encountered during sync', [
+            'duplicate_count' => $duplicateCount,
+            'sample_skus' => $duplicateSkuSample,
+        ]);
+    }
     line('NOTE: stock/category were NOT imported (field mapping pending) - see file header comment.');
     exit($failed > 0 && $upserted === 0 ? 1 : 0);
 } catch (\Throwable $e) {
