@@ -50,9 +50,12 @@ use App\Core\Logger;
 use App\Repositories\ProductRepository;
 use App\Repositories\SyncLogRepository;
 use App\Services\UnasApiService;
+use App\Services\UnasProductPriceMapper;
 
 const JOB_NAME = 'sync_unas_products';
 const PAGE_SIZE = 50;
+/** How many SKU | list_price | current_price rows the dry-run prints, so a full-catalog run doesn't flood the console. */
+const DRY_RUN_PRICE_SAMPLE_LIMIT = 10;
 
 if (php_sapi_name() !== 'cli') {
     http_response_code(403);
@@ -112,36 +115,10 @@ function parseUnasDate(mixed $value): ?string
 }
 
 /**
- * Finds the <Price> entry with Type=normal among one-or-many <Prices><Price>
- * rows and pulls Gross/Actual out of it. The whole raw block is kept
- * separately regardless, so no data is lost if this heuristic ever picks
- * the wrong row (e.g. a catalog with no "normal" type on some SKU).
- *
- * @param array<string, mixed> $product
- * @return array{list_price: ?string, current_price: ?string}
- */
-function extractNormalPrice(array $product): array
-{
-    $prices = $product['Prices']['Price'] ?? null;
-    $priceRows = normalizeToList($prices);
-
-    foreach ($priceRows as $row) {
-        if (($row['Type'] ?? null) === 'normal') {
-            return [
-                'list_price' => isset($row['Gross']) && is_numeric($row['Gross']) ? (string) $row['Gross'] : null,
-                'current_price' => isset($row['Actual']) && is_numeric($row['Actual']) ? (string) $row['Actual'] : null,
-            ];
-        }
-    }
-
-    return ['list_price' => null, 'current_price' => null];
-}
-
-/**
  * @param array<string, mixed> $product
  * @return array{product: array<string, mixed>, variant: array<string, mixed>}
  */
-function mapProduct(array $product): array
+function mapProduct(array $product, UnasProductPriceMapper $priceMapper): array
 {
     $unasId = $product['Id'] ?? null;
     $sku = $product['Sku'] ?? null;
@@ -153,7 +130,7 @@ function mapProduct(array $product): array
         throw new \RuntimeException('Product ' . $unasId . ' has no <Sku> - cannot upsert it, skipping.');
     }
 
-    $price = extractNormalPrice($product);
+    $price = $priceMapper->extractPrice($product);
 
     return [
         'product' => [
@@ -180,6 +157,7 @@ function mapProduct(array $product): array
 $options = parseArgs($argv);
 $syncLogs = new SyncLogRepository();
 $products = new ProductRepository();
+$priceMapper = new UnasProductPriceMapper();
 
 line('=== sync_unas_products ' . ($options['dry_run'] ? '(DRY RUN)' : '') . ' ===');
 
@@ -194,6 +172,7 @@ $seen = 0;
 $upserted = 0;
 $failed = 0;
 $page = 0;
+$priceSamplesShown = 0;
 
 try {
     $unas = new UnasApiService(
@@ -217,10 +196,16 @@ try {
         foreach ($pageProducts as $rawProduct) {
             $seen++;
             try {
-                $mapped = mapProduct($rawProduct);
+                $mapped = mapProduct($rawProduct, $priceMapper);
 
                 if ($options['dry_run']) {
-                    line('  [DRY RUN] would upsert SKU ' . $mapped['variant']['sku'] . ' (' . $mapped['product']['name'] . ')');
+                    if ($priceSamplesShown < DRY_RUN_PRICE_SAMPLE_LIMIT) {
+                        if ($priceSamplesShown === 0) {
+                            line('  SKU | list_price | current_price');
+                        }
+                        line('  ' . $mapped['variant']['sku'] . ' | ' . ($mapped['variant']['list_price'] ?? 'null') . ' | ' . ($mapped['variant']['current_price'] ?? 'null'));
+                        $priceSamplesShown++;
+                    }
                 } else {
                     $products->upsertProductAndVariant($mapped['product'], $mapped['variant']);
                 }

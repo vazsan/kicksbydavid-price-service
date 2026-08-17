@@ -139,7 +139,7 @@ A live diagnostic (`scripts/test_unas_connection.php`) has since been run succes
 | `<CreateTime>` / `<LastModTime>` | `product_variants.unas_created_at` / `unas_modified_at` | new columns |
 | `<Url>` | `product_variants.url` | new column |
 | `<Prices><Price type=normal><Gross>` | `product_variants.list_price` | |
-| `<Prices><Price type=normal><Actual>` | `product_variants.current_price` | new column; assumed = currently effective selling price, not 100% confirmed - see ASSUMPTIONS.md |
+| `<Prices><Price><Actual>=1` row's `<Gross>` | `product_variants.current_price` | new column; `<Actual>` is CONFIRMED to be a flag ("1" = this row is the currently active price row), not a monetary amount - see `UnasProductPriceMapper` |
 | entire `<Prices>` / `<Params>` / `<Statuses>` | `raw_prices` / `raw_params` / `raw_statuses` (new JSON columns) | nothing lost even though size/color/category aren't extracted into typed columns yet |
 
 **Parent/variant grouping**: this account's `/getProduct` returns one `<Product>` per sellable SKU directly (confirmed live: SKU `FZ4625-100-11` was itself a full top-level `<Product>` with size `EU 45` living under `<Params>`, and an **empty** `<Variants>` node). There is no confirmed field that groups sibling sizes under a real parent, so - per "if no explicit parent identifier exists, do not invent one" - each SKU gets its own 1:1 "shadow" `products` parent row (same UNAS `<Id>` on both). `product_variants` remains the true sellable unit everywhere it matters (order_items, FIFO, profit calc). See `ProductRepository`'s docblock for how to correct this later if a real grouping field turns out to exist for other products in the catalog.
