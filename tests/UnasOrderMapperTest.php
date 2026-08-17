@@ -27,6 +27,29 @@ $t->assertSame(
     'an already-sequential list of Items stays a list'
 );
 
+// --- parseUnasDate(): confirmed live dot-format primary, ISO fallback ---
+$t->assertSame(
+    '2026-03-24 20:15:35',
+    $mapper->parseUnasDate('2026.03.24 20:15:35'),
+    'primary format "Y.m.d H:i:s" (confirmed live UNAS format) parses correctly'
+);
+$t->assertSame(
+    '2026-03-27 16:13:57',
+    $mapper->parseUnasDate('2026.03.27 16:13:57'),
+    'primary format parses a second confirmed live example correctly'
+);
+$t->assertSame(
+    '2026-08-10 12:00:00',
+    $mapper->parseUnasDate('2026-08-10 12:00:00'),
+    'fallback format "Y-m-d H:i:s" (ISO) still parses correctly'
+);
+$t->assertNull(
+    $mapper->parseUnasDate('not-a-date'),
+    'an unparseable date string returns null rather than throwing'
+);
+$t->assertNull($mapper->parseUnasDate(null), 'a null date value returns null');
+$t->assertNull($mapper->parseUnasDate(''), 'an empty date string returns null');
+
 // --- mapOrderHeader(): confirmed header fields ---
 $order = $mixedOrderFactory('97.10');
 $header = $mapper->mapOrderHeader($order, 'EUR');
@@ -48,6 +71,15 @@ $t->assertThrows(
     fn () => $mapper->mapOrderHeader(['Id' => '1'], 'EUR'),
     'an order with no parseable <Date> is rejected'
 );
+
+// --- mapOrderHeader() with the confirmed live dot-format <Date>/<DateMod> ---
+$dotFormatOrder = $mapper->mapOrderHeader([
+    'Id' => '600001',
+    'Date' => '2026.03.24 20:15:35',
+    'DateMod' => '2026.03.27 16:13:57',
+], 'EUR');
+$t->assertSame('2026-03-24 20:15:35', $dotFormatOrder['order_date'], '<Date> in live dot format is parsed by mapOrderHeader (previously the reported bug: this order would have been rejected)');
+$t->assertSame('2026-03-27 16:13:57', $dotFormatOrder['unas_date_mod'], '<DateMod> in live dot format is parsed by mapOrderHeader too');
 
 // --- mapMerchandiseItem(): confirmed item fields, per-unit interpretation ---
 $item = $mapper->mapMerchandiseItem($fixtures['merchandise_sneaker']);

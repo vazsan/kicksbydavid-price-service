@@ -33,17 +33,26 @@ final class UnasOrderMapper
         return array_is_list($value) ? $value : [$value];
     }
 
+    /**
+     * Confirmed live format (production dry-run, 2026-08): UNAS sends
+     * dot-separated dates, e.g. "2026.03.24 20:15:35" - NOT the ISO
+     * "Y-m-d H:i:s" this method originally (incorrectly) assumed
+     * DateTimeImmutable's generic constructor would parse. Tried first;
+     * "Y-m-d H:i:s" is kept as a fallback for robustness. Used for both
+     * <Date> and <DateMod>.
+     */
     public function parseUnasDate(mixed $value): ?string
     {
         if (!is_string($value) || $value === '') {
             return null;
         }
 
-        try {
-            return (new \DateTimeImmutable($value))->format('Y-m-d H:i:s');
-        } catch (\Exception) {
-            return null;
+        $parsed = \DateTimeImmutable::createFromFormat('Y.m.d H:i:s', $value);
+        if ($parsed === false) {
+            $parsed = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $value);
         }
+
+        return $parsed !== false ? $parsed->format('Y-m-d H:i:s') : null;
     }
 
     /**
