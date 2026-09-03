@@ -1,21 +1,26 @@
-// PLACEHOLDER DATA — kicksbydavid.hu could not be reached from this build
-// environment (network egress to that domain is blocked), so this content
-// is assembled from public New Balance 740 "Dry Lime/Linen" (U7401UW)
-// listings rather than scraped from the live product page. Swap PRODUCT,
-// price, and GALLERY for the real listing content before shipping.
+// Real content captured from kicksbydavid.hu screenshots (the live site is
+// still unreachable from this build environment). Gallery art is still a
+// stand-in — swap <ViewArt> for the real product photos when available.
 
 export const PRODUCT = {
   brand: "New Balance",
   name: "New Balance 740",
-  colorway: "Dry Lime / Linen",
-  styleCode: "U7401UW",
-  category: "Unisex Lifestyle Sneaker",
-  price: 46990,
-  compareAtPrice: 54990,
+  colorway: "Dry Lime",
+  tag: "Férfi, alacsony szárú, utcai sneaker",
+  styleCode: "U7401UW-4-5",
+  category: "Utcai sneaker",
+  price: 47310,
+  compareAtPrice: 61980,
+  savings: 14670,
+  discountPct: 23,
   currency: "Ft",
-  rating: 4.7,
-  reviewCount: 38,
+  rating: 4.9,
+  reviewCount: "100+",
+  trustindexScore: 5.0,
+  trustindexCount: 12,
+  saleStartLabel: "Akció 2026.08.31-től, a készlet erejéig",
   urlSize: "EU 37",
+  loyaltyPoints: 946,
 };
 
 export const HIGHLIGHTS = [
@@ -26,10 +31,11 @@ export const HIGHLIGHTS = [
 ];
 
 export const DESCRIPTION =
-  "A 2000-es évek egyik meghatározó teljesítménycipőjének újragondolása, amely mára a modern Y2K stílus alapdarabjává vált. A 740-es légáteresztő mesh és szintetikus szár kombinációját a New Balance ABZORB csillapító középtalpával párosítja, így a rétegzett, karakteres forma divatdarabként is megállja a helyét - anélkül, hogy feladná azt a viseletélményt, amiért a sziluettet eredetileg tervezték. A Dry Lime / Linen színvilág visszafogott, meleg tónusú marad, könnyen kombinálható farmerrel, cargo nadrággal vagy semleges színekkel.";
+  "A New Balance 740 Dry Lime egy igazi streetstyle darab: a 2000-es évek teljesítménycipőjének Y2K-újragondolása, visszafogott krém-fehér alapon lime zöld részletekkel. A légáteresztő mesh és szintetikus szár kombinációját a New Balance ABZORB csillapító középtalpával párosítja, így divatdarabként is megállja a helyét - anélkül, hogy feladná azt a viseletélményt, amiért a sziluettet eredetileg tervezték. Könnyen kombinálható farmerrel, cargo nadrággal vagy semleges színekkel.";
 
 export const SPECS: { label: string; value: string }[] = [
-  { label: "Cikkszám", value: "U7401UW" },
+  { label: "Cikkszám", value: "U7401UW-4-5" },
+  { label: "Szín", value: "Zöld (Dry Lime)" },
   { label: "Szár anyaga", value: "Textil mesh, szintetikus borítás" },
   { label: "Középtalp", value: "ABZORB csillapítás" },
   { label: "Talp", value: "Gumi" },
@@ -38,16 +44,18 @@ export const SPECS: { label: string; value: string }[] = [
   { label: "Származási hely", value: "Import" },
 ];
 
+// Real availability from the live listing — note the gaps (no plain 39/41)
+// and that 41.5 is out of stock, ordered ascending (the live page listed
+// these out of order: 44, 44.5, 45, 37, 37.5, 38 ...).
 export const SIZES = [
-  "EU 36",
-  "EU 36.5",
   "EU 37",
+  "EU 37.5",
   "EU 38",
   "EU 38.5",
-  "EU 39",
+  "EU 39.5",
   "EU 40",
   "EU 40.5",
-  "EU 41",
+  "EU 41.5",
   "EU 42",
   "EU 42.5",
   "EU 43",
@@ -56,22 +64,39 @@ export const SIZES = [
   "EU 45",
 ] as const;
 
-export const STOCK: Record<string, "in" | "low" | "out"> = {
-  "EU 36": "in",
-  "EU 36.5": "out",
-  "EU 37": "low",
+export const STOCK: Record<string, "in" | "out"> = {
+  "EU 37": "in",
+  "EU 37.5": "in",
   "EU 38": "in",
   "EU 38.5": "in",
-  "EU 39": "low",
+  "EU 39.5": "in",
   "EU 40": "in",
-  "EU 40.5": "out",
-  "EU 41": "in",
-  "EU 42": "low",
+  "EU 40.5": "in",
+  "EU 41.5": "out",
+  "EU 42": "in",
   "EU 42.5": "in",
   "EU 43": "in",
-  "EU 44": "out",
+  "EU 44": "in",
   "EU 44.5": "in",
-  "EU 45": "low",
+  "EU 45": "in",
+};
+
+export const TRUST_BADGES = [
+  { title: "100% eredeti termék", note: "Ellenőrzött forrásból", icon: "check" },
+  { title: "Biztonságos fizetés", note: "Védett bankkártyás vásárlás", icon: "bolt" },
+  { title: "14 napos visszaküldés", note: "Egyszerű visszaküldési folyamat", icon: "return" },
+  { title: "Gyors ügyfélszolgálat", note: "Segítünk, ha kérdésed van", icon: "chat" },
+] as const;
+
+export const SHIPPING_INFO = [
+  { title: "Packeta szállítás", note: "Gyors és megbízható" },
+  { title: "Átvételi pontok", note: "Több mint 2000+" },
+  { title: "Utánvét", note: "Készpénz vagy kártya" },
+] as const;
+
+export const GIFT_THRESHOLD = {
+  target: 40000,
+  label: "Vásárolj 40 000 Ft értékben, és tiéd ingyen egy pár Sneaker Shield!",
 };
 
 export const GALLERY = [

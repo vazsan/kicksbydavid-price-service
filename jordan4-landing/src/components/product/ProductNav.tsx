@@ -10,6 +10,9 @@ export function ProductNav() {
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className="sticky top-0 z-40 border-b border-[#e2ddc9] bg-[#f7f4ec]/90 backdrop-blur-md"
     >
+      <div className="bg-[#1f2318] py-2 text-center text-xs font-medium text-white">
+        50 000 Ft felett <span className="text-[#c3d16a]">INGYENES</span> a szállítás!
+      </div>
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-6 py-4 md:px-10">
         <a href="/" className="text-lg font-bold tracking-tight text-[#1f2318]">
           KICKS<span className="text-[#7a8a3a]">BY</span>DAVID
