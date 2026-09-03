@@ -25,6 +25,40 @@ def ask_claude(system_prompt: str, user_prompt: str, model: str = CLAUDE_MODEL_S
     return "".join(block.text for block in response.content if block.type == "text")
 
 
+def _extract_json_object(text: str) -> str | None:
+    """
+    Kiszedi az első kiegyensúlyozott {...} objektumot a szövegből, a
+    stringeken belüli kapcsos zárójeleket figyelmen kívül hagyva. Erre azért
+    van szükség, mert a modell (főleg a fast modell) az utasítás ellenére
+    néha magyarázatot/indoklást fűz a JSON blokk elé vagy mögé.
+    """
+    start = text.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape = False
+    for i in range(start, len(text)):
+        ch = text[i]
+        if in_string:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start:i + 1]
+    return None
+
+
 def ask_claude_json(system_prompt: str, user_prompt: str, model: str = CLAUDE_MODEL_SMART,
                      max_tokens: int = 1500) -> dict:
     """
@@ -32,8 +66,8 @@ def ask_claude_json(system_prompt: str, user_prompt: str, model: str = CLAUDE_MO
     A system promptban MINDIG kérj tiszta JSON-t, magyarázat/markdown nélkül.
     """
     raw = ask_claude(system_prompt, user_prompt, model=model, max_tokens=max_tokens)
-    cleaned = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+    candidate = _extract_json_object(raw) or raw.strip()
     try:
-        return json.loads(cleaned)
+        return json.loads(candidate)
     except json.JSONDecodeError:
         return {"_parse_error": True, "raw": raw}
