@@ -7,7 +7,7 @@ pipeline-hoz. A cél, hogy legyen egy működő gerinc, amit fokozatosan bővít
 
 | Agent | Állapot |
 |---|---|
-| ICP, Marketing Angle, Hook, Creative Director, Copywriter, Compliance | ✅ Kész, csak ANTHROPIC_API_KEY kell |
+| ICP, Marketing Angle, Hook, Creative Director, Copywriter, Compliance | ✅ Kész, csak OPENAI_API_KEY kell |
 | Meta Ad Library | ✅ Kész kód, de Meta identitás-ellenőrzés + token kell |
 | Performance Agent | ✅ Kész kód, de saját ad account + token kell |
 | Trend Research | ✅ Kész kód (Google Trends + RSS), de a pytrends nem hivatalos, időnként instabil lehet |
@@ -23,7 +23,7 @@ kommentjeit adná. Az automatikus scraping ezeken a platformokon sérti a
 szolgáltatási feltételeket, és fiók-/IP-tiltás kockázatával jár. Ezért
 egyelőre `log_observation()` függvényekkel rögzíted a megfigyeléseidet
 (akár a Telegram boton keresztül is bővíthető egy `/log` paranccsal),
-a Claude pedig ebből von le mintázatokat. Ha később mégis automatizálni
+az LLM pedig ebből von le mintázatokat. Ha később mégis automatizálni
 akarod, egy ToS-t betartó managed scraping szolgáltatás (pl. Apify) a
 biztonságosabb út, nem saját közvetlen scraper.
 
@@ -40,7 +40,7 @@ python campaign_manager.py   # egyszeri teszt-futtatás, konzolra írja a jelent
 
 ## 2. API kulcsok beszerzése
 
-**Anthropic API kulcs:** console.anthropic.com -> API Keys.
+**OpenAI API kulcs:** platform.openai.com -> API Keys.
 
 **Meta Ad Library + Marketing API:**
 1. Identitás-ellenőrzés: facebook.com/ID (kb. pár nap átfutás, egyszeri).
@@ -93,7 +93,7 @@ python campaign_manager.py   # egyszeri teszt-futtatás, konzolra írja a jelent
 1. Teszteld végig lokálisan `python campaign_manager.py`-jal, API kulcsok nélkül
    is látod, hol dobna hibát (minden lépés try/except-be van csomagolva, a
    pipeline nem áll le egy-egy hibás agenttől).
-2. Kösd be az Anthropic + Meta Ad Library kulcsokat -> ez már önmagában
+2. Kösd be az OpenAI + Meta Ad Library kulcsokat -> ez már önmagában
    használható napi jelentést ad.
 3. Kösd be a Reddit + Telegramot.
 4. Állítsd be a cron jobot és a webhookot cPanelen.
