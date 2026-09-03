@@ -1,29 +1,28 @@
 """
-Egyetlen belépési pont minden LLM-híváshoz (jelenleg OpenAI Chat Completions).
-Ha modellt vagy hívási logikát váltasz, csak itt kell. A függvénynevek
-("ask_claude*") a korábbi Anthropic-integrációból maradtak, hogy az
-agents/*.py fájlokban ne kelljen semmit átírni.
+Egyetlen belépési pont minden Claude-híváshoz. Ha modellt vagy hívási
+logikát váltasz, csak itt kell.
 """
 import json
-from openai import OpenAI
+import anthropic
 
-from config import OPENAI_API_KEY, CLAUDE_MODEL_SMART
+from config import ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID, CLAUDE_MODEL_SMART
 
-_client = OpenAI(api_key=OPENAI_API_KEY)
+# Identitáshoz kötött (identity-linked) API kulcsoknál az Anthropic API
+# megköveteli, hogy melyik workspace nevében fut a kérés - lásd .env.example.
+_extra_headers = {"anthropic-workspace-id": ANTHROPIC_WORKSPACE_ID} if ANTHROPIC_WORKSPACE_ID else None
+_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, default_headers=_extra_headers)
 
 
 def ask_claude(system_prompt: str, user_prompt: str, model: str = CLAUDE_MODEL_SMART,
                max_tokens: int = 1500) -> str:
     """Egyszerű szöveges hívás. A hívó fél dönti el, hogyan dolgozza fel a választ."""
-    response = _client.chat.completions.create(
+    response = _client.messages.create(
         model=model,
-        max_completion_tokens=max_tokens,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
+        max_tokens=max_tokens,
+        system=system_prompt,
+        messages=[{"role": "user", "content": user_prompt}],
     )
-    return response.choices[0].message.content or ""
+    return "".join(block.text for block in response.content if block.type == "text")
 
 
 def ask_claude_json(system_prompt: str, user_prompt: str, model: str = CLAUDE_MODEL_SMART,

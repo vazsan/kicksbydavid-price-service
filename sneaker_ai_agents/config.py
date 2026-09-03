@@ -7,13 +7,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# --- OpenAI (Chat Completions API) ---
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-# A "CLAUDE_MODEL_*" elnevezés a korábbi Anthropic-integrációból maradt -
-# ezeket most a claude_client.py OpenAI modellekhez használja, hogy az
-# agents/*.py fájlokban ne kelljen semmit átírni.
-CLAUDE_MODEL_SMART = "gpt-4o"        # kreatív / döntési feladatokhoz (copy, hook, angle)
-CLAUDE_MODEL_FAST = "gpt-4o-mini"    # egyszerű, nagy volumenű feladatokhoz (compliance, kategorizálás)
+# --- Anthropic (Claude API) ---
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+# Csak identitáshoz kötött (identity-linked) API kulcsoknál kell: a console.anthropic.com
+# Settings -> Workspaces alatt található workspace ID. Hagyományos, egy workspace-hez
+# rendelt kulcsnál üresen hagyható.
+ANTHROPIC_WORKSPACE_ID = os.environ.get("ANTHROPIC_WORKSPACE_ID", "")
+CLAUDE_MODEL_SMART = "claude-sonnet-4-6"          # kreatív / döntési feladatokhoz (copy, hook, angle)
+CLAUDE_MODEL_FAST = "claude-haiku-4-5-20251001"   # egyszerű, nagy volumenű feladatokhoz (compliance, kategorizálás)
 
 # --- Meta Ad Library API (ingyenes, de identitás-ellenőrzés kell: facebook.com/ID) ---
 META_ACCESS_TOKEN = os.environ.get("META_ACCESS_TOKEN", "")
