@@ -1,0 +1,151 @@
+"""
+Campaign Manager Agent
+------------------------
+A "főnök": minden nyomon követett modellhez végigviszi a láncot, és
+összeállítja a napi jelentést. Ezt hívja a cron job / a Telegram bot.
+
+Megjegyzés: költség/idő-takarékosság miatt nem minden lépést futtatunk
+minden nap teljes egészében:
+- Meta Ad Library lekérés: naponta (gyors, olcsó)
+- ICP / marketing angle: csak akkor generálunk újat, ha még nincs friss
+- Hook / copy / compliance: naponta, hogy legyen friss anyag tesztelésre
+- Trend research / customer language: heti 1x elég (API/token spórolás)
+"""
+from datetime import datetime, timedelta
+
+from config import TRACKED_MODELS
+import db
+
+from agents import icp_agent, marketing_angle, hook_agent, creative_director
+from agents import copywriter_agent, compliance_agent, meta_ad_library
+from agents import trend_research, customer_language, competitor_intel, tiktok_creative
+from agents import performance_agent, creative_learning
+
+
+def _get_or_generate_icp(model: str) -> dict:
+    existing = db.latest_for_model("icp", model)
+    if existing:
+        row = existing[0]
+        return {"who": row["who"], "what": row["what"], "where": row["where_"]}
+    return icp_agent.generate_icp(model)
+
+
+def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
+    db.init_db()
+    report_sections = [f"📋 Napi jelentés - {datetime.now().strftime('%Y-%m-%d')}\n"]
+
+    if run_weekly_tasks:
+        try:
+            trend_result = trend_research.run_trend_research()
+            report_sections.append(
+                "🔥 Felfutó modellek: " + ", ".join(trend_result.get("rising", [])[:5])
+            )
+            report_sections.append(
+                "📉 Lecsengő modellek: " + ", ".join(trend_result.get("falling", [])[:5])
+            )
+        except Exception as e:
+            report_sections.append(f"⚠️ Trend Research hiba: {e}")
+
+    for model in TRACKED_MODELS:
+        section = [f"\n--- {model} ---"]
+
+        # 1) Meta Ad Library - mit futtatnak most a versenytársak erre a modellre
+        try:
+            top_ads = meta_ad_library.fetch_ads_for_model(model, limit=10)
+            if top_ads:
+                longest = top_ads[0]
+                section.append(
+                    f"Legrégebb óta futó hirdetés: {longest['page_name']} "
+                    f"({longest['days_running']} napja fut)"
+                )
+        except Exception as e:
+            section.append(f"⚠️ Meta Ad Library hiba: {e}")
+
+        # 2) ICP (cache-elt, csak szükség esetén generál újat)
+        try:
+            icp = _get_or_generate_icp(model)
+        except Exception as e:
+            section.append(f"⚠️ ICP Agent hiba: {e}")
+            continue
+
+        # 3) Marketing angle
+        try:
+            angles = marketing_angle.generate_angles(model, icp)
+            chosen_angle = angles[0] if angles else "Nincs generált szög."
+        except Exception as e:
+            section.append(f"⚠️ Marketing Angle Agent hiba: {e}")
+            continue
+
+        # 4) Hook
+        try:
+            hooks = hook_agent.generate_hooks(model, chosen_angle)
+            chosen_hook = hooks[0] if hooks else "Nincs generált hook."
+        except Exception as e:
+            section.append(f"⚠️ Hook Agent hiba: {e}")
+            continue
+
+        # 5) Creative brief
+        try:
+            brief = creative_director.generate_brief(model, chosen_angle)
+        except Exception as e:
+            section.append(f"⚠️ Creative Director hiba: {e}")
+            brief = {}
+
+        # 6) Copywriter
+        try:
+            copy = copywriter_agent.write_copy(model, icp, chosen_angle, chosen_hook, brief)
+        except Exception as e:
+            section.append(f"⚠️ Copywriter Agent hiba: {e}")
+            continue
+
+        # 7) Compliance
+        try:
+            latest_draft = db.latest_for_model("copy_drafts", model)
+            draft_id = latest_draft[0]["id"] if latest_draft else None
+            compliance = compliance_agent.check_compliance(
+                draft_id, copy.get("primary_text", ""), copy.get("headline", ""), copy.get("description", "")
+            )
+            status = "✅ megfelel" if compliance.get("passed") else f"❌ NEM felel meg: {compliance.get('issues')}"
+        except Exception as e:
+            status = f"⚠️ Compliance hiba: {e}"
+
+        section.append(f"Angle: {chosen_angle}")
+        section.append(f"Hook: {chosen_hook}")
+        section.append(f"Primary text: {copy.get('primary_text', '')}")
+        section.append(f"Compliance: {status}")
+
+        report_sections.append("\n".join(section))
+
+    if run_weekly_tasks:
+        for model in TRACKED_MODELS:
+            try:
+                customer_language.collect_language(model)
+            except Exception as e:
+                report_sections.append(f"⚠️ Customer Language hiba ({model}): {e}")
+
+        try:
+            competitor_summary = competitor_intel.summarize_last_n_days()
+            report_sections.append(f"\n🕵️ Versenytárs összefoglaló:\n{competitor_summary}")
+        except Exception as e:
+            report_sections.append(f"⚠️ Competitor Intel hiba: {e}")
+
+        try:
+            tiktok_summary = tiktok_creative.summarize_last_n_days()
+            report_sections.append(f"\n🎵 TikTok kreatív összefoglaló:\n{tiktok_summary}")
+        except Exception as e:
+            report_sections.append(f"⚠️ TikTok Creative hiba: {e}")
+
+    try:
+        performance_agent.fetch_performance()
+        learnings = creative_learning.generate_learnings()
+        report_sections.append(f"\n🧠 Tanulságok:\n{learnings}")
+    except Exception as e:
+        report_sections.append(f"⚠️ Performance/Learning hiba: {e}")
+
+    final_report = "\n".join(report_sections)
+    db.insert("daily_reports", report_text=final_report, created_at=db.now())
+    return final_report
+
+
+if __name__ == "__main__":
+    print(run_daily_pipeline(run_weekly_tasks=True))

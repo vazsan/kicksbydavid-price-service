@@ -1,6 +1,10 @@
 /.env
 /vendor/
 /node_modules/
+/sneaker_ai_agents/.env
+/sneaker_ai_agents/venv/
+/sneaker_ai_agents/*.db
+/sneaker_ai_agents/**/__pycache__/
 /storage/logs/*.log
 /storage/logs/*.xml
 !/storage/logs/.gitkeep
