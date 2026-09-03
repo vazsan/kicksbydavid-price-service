@@ -5,9 +5,12 @@ logikát váltasz, csak itt kell.
 import json
 import anthropic
 
-from config import ANTHROPIC_API_KEY, CLAUDE_MODEL_SMART
+from config import ANTHROPIC_API_KEY, ANTHROPIC_WORKSPACE_ID, CLAUDE_MODEL_SMART
 
-_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+# Identitáshoz kötött (identity-linked) API kulcsoknál az Anthropic API
+# megköveteli, hogy melyik workspace nevében fut a kérés - lásd .env.example.
+_extra_headers = {"anthropic-workspace-id": ANTHROPIC_WORKSPACE_ID} if ANTHROPIC_WORKSPACE_ID else None
+_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, default_headers=_extra_headers)
 
 
 def ask_claude(system_prompt: str, user_prompt: str, model: str = CLAUDE_MODEL_SMART,

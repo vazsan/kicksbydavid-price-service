@@ -9,6 +9,10 @@ load_dotenv()
 
 # --- Anthropic (Claude API) ---
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+# Csak identitáshoz kötött (identity-linked) API kulcsoknál kell: a console.anthropic.com
+# Settings -> Workspaces alatt található workspace ID. Hagyományos, egy workspace-hez
+# rendelt kulcsnál üresen hagyható.
+ANTHROPIC_WORKSPACE_ID = os.environ.get("ANTHROPIC_WORKSPACE_ID", "")
 CLAUDE_MODEL_SMART = "claude-sonnet-4-6"          # kreatív / döntési feladatokhoz (copy, hook, angle)
 CLAUDE_MODEL_FAST = "claude-haiku-4-5-20251001"   # egyszerű, nagy volumenű feladatokhoz (compliance, kategorizálás)
 
