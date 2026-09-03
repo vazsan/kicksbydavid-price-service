@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: #0a0908;
+}
+
+body {
+  background: #0a0908;
+  color: #f4efe6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #c8102e;
+  color: #f4efe6;
+}
+
+/* Slim, quiet scrollbar — luxury sites never show a fat default bar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0908;
+}
+::-webkit-scrollbar-thumb {
+  background: #3a3733;
+  border-radius: 3px;
+}
+
+.film-grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+.text-outline {
+  -webkit-text-stroke: 1px rgba(244, 239, 230, 0.5);
+  color: transparent;
+}
+
+.mask-fade-b {
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+}
+
+.eyebrow {
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #b08d57;
+}
+
+.hairline {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(244, 239, 230, 0.25),
+    transparent
+  );
+}
