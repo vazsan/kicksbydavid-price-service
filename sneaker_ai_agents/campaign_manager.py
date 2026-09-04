@@ -117,11 +117,11 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
         report_sections.append("\n".join(section))
 
     if run_weekly_tasks:
-        for model in TRACKED_MODELS:
-            try:
-                customer_language.collect_language(model)
-            except Exception as e:
-                report_sections.append(f"⚠️ Customer Language hiba ({model}): {e}")
+        try:
+            customer_language_summary = customer_language.summarize_last_n_days()
+            report_sections.append(f"\n🗣️ Customer language összefoglaló:\n{customer_language_summary}")
+        except Exception as e:
+            report_sections.append(f"⚠️ Customer Language hiba: {e}")
 
         try:
             competitor_summary = competitor_intel.summarize_last_n_days()
