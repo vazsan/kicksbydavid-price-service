@@ -17,6 +17,8 @@ print(f"Python: {sys.executable}")
 print(f"Projekt mappa: {project_dir}")
 print(f"Requirements fájl: {requirements_path}")
 
-subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", requirements_path])
+subprocess.check_call([
+    sys.executable, "-m", "pip", "install", "--no-cache-dir", "-r", requirements_path,
+])
 
 print("Kész - a csomagok telepítve.")

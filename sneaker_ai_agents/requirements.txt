@@ -1,6 +1,12 @@
 anthropic>=0.40.0
 requests>=2.31.0
 python-dotenv>=1.0.0
-pytrends>=4.9.0
 feedparser>=6.0.0
 flask>=3.0.0
+
+# pytrends>=4.9.0
+# Kihagyva alapból - a numpy/pandas/lxml függőségei több ezer fájlt jelentenek,
+# ami könnyen kilövi a megosztott hostingok inode-kvótáját. A trend_research.py
+# már eleve try/except-tel kezeli, ha nincs telepítve (a Google Trends rész
+# üres marad, az RSS-alapú hírfigyelés attól még működik). Ha van hozzá elég
+# hely/inode, vedd ki a kommentet és futtasd újra az install_deps.py-t.
