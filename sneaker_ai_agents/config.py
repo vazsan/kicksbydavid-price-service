@@ -5,7 +5,10 @@ API kulcsot közvetlenül ebbe a fájlba.
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+# Explicit útvonal, ne a cwd-től függjön: a cPanel Cron Job a szkriptet
+# abszolút útvonalon, a projekt mappájától eltérő munkakönyvtárból indítja,
+# ahol a paraméter nélküli load_dotenv() nem találná meg a .env fájlt.
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 # --- Anthropic (Claude API) ---
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
