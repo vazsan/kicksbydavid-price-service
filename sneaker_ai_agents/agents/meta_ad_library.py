@@ -32,8 +32,14 @@ def fetch_ads_for_model(model_name: str, limit: int = 25) -> list[dict]:
         "limit": limit,
         "access_token": META_ACCESS_TOKEN,
     }
-    resp = requests.get(BASE_URL, params=params, timeout=30)
-    resp.raise_for_status()
+    try:
+        resp = requests.get(BASE_URL, params=params, timeout=30)
+        resp.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        # Ne engedjük, hogy az access_token (URL query param) belekerüljön a
+        # hibaüzenetbe - az a napi jelentésen és a Telegram boton keresztül
+        # simán kiszivároghatna.
+        raise RuntimeError(f"Meta Ad Library kérés sikertelen ({type(e).__name__}).") from e
     data = resp.json().get("data", [])
 
     results = []

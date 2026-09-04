@@ -25,8 +25,14 @@ def fetch_performance(date_preset: str = "last_7d") -> list[dict]:
         "date_preset": date_preset,
         "access_token": META_ACCESS_TOKEN,
     }
-    resp = requests.get(BASE_URL, params=params, timeout=30)
-    resp.raise_for_status()
+    try:
+        resp = requests.get(BASE_URL, params=params, timeout=30)
+        resp.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        # Ne engedjük, hogy az access_token (URL query param) belekerüljön a
+        # hibaüzenetbe - az a napi jelentésen és a Telegram boton keresztül
+        # simán kiszivároghatna.
+        raise RuntimeError(f"Meta Marketing API kérés sikertelen ({type(e).__name__}).") from e
     data = resp.json().get("data", [])
 
     results = []
