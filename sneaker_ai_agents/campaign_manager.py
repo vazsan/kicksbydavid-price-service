@@ -11,6 +11,7 @@ minden nap teljes egészében:
 - Hook / copy / compliance: naponta, hogy legyen friss anyag tesztelésre
 - Trend research / customer language: heti 1x elég (API/token spórolás)
 """
+import random
 from datetime import datetime, timedelta
 
 from config import TRACKED_MODELS
@@ -71,7 +72,9 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
         # 3) Marketing angle
         try:
             angles = marketing_angle.generate_angles(model, icp)
-            chosen_angle = angles[0] if angles else "Nincs generált szög."
+            # Random rotáció a pool-ból, hogy ne mindig ugyanaz a (modell által
+            # elsőnek generált) szög fusson be minden termékre.
+            chosen_angle = random.choice(angles) if angles else "Nincs generált szög."
         except Exception as e:
             section.append(f"⚠️ Marketing Angle Agent hiba: {e}")
             continue
@@ -79,7 +82,7 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
         # 4) Hook
         try:
             hooks = hook_agent.generate_hooks(model, chosen_angle)
-            chosen_hook = hooks[0] if hooks else "Nincs generált hook."
+            chosen_hook = random.choice(hooks) if hooks else "Nincs generált hook."
         except Exception as e:
             section.append(f"⚠️ Hook Agent hiba: {e}")
             continue
