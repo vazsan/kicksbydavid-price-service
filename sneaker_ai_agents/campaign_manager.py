@@ -21,6 +21,16 @@ from agents import icp_agent, marketing_angle, hook_agent, creative_director
 from agents import copywriter_agent, compliance_agent, meta_ad_library
 from agents import trend_research, customer_language, competitor_intel, tiktok_creative
 from agents import performance_agent, creative_learning
+from agents import gap_analysis, account_health, ad_quality_scorer
+
+QUALITY_DIMENSION_LABELS = {
+    "hook_score": "hook",
+    "copy_score": "copy",
+    "cta_score": "CTA",
+    "emotional_score": "emotional",
+    "offer_score": "offer",
+    "visual_copy_score": "visual copy",
+}
 
 
 def _get_or_generate_icp(model: str) -> dict:
@@ -46,6 +56,14 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
             )
         except Exception as e:
             report_sections.append(f"⚠️ Trend Research hiba: {e}")
+
+        for model in TRACKED_MODELS:
+            try:
+                gap_result = gap_analysis.run_gap_analysis(model)
+                gaps = gap_result.get("gaps", [])
+                report_sections.append(f"\n🎯 Gap analysis - {model}: {gaps}")
+            except Exception as e:
+                report_sections.append(f"⚠️ Gap Analysis hiba ({model}): {e}")
 
     for model in TRACKED_MODELS:
         section = [f"\n--- {model} ---"]
@@ -101,7 +119,27 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
             section.append(f"⚠️ Copywriter Agent hiba: {e}")
             continue
 
-        # 7) Compliance
+        # 7) Ad Quality Scorer
+        try:
+            latest_draft = db.latest_for_model("copy_drafts", model)
+            draft_id = latest_draft[0]["id"] if latest_draft else None
+            quality = ad_quality_scorer.score_ad(
+                copy.get("primary_text", ""), copy.get("headline", ""), copy.get("description", ""),
+                creative_brief=brief, copy_draft_id=draft_id,
+            )
+            section.append(f"Hook score: {quality.get('hook_score', {}).get('score')}/10")
+            section.append(f"Copy score: {quality.get('copy_score', {}).get('score')}/10")
+            for dimension, label in QUALITY_DIMENSION_LABELS.items():
+                dim_result = quality.get(dimension, {})
+                dim_score = dim_result.get("score")
+                if dim_score is not None and dim_score < 7:
+                    section.append(
+                        f"⚠️ Alacsony pontszám: {label} ({dim_score}/10) - {dim_result.get('improvement')}"
+                    )
+        except Exception as e:
+            section.append(f"⚠️ Ad Quality Scorer hiba: {e}")
+
+        # 8) Compliance
         try:
             latest_draft = db.latest_for_model("copy_drafts", model)
             draft_id = latest_draft[0]["id"] if latest_draft else None
@@ -144,6 +182,14 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
         report_sections.append(f"\n🧠 Tanulságok:\n{learnings}")
     except Exception as e:
         report_sections.append(f"⚠️ Performance/Learning hiba: {e}")
+
+    try:
+        health_result = account_health.run_health_check()
+        report_sections.append(
+            f"\n🏥 Fiók egészség: {health_result.get('health_score')}/100\n{health_result.get('actions', '')}"
+        )
+    except Exception as e:
+        report_sections.append(f"⚠️ Account Health hiba: {e}")
 
     final_report = "\n".join(report_sections)
     db.insert("daily_reports", report_text=final_report, created_at=db.now())
