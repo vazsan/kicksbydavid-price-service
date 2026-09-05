@@ -82,6 +82,25 @@ CREATE TABLE IF NOT EXISTS daily_reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     report_text TEXT, created_at TEXT
 );
+
+CREATE TABLE IF NOT EXISTS gap_analysis (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    model TEXT, top_hooks TEXT, offer_patterns TEXT, cta_patterns TEXT, gaps TEXT,
+    generated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS account_health (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    health_score INTEGER, issues TEXT, actions TEXT, checked_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS ad_quality_scores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    copy_draft_id INTEGER,
+    hook_score INTEGER, copy_score INTEGER, cta_score INTEGER,
+    emotional_score INTEGER, offer_score INTEGER, visual_copy_score INTEGER,
+    notes TEXT, scored_at TEXT
+);
 """
 
 
