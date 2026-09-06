@@ -21,6 +21,7 @@ BASE_URL = f"https://graph.facebook.com/{META_GRAPH_VERSION}/{META_AD_ACCOUNT_ID
 FIELDS = "ad_name,frequency,cpm,ctr,spend,purchase_roas,actions"
 PLACEMENT_FIELDS = "ad_name,spend,actions"
 PLACEMENT_BREAKDOWNS = "publisher_platform,platform_position"
+SPEND_FIELDS = "ad_name,spend"
 
 # health_score = 100 - (a talált check-típusonként levont pont), 0 alá nem mehet
 PENALTY_BY_CHECK = {
@@ -29,15 +30,16 @@ PENALTY_BY_CHECK = {
     "frequency_violation": 15,
     "placement_underperformance": 10,
     "spend_concentration": 20,
+    "spend_deviation": 10,
 }
 
 SYSTEM = """
 Meta hirdetési fiók-egészség elemző vagy. Megkapod az automatikusan
 kiszámolt problémákat (creative fatigue, CPM anomália, frequency
-túllépés, gyenge placement, költés-koncentráció). Ebből fogalmazz meg
-MAX 5 PONTOS, konkrét, prioritizált akciótervet magyarul - minden pont
-mondja meg, MIT kell tenni és MIÉRT (melyik hirdetéssel/adattal
-kapcsolatban).
+túllépés, gyenge placement, költés-koncentráció, napi költés-eltérés),
+és esetleg kill/scale javaslatokat is. Ebből fogalmazz meg MAX 5 PONTOS,
+konkrét, prioritizált akciótervet magyarul - minden pont mondja meg, MIT
+kell tenni és MIÉRT (melyik hirdetéssel/adattal kapcsolatban).
 """
 
 
@@ -98,6 +100,20 @@ def _extract_purchases(row: dict) -> int:
     return 0
 
 
+def _avatar_for_ad(ad_name: str) -> str:
+    """
+    Az insights válaszban nincs avatár-dimenzió, ezért a performance táblából
+    keressük vissza a hirdetés nevéhez tartozó avatárt (ha van már rögzítve).
+    """
+    rows = db.query(
+        "SELECT avatar_name FROM performance "
+        "WHERE ad_name = ? AND avatar_name IS NOT NULL AND avatar_name != '' "
+        "ORDER BY id DESC LIMIT 1",
+        (ad_name,),
+    )
+    return rows[0]["avatar_name"] if rows else "ismeretlen"
+
+
 def _check_creative_fatigue(last_7d: list[dict], previous_7d: list[dict]) -> list[dict]:
     """1) frequency > 3.0 ÉS a CTR csökkenő trendet mutat az előző 7 naphoz képest."""
     previous_by_name = {row.get("ad_name"): row for row in previous_7d}
@@ -112,10 +128,16 @@ def _check_creative_fatigue(last_7d: list[dict], previous_7d: list[dict]) -> lis
         curr_ctr = float(row.get("ctr", 0) or 0)
         prev_ctr = float(prev_row.get("ctr", 0) or 0)
         if curr_ctr < prev_ctr:
+            ad_name = row.get("ad_name", "")
             issues.append({
                 "type": "creative_fatigue",
-                "ad_name": row.get("ad_name", ""),
-                "detail": f"frequency={frequency:.2f}, CTR {prev_ctr:.2f}% -> {curr_ctr:.2f}% (csökkenő)",
+                "ad_name": ad_name,
+                "detail": (
+                    f"Kifáradó kreatív: {ad_name} (avatar: {_avatar_for_ad(ad_name)}) "
+                    f"- frissítsd új hook/kreatív variánsra"
+                ),
+                # A számszerű bizonyíték külön mezőben marad meg (DB + prompt).
+                "metrics": f"frequency={frequency:.2f}, CTR {prev_ctr:.2f}% -> {curr_ctr:.2f}% (csökkenő)",
             })
     return issues
 
@@ -195,6 +217,75 @@ def _check_spend_concentration(last_7d: list[dict]) -> list[dict]:
     return issues
 
 
+def check_spend_deviation() -> list[dict]:
+    """
+    6) A budget_plan tervezett napi költését veti össze a mai tényleges
+    költéssel. Ha az eltérés abszolút értékben >20%, issue-t ad vissza.
+
+    KORLÁTOZÁS: a budget_plan market + avatar_name bontásban tárolja a tervet,
+    de a Marketing API insights válasza NEM bontható automatikusan avatár vagy
+    piac szerint (a hirdetés nevén kívül nincs ilyen dimenzió a válaszban).
+    Ezért egyelőre FIÓK-SZINTEN hasonlítunk: az érvényes budget_plan sorok
+    összege vs. a fiók mai összköltése. Ha később a hirdetésnevekből (vagy egy
+    külön leképezésből) megbízhatóan visszafejthető az avatár/piac, itt lehet
+    bontásonkénti összevetésre váltani.
+    """
+    today = date.today().isoformat()
+    plan_rows = db.query("SELECT * FROM budget_plan ORDER BY valid_from DESC")
+
+    # Piac + avatár páronként a legfrissebb, már érvényes terv számít.
+    active_plans = {}
+    for row in plan_rows:
+        key = (row.get("market"), row.get("avatar_name"))
+        valid_from = (row.get("valid_from") or "")[:10]
+        if valid_from <= today and key not in active_plans:
+            active_plans[key] = row
+
+    planned = sum(float(r.get("planned_daily_spend") or 0) for r in active_plans.values())
+    if planned <= 0:
+        return []
+
+    todays_rows = _fetch_insights(SPEND_FIELDS, _time_range(0, 0))
+    actual = sum(float(r.get("spend", 0) or 0) for r in todays_rows)
+
+    deviation_pct = (actual - planned) / planned * 100
+    if abs(deviation_pct) <= 20:
+        return []
+
+    return [{
+        "type": "spend_deviation",
+        "ad_name": "(fiók-szint)",
+        "detail": (
+            f"Napi költés eltérés - tervezett: {planned:.2f}, "
+            f"tényleges: {actual:.2f} ({deviation_pct:+.0f}%)"
+        ),
+    }]
+
+
+def suggest_kill_scale() -> list[str]:
+    """
+    A performance tábla avatar_name + ad_name csoportjaira átlagos ROAS.
+    Csoportonként legalább 3 különböző nap adata kell, hogy egy-két kiugró
+    nap ne vezessen félre. CSAK JAVASLAT - semmit nem hajt végre automatikusan.
+    """
+    rows = db.query(
+        "SELECT avatar_name, ad_name, AVG(roas) AS avg_roas, "
+        "COUNT(DISTINCT substr(fetched_at, 1, 10)) AS days "
+        "FROM performance GROUP BY avatar_name, ad_name HAVING days >= 3"
+    )
+
+    suggestions = []
+    for row in rows:
+        avg_roas = float(row.get("avg_roas") or 0)
+        avatar_name = row.get("avatar_name") or "ismeretlen"
+        ad_name = row.get("ad_name") or ""
+        if avg_roas < 1.0:
+            suggestions.append(f"KILL: {avatar_name} + {ad_name}")
+        elif avg_roas > 3.0:
+            suggestions.append(f"SCALE: {avatar_name} + {ad_name}")
+    return suggestions
+
+
 def _compute_health_score(issues: list[dict]) -> int:
     triggered_types = {issue["type"] for issue in issues}
     score = 100 - sum(PENALTY_BY_CHECK[t] for t in triggered_types)
@@ -213,13 +304,26 @@ def run_health_check() -> dict:
         + _check_frequency_violation(last_7d)
         + _check_placement_underperformance(placements)
         + _check_spend_concentration(last_7d)
+        + check_spend_deviation()
     )
+    kill_scale_suggestions = suggest_kill_scale()
 
     health_score = _compute_health_score(issues)
 
-    if issues:
-        formatted = "\n".join(f"- [{i['type']}] {i['ad_name']}: {i['detail']}" for i in issues)
-        actions = ask_claude(SYSTEM, formatted)
+    if issues or kill_scale_suggestions:
+        formatted_parts = []
+        if issues:
+            formatted_parts.append("\n".join(
+                f"- [{i['type']}] {i['ad_name']}: {i['detail']}"
+                + (f" ({i['metrics']})" if i.get("metrics") else "")
+                for i in issues
+            ))
+        if kill_scale_suggestions:
+            formatted_parts.append(
+                "Kill/Scale javaslatok (NINCS automatikus végrehajtás):\n"
+                + "\n".join(f"- {s}" for s in kill_scale_suggestions)
+            )
+        actions = ask_claude(SYSTEM, "\n\n".join(formatted_parts))
     else:
         actions = "Nincs észlelt probléma - a fiók egészséges állapotban van."
 
@@ -231,7 +335,12 @@ def run_health_check() -> dict:
         checked_at=db.now(),
     )
 
-    return {"health_score": health_score, "issues": issues, "actions": actions}
+    return {
+        "health_score": health_score,
+        "issues": issues,
+        "actions": actions,
+        "kill_scale_suggestions": kill_scale_suggestions,
+    }
 
 
 if __name__ == "__main__":
