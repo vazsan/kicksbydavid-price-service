@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 
 from config import TRACKED_MODELS, AVATARS, DEFAULT_AVATAR
 import db
+import telegram_bot
 
 from agents import icp_agent, marketing_angle, hook_agent, creative_director
 from agents import copywriter_agent, compliance_agent, meta_ad_library
@@ -205,6 +206,21 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
         report_sections.append(
             f"\n🏥 Fiók egészség: {health_result.get('health_score')}/100\n{health_result.get('actions', '')}"
         )
+
+        # A kill/scale javaslatokat a pipeline SOHA nem hajtja végre: minden
+        # javaslatról külön jóváhagyási kérés megy ki, és a tényleges lépés
+        # (büdzsé módosítás, hirdetés leállítása) kézi marad - lásd a TODO-t a
+        # telegram_bot._resolve_approval()-ban.
+        for suggestion in health_result.get("kill_scale_suggestions", []):
+            try:
+                request_id = telegram_bot.request_approval(
+                    request_type="kill_scale",
+                    description=suggestion,
+                    payload={"suggestion": suggestion},
+                )
+                report_sections.append(f"⏳ Jóváhagyásra vár (#{request_id}): {suggestion}")
+            except Exception as e:
+                report_sections.append(f"⚠️ Jóváhagyási kérés hiba ({suggestion}): {e}")
     except Exception as e:
         report_sections.append(f"⚠️ Account Health hiba: {e}")
 

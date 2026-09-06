@@ -179,6 +179,15 @@ def insert(table: str, **fields) -> int:
         return cur.lastrowid
 
 
+def execute(sql: str, params: tuple = ()) -> int:
+    """
+    INSERT-en kívüli írás (UPDATE / DELETE) - az érintett sorok számát adja
+    vissza. Azért itt van, hogy a nyers SQL ne szóródjon szét az agentekbe.
+    """
+    with get_conn() as conn:
+        return conn.execute(sql, params).rowcount
+
+
 def query(sql: str, params: tuple = ()) -> list[dict]:
     with get_conn() as conn:
         rows = conn.execute(sql, params).fetchall()
