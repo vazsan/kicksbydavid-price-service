@@ -22,7 +22,7 @@ from agents import icp_agent, marketing_angle, hook_agent, creative_director
 from agents import copywriter_agent, compliance_agent, meta_ad_library
 from agents import trend_research, customer_language, competitor_intel, tiktok_creative
 from agents import performance_agent, creative_learning
-from agents import gap_analysis, account_health, ad_quality_scorer
+from agents import gap_analysis, account_health, ad_quality_scorer, seasonal_calendar
 
 QUALITY_DIMENSION_LABELS = {
     "hook_score": "hook",
@@ -45,6 +45,14 @@ def _get_or_generate_icp(model: str, avatar_name: str) -> dict:
 def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
     db.init_db()
     report_sections = [f"📋 Napi jelentés - {datetime.now().strftime('%Y-%m-%d')}\n"]
+
+    # Szezonális figyelmeztetések a riport legelejére (reversed + insert(0),
+    # hogy több találat esetén megmaradjon az eredeti sorrendjük).
+    try:
+        for reminder in reversed(seasonal_calendar.check_upcoming_events()):
+            report_sections.insert(0, reminder)
+    except Exception as e:
+        report_sections.append(f"⚠️ Seasonal Calendar hiba: {e}")
 
     if run_weekly_tasks:
         try:
