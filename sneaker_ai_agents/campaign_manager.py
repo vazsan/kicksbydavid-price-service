@@ -85,6 +85,7 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
             icp = _get_or_generate_icp(model)
         except Exception as e:
             section.append(f"⚠️ ICP Agent hiba: {e}")
+            report_sections.append("\n".join(section))
             continue
 
         # 3) Marketing angle
@@ -95,6 +96,7 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
             chosen_angle = random.choice(angles) if angles else "Nincs generált szög."
         except Exception as e:
             section.append(f"⚠️ Marketing Angle Agent hiba: {e}")
+            report_sections.append("\n".join(section))
             continue
 
         # 4) Hook
@@ -103,6 +105,7 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
             chosen_hook = random.choice(hooks) if hooks else "Nincs generált hook."
         except Exception as e:
             section.append(f"⚠️ Hook Agent hiba: {e}")
+            report_sections.append("\n".join(section))
             continue
 
         # 5) Creative brief
@@ -117,6 +120,7 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
             copy = copywriter_agent.write_copy(model, icp, chosen_angle, chosen_hook, brief)
         except Exception as e:
             section.append(f"⚠️ Copywriter Agent hiba: {e}")
+            report_sections.append("\n".join(section))
             continue
 
         # 7) Ad Quality Scorer
