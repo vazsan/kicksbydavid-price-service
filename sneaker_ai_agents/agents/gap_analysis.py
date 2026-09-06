@@ -14,6 +14,7 @@ from claude_client import ask_claude_json
 from config import META_ACCESS_TOKEN, META_GRAPH_VERSION, META_AD_REACHED_COUNTRIES
 from config import COMPETITORS, CLAUDE_MODEL_SMART
 import db
+import meta_api
 
 BASE_URL = f"https://graph.facebook.com/{META_GRAPH_VERSION}/ads_archive"
 
@@ -56,7 +57,7 @@ def fetch_competitor_ads(model_name: str, competitor_page_names: list[str],
     except requests.exceptions.RequestException as e:
         # Ne engedjük, hogy az access_token (URL query param) belekerüljön a
         # hibaüzenetbe - lásd meta_ad_library.py.
-        raise RuntimeError(f"Meta Ad Library kérés sikertelen ({type(e).__name__}).") from e
+        raise RuntimeError(f"Meta Ad Library kérés sikertelen ({meta_api.describe_error(e)}).") from e
     data = resp.json().get("data", [])
 
     ads_by_competitor: dict[str, list[str]] = {name: [] for name in competitor_page_names}

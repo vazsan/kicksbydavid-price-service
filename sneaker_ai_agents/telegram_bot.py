@@ -32,12 +32,57 @@ app = Flask(__name__)
 TELEGRAM_API = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
 
 
+# A Telegram üzenetlimitje 4096 karakter - kis ráhagyással darabolunk.
+MAX_MESSAGE_LENGTH = 4000
+
+
+def _split_message(text: str, limit: int = MAX_MESSAGE_LENGTH) -> list[str]:
+    """
+    Hosszú szöveg darabolása sorhatáron. A napi jelentés rég túlnőtte az egy
+    üzenetbe férő méretet, és a korábbi egyszerű levágás pont a végét ette le
+    (fiók-egészség, kill/scale jóváhagyások, beazonosítatlan hirdetések).
+    """
+    chunks = []
+    current = ""
+
+    for line in text.split("\n"):
+        # Egyetlen sor is lehet hosszabb a limitnél - azt keményen vágjuk.
+        while len(line) > limit:
+            if current:
+                chunks.append(current)
+                current = ""
+            chunks.append(line[:limit])
+            line = line[limit:]
+
+        candidate = f"{current}\n{line}" if current else line
+        if len(candidate) > limit:
+            chunks.append(current)
+            current = line
+        else:
+            current = candidate
+
+    if current:
+        chunks.append(current)
+    return chunks
+
+
 def send_message(text: str, chat_id: str = None) -> None:
     chat_id = chat_id or TELEGRAM_CHAT_ID
     if not TELEGRAM_BOT_TOKEN or not chat_id:
         print("Telegram nincs beállítva, üzenet kihagyva.")
         return
-    requests.post(f"{TELEGRAM_API}/sendMessage", json={"chat_id": chat_id, "text": text}, timeout=15)
+
+    chunks = [chunk for chunk in _split_message(text) if chunk.strip()]
+    total = len(chunks)
+    for index, chunk in enumerate(chunks, start=1):
+        # Több részes üzenetnél jelezzük, hogy hány darabból áll, hogy látszódjon,
+        # ha valamelyik nem érkezne meg.
+        body = f"({index}/{total})\n{chunk}" if total > 1 else chunk
+        requests.post(
+            f"{TELEGRAM_API}/sendMessage",
+            json={"chat_id": chat_id, "text": body},
+            timeout=15,
+        )
 
 
 def request_approval(request_type: str, description: str, payload: dict) -> int:

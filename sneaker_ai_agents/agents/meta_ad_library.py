@@ -14,6 +14,7 @@ from datetime import datetime, date
 
 from config import META_ACCESS_TOKEN, META_GRAPH_VERSION, META_AD_REACHED_COUNTRIES
 import db
+import meta_api
 
 BASE_URL = f"https://graph.facebook.com/{META_GRAPH_VERSION}/ads_archive"
 
@@ -39,7 +40,7 @@ def fetch_ads_for_model(model_name: str, limit: int = 25) -> list[dict]:
         # Ne engedjük, hogy az access_token (URL query param) belekerüljön a
         # hibaüzenetbe - az a napi jelentésen és a Telegram boton keresztül
         # simán kiszivároghatna.
-        raise RuntimeError(f"Meta Ad Library kérés sikertelen ({type(e).__name__}).") from e
+        raise RuntimeError(f"Meta Ad Library kérés sikertelen ({meta_api.describe_error(e)}).") from e
     data = resp.json().get("data", [])
 
     results = []

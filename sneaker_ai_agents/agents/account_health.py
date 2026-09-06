@@ -15,6 +15,7 @@ import requests
 from claude_client import ask_claude
 from config import META_ACCESS_TOKEN, META_GRAPH_VERSION, META_AD_ACCOUNT_ID
 import db
+import meta_api
 
 BASE_URL = f"https://graph.facebook.com/{META_GRAPH_VERSION}/{META_AD_ACCOUNT_ID}/insights"
 
@@ -69,7 +70,7 @@ def _fetch_insights(fields: str, time_range: str, breakdowns: str = None) -> lis
     except requests.exceptions.RequestException as e:
         # Ne engedjük, hogy az access_token (URL query param) belekerüljön a
         # hibaüzenetbe - lásd performance_agent.py.
-        raise RuntimeError(f"Meta Marketing API kérés sikertelen ({type(e).__name__}).") from e
+        raise RuntimeError(f"Meta Marketing API kérés sikertelen ({meta_api.describe_error(e)}).") from e
     return resp.json().get("data", [])
 
 

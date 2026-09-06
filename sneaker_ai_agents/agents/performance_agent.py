@@ -10,6 +10,7 @@ import requests
 from config import META_ACCESS_TOKEN, META_GRAPH_VERSION, META_AD_ACCOUNT_ID
 import ad_naming
 import db
+import meta_api
 
 UNKNOWN = "ismeretlen"
 
@@ -44,7 +45,7 @@ def fetch_performance(date_preset: str = "last_7d") -> dict:
         # Ne engedjük, hogy az access_token (URL query param) belekerüljön a
         # hibaüzenetbe - az a napi jelentésen és a Telegram boton keresztül
         # simán kiszivároghatna.
-        raise RuntimeError(f"Meta Marketing API kérés sikertelen ({type(e).__name__}).") from e
+        raise RuntimeError(f"Meta Marketing API kérés sikertelen ({meta_api.describe_error(e)}).") from e
     data = resp.json().get("data", [])
 
     results = []

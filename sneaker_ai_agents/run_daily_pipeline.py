@@ -17,11 +17,11 @@ if __name__ == "__main__":
     is_monday = datetime.now().weekday() == 0
     try:
         report = run_daily_pipeline(run_weekly_tasks=is_monday)
-        send_message(report[:4000])  # Telegram üzenet limit miatt levágva
+        send_message(report)  # a send_message darabolja, ha nem fér egy üzenetbe
     except Exception:
         error_text = f"❌ Pipeline hiba:\n{traceback.format_exc()}"
         print(error_text, file=sys.stderr)
         try:
-            send_message(error_text[:4000])
+            send_message(error_text)
         except Exception:
             pass
