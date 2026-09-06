@@ -138,15 +138,20 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
                     copy.get("primary_text", ""), copy.get("headline", ""), copy.get("description", ""),
                     creative_brief=brief, copy_draft_id=draft_id, avatar_name=avatar_name,
                 )
-                section.append(f"Hook score: {quality.get('hook_score', {}).get('score')}/10")
-                section.append(f"Copy score: {quality.get('copy_score', {}).get('score')}/10")
-                for dimension, label in QUALITY_DIMENSION_LABELS.items():
-                    dim_result = quality.get(dimension, {})
-                    dim_score = dim_result.get("score")
-                    if dim_score is not None and dim_score < 7:
-                        section.append(
-                            f"⚠️ Alacsony pontszám: {label} ({dim_score}/10) - {dim_result.get('improvement')}"
-                        )
+                if quality.get("_parse_error"):
+                    # Enélkül "Hook score: None/10" jelenne meg, ami pontszámnak
+                    # látszik, holott a pontozás meg sem történt.
+                    section.append("⚠️ Ad Quality Scorer: a válasz nem volt értelmezhető JSON, pontszám nincs.")
+                else:
+                    section.append(f"Hook score: {quality.get('hook_score', {}).get('score')}/10")
+                    section.append(f"Copy score: {quality.get('copy_score', {}).get('score')}/10")
+                    for dimension, label in QUALITY_DIMENSION_LABELS.items():
+                        dim_result = quality.get(dimension, {})
+                        dim_score = dim_result.get("score")
+                        if dim_score is not None and dim_score < 7:
+                            section.append(
+                                f"⚠️ Alacsony pontszám: {label} ({dim_score}/10) - {dim_result.get('improvement')}"
+                            )
             except Exception as e:
                 section.append(f"⚠️ Ad Quality Scorer hiba: {e}")
 

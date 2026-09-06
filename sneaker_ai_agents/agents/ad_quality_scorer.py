@@ -62,7 +62,10 @@ def score_ad(primary_text: str, headline: str, description: str,
         f"Description: {description}\n"
         f"{_format_creative_brief(creative_brief)}"
     )
-    result = ask_claude_json(SYSTEM, user_prompt, model=CLAUDE_MODEL_FAST)
+    # 6 dimenzió x (indoklás + javaslat) + összefoglaló, magyarul - ez közel
+    # van az alapértelmezett 1500-as kerethez, és ha elfogy, a JSON csonkán
+    # szakad meg, amit már nem lehet beparse-olni. Ezért nagyobb keret.
+    result = ask_claude_json(SYSTEM, user_prompt, model=CLAUDE_MODEL_FAST, max_tokens=3000)
 
     if copy_draft_id is not None and not result.get("_parse_error"):
         notes = {
