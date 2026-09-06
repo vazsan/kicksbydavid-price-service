@@ -53,8 +53,10 @@ def _format_creative_brief(creative_brief: dict | None) -> str:
 
 
 def score_ad(primary_text: str, headline: str, description: str,
-             creative_brief: dict = None, copy_draft_id: int = None) -> dict:
+             creative_brief: dict = None, copy_draft_id: int = None,
+             avatar_name: str = None) -> dict:
     user_prompt = (
+        f"Célzott avatár: {avatar_name or 'nincs megadva'}\n"
         f"Primary text: {primary_text}\n"
         f"Headline: {headline}\n"
         f"Description: {description}\n"
@@ -75,6 +77,7 @@ def score_ad(primary_text: str, headline: str, description: str,
         db.insert(
             "ad_quality_scores",
             copy_draft_id=copy_draft_id,
+            avatar_name=avatar_name,
             hook_score=result.get("hook_score", {}).get("score"),
             copy_score=result.get("copy_score", {}).get("score"),
             cta_score=result.get("cta_score", {}).get("score"),

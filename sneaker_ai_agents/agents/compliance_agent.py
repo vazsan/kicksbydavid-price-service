@@ -17,7 +17,10 @@ Ha nincs probléma, az "issues" legyen üres tömb.
 """
 
 
-def check_compliance(copy_draft_id: int, primary_text: str, headline: str, description: str) -> dict:
+def check_compliance(copy_draft_id: int, primary_text: str, headline: str, description: str,
+                     avatar_name: str = None) -> dict:
+    # Az avatar_name csak nyilvántartásra kerül mentésre - a Meta compliance
+    # szabályok nem függenek attól, melyik perszónának szól a szöveg.
     user_prompt = f"Primary text: {primary_text}\nHeadline: {headline}\nDescription: {description}"
     result = ask_claude_json(SYSTEM, user_prompt, model=CLAUDE_MODEL_FAST)
     if not result.get("_parse_error"):
@@ -25,6 +28,7 @@ def check_compliance(copy_draft_id: int, primary_text: str, headline: str, descr
         db.insert(
             "compliance_checks",
             copy_draft_id=copy_draft_id,
+            avatar_name=avatar_name,
             passed=1 if result.get("passed") else 0,
             issues=json.dumps(result.get("issues", []), ensure_ascii=False),
             checked_at=db.now(),

@@ -66,101 +66,108 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
                 report_sections.append(f"⚠️ Gap Analysis hiba ({model}): {e}")
 
     for model in TRACKED_MODELS:
-        section = [f"\n--- {model} ---"]
-
-        # 1) Meta Ad Library - mit futtatnak most a versenytársak erre a modellre
+        # A Meta Ad Library lekérés termékszintű (nem avatáronkénti), ezért
+        # avatáronként nem ismételjük meg - egyszer fut modellenként.
+        ad_library_line = None
         try:
             top_ads = meta_ad_library.fetch_ads_for_model(model, limit=10)
             if top_ads:
                 longest = top_ads[0]
-                section.append(
+                ad_library_line = (
                     f"Legrégebb óta futó hirdetés: {longest['page_name']} "
                     f"({longest['days_running']} napja fut)"
                 )
         except Exception as e:
-            section.append(f"⚠️ Meta Ad Library hiba: {e}")
+            ad_library_line = f"⚠️ Meta Ad Library hiba: {e}"
 
-        # 2) ICP (cache-elt, csak szükség esetén generál újat)
-        try:
-            avatar_name = AVATARS.get(model, [DEFAULT_AVATAR])[0]
-            icp = _get_or_generate_icp(model, avatar_name)
-        except Exception as e:
-            section.append(f"⚠️ ICP Agent hiba: {e}")
+        for avatar_name in AVATARS.get(model, [DEFAULT_AVATAR]):
+            section = [f"\n--- {model} | {avatar_name} ---"]
+            if ad_library_line:
+                section.append(ad_library_line)
+
+            # 2) ICP (cache-elt, csak szükség esetén generál újat)
+            try:
+                icp = _get_or_generate_icp(model, avatar_name)
+            except Exception as e:
+                section.append(f"⚠️ ICP Agent hiba: {e}")
+                report_sections.append("\n".join(section))
+                continue
+
+            # 3) Marketing angle
+            try:
+                angles = marketing_angle.generate_angles(model, avatar_name, icp)
+                # Random rotáció a pool-ból, hogy ne mindig ugyanaz a (modell által
+                # elsőnek generált) szög fusson be minden termékre.
+                chosen_angle = random.choice(angles) if angles else "Nincs generált szög."
+            except Exception as e:
+                section.append(f"⚠️ Marketing Angle Agent hiba: {e}")
+                report_sections.append("\n".join(section))
+                continue
+
+            # 4) Hook
+            try:
+                hooks = hook_agent.generate_hooks(model, avatar_name, chosen_angle)
+                chosen_hook = random.choice(hooks) if hooks else "Nincs generált hook."
+            except Exception as e:
+                section.append(f"⚠️ Hook Agent hiba: {e}")
+                report_sections.append("\n".join(section))
+                continue
+
+            # 5) Creative brief
+            try:
+                brief = creative_director.generate_brief(model, avatar_name, chosen_angle)
+            except Exception as e:
+                section.append(f"⚠️ Creative Director hiba: {e}")
+                brief = {}
+
+            # 6) Copywriter
+            try:
+                copy = copywriter_agent.write_copy(
+                    model, avatar_name, icp, chosen_angle, chosen_hook, brief
+                )
+            except Exception as e:
+                section.append(f"⚠️ Copywriter Agent hiba: {e}")
+                report_sections.append("\n".join(section))
+                continue
+
+            # 7) Ad Quality Scorer
+            try:
+                latest_draft = db.latest_for_model("copy_drafts", model, avatar_name=avatar_name)
+                draft_id = latest_draft[0]["id"] if latest_draft else None
+                quality = ad_quality_scorer.score_ad(
+                    copy.get("primary_text", ""), copy.get("headline", ""), copy.get("description", ""),
+                    creative_brief=brief, copy_draft_id=draft_id, avatar_name=avatar_name,
+                )
+                section.append(f"Hook score: {quality.get('hook_score', {}).get('score')}/10")
+                section.append(f"Copy score: {quality.get('copy_score', {}).get('score')}/10")
+                for dimension, label in QUALITY_DIMENSION_LABELS.items():
+                    dim_result = quality.get(dimension, {})
+                    dim_score = dim_result.get("score")
+                    if dim_score is not None and dim_score < 7:
+                        section.append(
+                            f"⚠️ Alacsony pontszám: {label} ({dim_score}/10) - {dim_result.get('improvement')}"
+                        )
+            except Exception as e:
+                section.append(f"⚠️ Ad Quality Scorer hiba: {e}")
+
+            # 8) Compliance
+            try:
+                latest_draft = db.latest_for_model("copy_drafts", model, avatar_name=avatar_name)
+                draft_id = latest_draft[0]["id"] if latest_draft else None
+                compliance = compliance_agent.check_compliance(
+                    draft_id, copy.get("primary_text", ""), copy.get("headline", ""),
+                    copy.get("description", ""), avatar_name=avatar_name,
+                )
+                status = "✅ megfelel" if compliance.get("passed") else f"❌ NEM felel meg: {compliance.get('issues')}"
+            except Exception as e:
+                status = f"⚠️ Compliance hiba: {e}"
+
+            section.append(f"Angle: {chosen_angle}")
+            section.append(f"Hook: {chosen_hook}")
+            section.append(f"Primary text: {copy.get('primary_text', '')}")
+            section.append(f"Compliance: {status}")
+
             report_sections.append("\n".join(section))
-            continue
-
-        # 3) Marketing angle
-        try:
-            angles = marketing_angle.generate_angles(model, icp)
-            # Random rotáció a pool-ból, hogy ne mindig ugyanaz a (modell által
-            # elsőnek generált) szög fusson be minden termékre.
-            chosen_angle = random.choice(angles) if angles else "Nincs generált szög."
-        except Exception as e:
-            section.append(f"⚠️ Marketing Angle Agent hiba: {e}")
-            report_sections.append("\n".join(section))
-            continue
-
-        # 4) Hook
-        try:
-            hooks = hook_agent.generate_hooks(model, chosen_angle)
-            chosen_hook = random.choice(hooks) if hooks else "Nincs generált hook."
-        except Exception as e:
-            section.append(f"⚠️ Hook Agent hiba: {e}")
-            report_sections.append("\n".join(section))
-            continue
-
-        # 5) Creative brief
-        try:
-            brief = creative_director.generate_brief(model, chosen_angle)
-        except Exception as e:
-            section.append(f"⚠️ Creative Director hiba: {e}")
-            brief = {}
-
-        # 6) Copywriter
-        try:
-            copy = copywriter_agent.write_copy(model, icp, chosen_angle, chosen_hook, brief)
-        except Exception as e:
-            section.append(f"⚠️ Copywriter Agent hiba: {e}")
-            report_sections.append("\n".join(section))
-            continue
-
-        # 7) Ad Quality Scorer
-        try:
-            latest_draft = db.latest_for_model("copy_drafts", model)
-            draft_id = latest_draft[0]["id"] if latest_draft else None
-            quality = ad_quality_scorer.score_ad(
-                copy.get("primary_text", ""), copy.get("headline", ""), copy.get("description", ""),
-                creative_brief=brief, copy_draft_id=draft_id,
-            )
-            section.append(f"Hook score: {quality.get('hook_score', {}).get('score')}/10")
-            section.append(f"Copy score: {quality.get('copy_score', {}).get('score')}/10")
-            for dimension, label in QUALITY_DIMENSION_LABELS.items():
-                dim_result = quality.get(dimension, {})
-                dim_score = dim_result.get("score")
-                if dim_score is not None and dim_score < 7:
-                    section.append(
-                        f"⚠️ Alacsony pontszám: {label} ({dim_score}/10) - {dim_result.get('improvement')}"
-                    )
-        except Exception as e:
-            section.append(f"⚠️ Ad Quality Scorer hiba: {e}")
-
-        # 8) Compliance
-        try:
-            latest_draft = db.latest_for_model("copy_drafts", model)
-            draft_id = latest_draft[0]["id"] if latest_draft else None
-            compliance = compliance_agent.check_compliance(
-                draft_id, copy.get("primary_text", ""), copy.get("headline", ""), copy.get("description", "")
-            )
-            status = "✅ megfelel" if compliance.get("passed") else f"❌ NEM felel meg: {compliance.get('issues')}"
-        except Exception as e:
-            status = f"⚠️ Compliance hiba: {e}"
-
-        section.append(f"Angle: {chosen_angle}")
-        section.append(f"Hook: {chosen_hook}")
-        section.append(f"Primary text: {copy.get('primary_text', '')}")
-        section.append(f"Compliance: {status}")
-
-        report_sections.append("\n".join(section))
 
     if run_weekly_tasks:
         try:

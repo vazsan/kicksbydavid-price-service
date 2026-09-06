@@ -125,6 +125,9 @@ COLUMN_MIGRATIONS = {
     "copy_drafts": ["avatar_name TEXT", "template TEXT", "market TEXT"],
     "hooks": ["avatar_name TEXT"],
     "performance": ["avatar_name TEXT", "template TEXT", "market TEXT"],
+    "marketing_angles": ["avatar_name TEXT"],
+    "compliance_checks": ["avatar_name TEXT"],
+    "ad_quality_scores": ["avatar_name TEXT"],
 }
 
 

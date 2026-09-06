@@ -9,7 +9,8 @@ aminek meg kell állítania a görgetést.
 
 {AD_WRITING_PRINCIPLES}
 
-Adott termékhez és marketing szöghöz generálj 15-20 különböző hookot.
+Adott termékhez, avatárhoz (vásárlói perszónához) és marketing szöghöz
+generálj 15-20 különböző hookot - arra az avatárra szabva, akit megkaptál.
 Változatos stílusban: kíváncsiság, közvetlen állítás, kérdés, social proof jellegű.
 
 KIZÁRÓLAG tiszta JSON tömbbel válaszolj:
@@ -17,14 +18,24 @@ KIZÁRÓLAG tiszta JSON tömbbel válaszolj:
 """
 
 
-def generate_hooks(model_name: str, angle: str) -> list[str]:
-    user_prompt = f"Termék: {model_name}\nMarketing szög: {angle}"
+def generate_hooks(model_name: str, avatar_name: str, angle: str) -> list[str]:
+    user_prompt = (
+        f"Termék: {model_name}\n"
+        f"Avatár: {avatar_name}\n"
+        f"Marketing szög: {angle}"
+    )
     result = ask_claude_json(SYSTEM, user_prompt, model=CLAUDE_MODEL_SMART, max_tokens=2000)
     hooks = result.get("hooks", [])
     for hook in hooks:
-        db.insert("hooks", model=model_name, hook_text=hook, generated_at=db.now())
+        db.insert(
+            "hooks",
+            model=model_name,
+            avatar_name=avatar_name,
+            hook_text=hook,
+            generated_at=db.now(),
+        )
     return hooks
 
 
 if __name__ == "__main__":
-    print(generate_hooks("Jordan 4", "A sneaker amit mindenki felismer."))
+    print(generate_hooks("Jordan 4", "Sneakerhead fiatal felnőtt", "A sneaker amit mindenki felismer."))
