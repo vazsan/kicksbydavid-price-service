@@ -101,7 +101,31 @@ CREATE TABLE IF NOT EXISTS ad_quality_scores (
     emotional_score INTEGER, offer_score INTEGER, visual_copy_score INTEGER,
     notes TEXT, scored_at TEXT
 );
+
+CREATE TABLE IF NOT EXISTS budget_plan (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    market TEXT, avatar_name TEXT, planned_daily_spend REAL,
+    valid_from TEXT
+);
+
+CREATE TABLE IF NOT EXISTS approval_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_type TEXT, description TEXT, payload_json TEXT,
+    status TEXT DEFAULT 'pending', created_at TEXT, resolved_at TEXT
+);
 """
+
+# CREATE TABLE IF NOT EXISTS nem ad hozzá oszlopot már létező táblához - ezek
+# az ALTER TABLE-lel utólag hozzáadott oszlopok a meglévő táblákhoz (lásd
+# migrate_schema()). Új tábláknál a fenti SCHEMA-ba kell felvenni az oszlopot,
+# ide csak azért kerül, mert a tábla már létezett a bevezetése előtt.
+COLUMN_MIGRATIONS = {
+    "icp": ["avatar_name TEXT"],
+    "creative_briefs": ["avatar_name TEXT", "template TEXT", "market TEXT"],
+    "copy_drafts": ["avatar_name TEXT", "template TEXT", "market TEXT"],
+    "hooks": ["avatar_name TEXT"],
+    "performance": ["avatar_name TEXT", "template TEXT", "market TEXT"],
+}
 
 
 @contextmanager
@@ -115,9 +139,26 @@ def get_conn():
         conn.close()
 
 
+def migrate_schema():
+    """
+    A CREATE TABLE IF NOT EXISTS nem ad hozzá oszlopot már létező táblához -
+    ezt itt, ALTER TABLE-lel pótoljuk. Az "oszlop már létezik" hibát
+    figyelmen kívül hagyjuk, minden mást nem.
+    """
+    with get_conn() as conn:
+        for table, column_defs in COLUMN_MIGRATIONS.items():
+            for column_def in column_defs:
+                try:
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {column_def}")
+                except sqlite3.OperationalError as e:
+                    if "duplicate column name" not in str(e):
+                        raise
+
+
 def init_db():
     with get_conn() as conn:
         conn.executescript(SCHEMA)
+    migrate_schema()
 
 
 def now() -> str:
