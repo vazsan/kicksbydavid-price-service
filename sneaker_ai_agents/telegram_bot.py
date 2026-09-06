@@ -17,6 +17,9 @@ Beállítás (1x):
    a .env-ben.
 """
 import json
+import os
+import subprocess
+import sys
 
 import requests
 from flask import Flask, request, jsonify
@@ -57,6 +60,28 @@ def request_approval(request_type: str, description: str, payload: dict) -> int:
         f"Válaszolj: /approve {request_id} vagy /reject {request_id}"
     )
     return request_id
+
+
+def _spawn_daily_pipeline() -> None:
+    """
+    A teljes pipeline több percig fut. Ha a webhook megvárná, a Telegram
+    időtúllépés miatt ÚJRAKÜLDENÉ ugyanazt az update-et (~percenként), és
+    minden újraküldés újabb párhuzamos futást indítana - a jelentés pedig
+    sosem érkezne meg, mert a webszerver közben elvágja a kérést.
+
+    Ezért külön, a webszerver process-étől független folyamatban indítjuk
+    ugyanazt a szkriptet, amit a cron job is hív: a run_daily_pipeline.py a
+    végén magától kiküldi a kész jelentést Telegramra.
+    """
+    script_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "run_daily_pipeline.py"
+    )
+    subprocess.Popen(
+        [sys.executable, script_path],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,  # ne álljon le, ha a webszerver bontja a kérést
+    )
 
 
 MAP_AD_USAGE = (
@@ -133,10 +158,12 @@ def webhook():
             chat_id=chat_id,
         )
     elif text == "/report":
-        send_message("Rendben, generálom a jelentést... (ez eltarthat pár percig)", chat_id=chat_id)
-        from campaign_manager import run_daily_pipeline
-        report = run_daily_pipeline(run_weekly_tasks=False)
-        send_message(report[:4000], chat_id=chat_id)
+        _spawn_daily_pipeline()
+        send_message(
+            "Rendben, elindítottam a jelentés generálását. Ez pár percig tart, "
+            "a kész jelentést külön üzenetben küldöm.",
+            chat_id=chat_id,
+        )
     elif text.startswith("/approve") or text.startswith("/reject"):
         command, _, raw_id = text.partition(" ")
         _resolve_approval(command, raw_id, chat_id)
