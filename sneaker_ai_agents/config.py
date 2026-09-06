@@ -39,6 +39,9 @@ REDDIT_USER_AGENT = "sneaker-ai-agents/0.1"
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")  # ide megy a napi jelentés
 
+# --- Piacok, amikre hirdetünk ---
+MARKETS = ["HU", "SK"]
+
 # --- Termékek amiket követünk ---
 TRACKED_MODELS = [
     "Jordan 4",
@@ -48,6 +51,22 @@ TRACKED_MODELS = [
     "Adidas Samba",
     "Asics Gel-Kayano 14",
 ]
+
+# --- Avatárok (perszónák) modellenként ---
+# Egy modellhez több avatár is tartozhat, és mindegyikre külön ICP / copy
+# készül. Ha egy modell nincs itt felsorolva, a DEFAULT_AVATAR az alapértelmezett.
+DEFAULT_AVATAR = "Általános vásárló"
+
+AVATARS = {
+    "Jordan 4": ["Sneakerhead fiatal felnőtt", "Szülő aki gyereknek vesz"],
+    "Jordan 1": ["Sneakerhead fiatal felnőtt"],
+    # Az alábbiakhoz még nincs kialakult perszónánk - ahogy jönnek a
+    # tapasztalatok (performance, customer language), írd át konkrétabbra.
+    "Nike Dunk Low": [DEFAULT_AVATAR],
+    "New Balance 550": [DEFAULT_AVATAR],
+    "Adidas Samba": [DEFAULT_AVATAR],
+    "Asics Gel-Kayano 14": [DEFAULT_AVATAR],
+}
 
 # --- Versenytársak (Competitor Intelligence Agent - egyelőre fél-manuális) ---
 COMPETITORS = [

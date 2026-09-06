@@ -182,14 +182,21 @@ def query(sql: str, params: tuple = ()) -> list[dict]:
         return [dict(r) for r in rows]
 
 
-def latest_for_model(table: str, model: str, limit: int = 1) -> list[dict]:
+def latest_for_model(table: str, model: str, limit: int = 1,
+                     avatar_name: str = None) -> list[dict]:
     order_col = "generated_at" if table in (
         "icp", "marketing_angles", "hooks", "creative_briefs", "copy_drafts"
     ) else "id"
-    return query(
-        f"SELECT * FROM {table} WHERE model = ? ORDER BY {order_col} DESC LIMIT ?",
-        (model, limit),
-    )
+
+    sql = f"SELECT * FROM {table} WHERE model = ?"
+    params = [model]
+    if avatar_name is not None:
+        sql += " AND avatar_name = ?"
+        params.append(avatar_name)
+    sql += f" ORDER BY {order_col} DESC LIMIT ?"
+    params.append(limit)
+
+    return query(sql, tuple(params))
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ minden nap teljes egészében:
 import random
 from datetime import datetime, timedelta
 
-from config import TRACKED_MODELS
+from config import TRACKED_MODELS, AVATARS, DEFAULT_AVATAR
 import db
 
 from agents import icp_agent, marketing_angle, hook_agent, creative_director
@@ -33,12 +33,12 @@ QUALITY_DIMENSION_LABELS = {
 }
 
 
-def _get_or_generate_icp(model: str) -> dict:
-    existing = db.latest_for_model("icp", model)
+def _get_or_generate_icp(model: str, avatar_name: str) -> dict:
+    existing = db.latest_for_model("icp", model, avatar_name=avatar_name)
     if existing:
         row = existing[0]
         return {"who": row["who"], "what": row["what"], "where": row["where_"]}
-    return icp_agent.generate_icp(model)
+    return icp_agent.generate_icp(model, avatar_name)
 
 
 def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
@@ -82,7 +82,8 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
 
         # 2) ICP (cache-elt, csak szükség esetén generál újat)
         try:
-            icp = _get_or_generate_icp(model)
+            avatar_name = AVATARS.get(model, [DEFAULT_AVATAR])[0]
+            icp = _get_or_generate_icp(model, avatar_name)
         except Exception as e:
             section.append(f"⚠️ ICP Agent hiba: {e}")
             report_sections.append("\n".join(section))
