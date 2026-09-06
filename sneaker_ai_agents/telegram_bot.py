@@ -59,6 +59,26 @@ def request_approval(request_type: str, description: str, payload: dict) -> int:
     return request_id
 
 
+MAP_AD_USAGE = (
+    "Formátum: /map_ad <hirdetésnév> | <avatár> | <sablon> | <piac>\n"
+    "Példa: /map_ad Régi Jordan hirdetés 2024 | Sneakerhead fiatal felnőtt | video | HU"
+)
+
+
+def _handle_map_ad(argument: str, chat_id) -> None:
+    parts = [part.strip().strip('"').strip("'") for part in argument.split("|")]
+    if len(parts) != 4 or not all(parts):
+        send_message(f"Hibás formátum.\n\n{MAP_AD_USAGE}", chat_id=chat_id)
+        return
+
+    ad_name, avatar_name, template, market = parts
+    db.upsert_ad_mapping(ad_name, avatar_name, template, market)
+    send_message(
+        f"✅ Leképezés mentve:\n{ad_name}\n-> avatár: {avatar_name} | sablon: {template} | piac: {market}",
+        chat_id=chat_id,
+    )
+
+
 def _resolve_approval(command: str, raw_id: str, chat_id) -> None:
     new_status = "approved" if command == "/approve" else "rejected"
     try:
@@ -109,7 +129,7 @@ def webhook():
     if text == "/start":
         send_message(
             "Szia! Ez a sneaker ad-agent botod.\n"
-            "Parancsok: /report, /approve <id>, /reject <id>",
+            "Parancsok: /report, /approve <id>, /reject <id>, /map_ad",
             chat_id=chat_id,
         )
     elif text == "/report":
@@ -120,6 +140,9 @@ def webhook():
     elif text.startswith("/approve") or text.startswith("/reject"):
         command, _, raw_id = text.partition(" ")
         _resolve_approval(command, raw_id, chat_id)
+    elif text.startswith("/map_ad"):
+        _, _, argument = text.partition(" ")
+        _handle_map_ad(argument, chat_id)
     else:
         send_message("Nem ismert parancs. Próbáld: /report", chat_id=chat_id)
 

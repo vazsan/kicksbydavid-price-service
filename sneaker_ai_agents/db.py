@@ -113,6 +113,12 @@ CREATE TABLE IF NOT EXISTS approval_requests (
     request_type TEXT, description TEXT, payload_json TEXT,
     status TEXT DEFAULT 'pending', created_at TEXT, resolved_at TEXT
 );
+
+CREATE TABLE IF NOT EXISTS ad_mapping (
+    ad_name TEXT PRIMARY KEY,
+    avatar_name TEXT, template TEXT, market TEXT,
+    mapped_at TEXT
+);
 """
 
 # CREATE TABLE IF NOT EXISTS nem ad hozzá oszlopot már létező táblához - ezek
@@ -192,6 +198,23 @@ def query(sql: str, params: tuple = ()) -> list[dict]:
     with get_conn() as conn:
         rows = conn.execute(sql, params).fetchall()
         return [dict(r) for r in rows]
+
+
+def get_ad_mapping(ad_name: str) -> dict | None:
+    """
+    Tartalék leképezés azokhoz a hirdetésekhez, amiknek a neve nem követi a
+    névkonvenciót (lásd ad_naming.py) - a Telegram /map_ad paranccsal töltöd.
+    """
+    rows = query("SELECT * FROM ad_mapping WHERE ad_name = ?", (ad_name,))
+    return rows[0] if rows else None
+
+
+def upsert_ad_mapping(ad_name: str, avatar_name: str, template: str, market: str) -> None:
+    execute(
+        "INSERT OR REPLACE INTO ad_mapping "
+        "(ad_name, avatar_name, template, market, mapped_at) VALUES (?, ?, ?, ?, ?)",
+        (ad_name, avatar_name, template, market, now()),
+    )
 
 
 def latest_for_model(table: str, model: str, limit: int = 1,

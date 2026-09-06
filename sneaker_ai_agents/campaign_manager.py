@@ -203,7 +203,14 @@ def run_daily_pipeline(run_weekly_tasks: bool = False) -> str:
             report_sections.append(f"⚠️ TikTok Creative hiba: {e}")
 
     try:
-        performance_agent.fetch_performance()
+        performance_result = performance_agent.fetch_performance()
+        unmatched = performance_result.get("unmatched_ad_names", [])
+        if unmatched:
+            report_sections.append(
+                f"⚠️ {len(unmatched)} hirdetés nem volt beazonosítható avatárra - küldd el: "
+                f"/map_ad <hirdetésnév> | <avatár> | <sablon> | <piac>\n"
+                f"Érintett: {', '.join(unmatched[:5])}"
+            )
         learnings = creative_learning.generate_learnings()
         report_sections.append(f"\n🧠 Tanulságok:\n{learnings}")
     except Exception as e:

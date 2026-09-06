@@ -3,6 +3,8 @@ Központi beállítások. Minden érzékeny adat a .env fájlból jön - soha ne
 API kulcsot közvetlenül ebbe a fájlba.
 """
 import os
+import unicodedata
+
 from dotenv import load_dotenv
 
 # Explicit útvonal, ne a cwd-től függjön: a cPanel Cron Job a szkriptet
@@ -67,6 +69,42 @@ AVATARS = {
     "Adidas Samba": [DEFAULT_AVATAR],
     "Asics Gel-Kayano 14": [DEFAULT_AVATAR],
 }
+
+
+def _to_avatar_code(avatar_name: str) -> str:
+    """Nagybetűs, ékezet és szóköz nélküli kód, max 10 karakter."""
+    decomposed = unicodedata.normalize("NFKD", avatar_name)
+    without_accents = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    letters_only = "".join(ch for ch in without_accents if ch.isalnum())
+    return letters_only.upper()[:10]
+
+
+def _build_avatar_codes(avatars: dict) -> dict:
+    """
+    Az AVATARS összes egyedi avatár-nevéhez kódot generál (nem kézzel karban
+    tartott lista). Ütközés esetén számozunk, a 10 karakteres hosszt tartva:
+    pl. SNEAKERHEA -> SNEAKERHE2.
+    """
+    unique_names = dict.fromkeys(name for names in avatars.values() for name in names)
+
+    codes = {}
+    used = set()
+    for name in unique_names:
+        base = _to_avatar_code(name)
+        code = base
+        counter = 2
+        while code in used:
+            suffix = str(counter)
+            code = base[:10 - len(suffix)] + suffix
+            counter += 1
+        used.add(code)
+        codes[name] = code
+    return codes
+
+
+# Hirdetésnevekben ezek a kódok jelölik az avatárt (lásd ad_naming.py).
+AVATAR_CODES = _build_avatar_codes(AVATARS)
+AVATAR_CODES_REVERSE = {code: name for name, code in AVATAR_CODES.items()}
 
 # --- Versenytársak (Competitor Intelligence Agent - egyelőre fél-manuális) ---
 COMPETITORS = [
