@@ -26,7 +26,14 @@
       ["truck", "Dáme ti vedieť, kde je balík", "Informujeme ťa až do odoslania"]
     ],
     tSale: "Zľavy", tTop: "Najobľúbenejšie", tNew: "Novinky", all: "Zobraziť všetko",
-    prev: "Predchádzajúce", next: "Ďalšie", uspLabel: "Výhody nákupu", tabsLabel: "Produkty"
+    prev: "Predchádzajúce", next: "Ďalšie", uspLabel: "Výhody nákupu", tabsLabel: "Produkty",
+    cQ: "Máš otázku?", cA: "Odpovieme do jedného pracovného dňa.", cMail: "E-mail", cTel: "Telefón",
+    fEy: "Kto stojí za obchodom", fH: "Ahoj, som Dávid",
+    fP: "Topánky som mal rád odjakživa. KicksByDavid vznikol v januári 2026, úplne v malom: najprv som kúpil a predal päť párov teniesok, potom desať, neskôr dvadsať. Keď už v malej dedinskej miestnosti stálo 250 párov, bolo jasné, že z toho bude e-shop.",
+    fL: ["Na každej stránke produktu je výrobný kód, pred platbou si ho môžeš overiť.", "Sme nezávislý predajca: nové, originálne produkty z overených obchodných zdrojov.", "KICKSBYDAVID s.r.o. · 943 42 Šarkan 115, Slovensko · DIČ 2121629928"],
+    fMore: "Celý príbeh", fUrl: "/o-nas",
+    club: "5 € za registráciu<br>a z každej objednávky 5 % späť",
+    rv: "Nedávno si si pozrel", rvSub: "Pokračuj tam, kde si skončil"
   } : {
     bar: ["Ingyenes szállítás 50 000 Ft felett", "Utánvéttel is fizethetsz", "Sok modellből csak 1–2 pár van"],
     phone: "+36 20 556 4258",
@@ -42,7 +49,14 @@
       ["truck", "Szólunk, hol tart", "Feladásig értesítünk a csomagodról"]
     ],
     tSale: "Akciós", tTop: "Legnépszerűbb", tNew: "Újdonságok", all: "Mutasd mindet",
-    prev: "Előző", next: "Következő", uspLabel: "Vásárlási előnyök", tabsLabel: "Termékek"
+    prev: "Előző", next: "Következő", uspLabel: "Vásárlási előnyök", tabsLabel: "Termékek",
+    cQ: "Kérdésed van?", cA: "Egy munkanapon belül válaszolunk.", cMail: "E-mail", cTel: "Telefon",
+    fEy: "Ki áll a bolt mögött", fH: "Szia, Dávid vagyok",
+    fP: "Mindig is szerettem a cipőket. A KicksByDavid 2026 januárjában indult, egészen kicsiben: először öt pár sneakert vettem és adtam el, aztán tízet, később húszat. Amikor már 250 pár állt egy kis falusi helyiségben, világos lett, hogy ebből webshop lesz.",
+    fL: ["Minden terméklapon ott a gyári cikkszám, fizetés előtt le tudod ellenőrizni.", "Független viszonteladók vagyunk: új, eredeti termékek, ellenőrzött kereskedelmi forrásból.", "KICKSBYDAVID s.r.o. · 94342 Sarkan 115, Szlovákia · adószám 2121629928"],
+    fMore: "A teljes történet", fUrl: "/rolunk",
+    club: "1800 Ft a regisztrációért,<br>és minden rendelésből 5% vissza",
+    rv: "Nemrég megnézted", rvSub: "Folytasd ott, ahol abbahagytad"
   };
 
   var ICON = {
@@ -93,8 +107,8 @@
     + H + ".kbd-hero__media .start_banner_big__container{padding:0!important}"
     + H + ".kbd-hero__media .carousel__nav--start_banner_big{display:none!important}"
     + "@media(max-width:991.98px){" + H + "#kbd-hero{grid-template-columns:minmax(0,1fr)}" + H + ".kbd-hero__txt{padding:32px 24px}}"
-    + "@media(max-width:767.98px){" + H + ".kbd-hero__txt{padding:24px 16px 22px;gap:10px}" + H + ".kbd-hero__ey{font-size:10.5px}"
-    + H + "#kbd-hero h1{font-size:30px}" + H + ".kbd-hero__p{font-size:14px}"
+    + "@media(max-width:767.98px){" + H + ".kbd-hero__txt{padding:18px 16px 18px;gap:8px}" + H + ".kbd-hero__ey{display:none}"
+    + H + "#kbd-hero h1{font-size:25px}" + H + ".kbd-hero__p{font-size:13.5px;line-height:1.45}"
     + H + ".kbd-hero__cta{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:8px}" + H + ".kbd-btn{justify-content:center;height:46px;padding:0 10px;font-size:14px}"
     + H + ".kbd-hero__link{grid-column:1/-1;justify-self:start;margin:4px 0 0}}"
 
@@ -150,6 +164,42 @@
     + "@media(max-width:767.98px){" + H + "#kbd-ptabs{padding:18px 0 22px}" + H + ".kbd-pt__head{padding:0 16px;gap:6px}"
     + H + ".kbd-pt__tab{height:34px;padding:0 13px;font-size:13px}" + H + ".kbd-pt__nav{display:none}"
     + H + ".kbd-pt__side{margin-left:0;width:100%;order:3}" + H + ".kbd-pt__all{font-size:13px;margin:4px 0 0}}"
+    /* kapcsolati kártya a GYIK-ben */
+    + H + ".kbd-faq__contact.kbd-hid{display:none!important}"
+    + H + ".kbd-contact{margin-top:22px;background:" + INK + ";color:#fff;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;max-width:420px}"
+    + H + ".kbd-contact b{font-size:17px;font-weight:800}"
+    + H + ".kbd-contact span{font-size:13.5px;opacity:.8}"
+    + H + ".kbd-contact a{display:flex;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,.14);padding-top:10px;color:#fff!important;text-decoration:none!important;font-size:14px}"
+    + H + ".kbd-contact a em{font-style:normal;opacity:.7}"
+    + H + ".kbd-contact a strong{font-weight:700;word-break:break-all;text-align:right}"
+    /* nemrég megnézted */
+    + H + "#kbd-rv{padding:36px 0 8px;background:#fff}"
+    + H + ".kbd-rv__in{max-width:1320px;margin:0 auto;padding:0 24px}"
+    + H + ".kbd-rv__h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 14px}"
+    + H + ".kbd-rv__h h2{margin:0;font-size:22px;font-weight:800;text-transform:uppercase;color:" + INK + "}"
+    + H + ".kbd-rv__h span{font-size:13.5px;color:#777}"
+    + H + ".kbd-rv__list{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}"
+    + H + ".kbd-rv__it{display:flex;flex-direction:column;gap:6px;background:#fff;border-radius:10px;box-shadow:0 0 5px 0 rgba(0,0,0,.1);padding:10px;color:" + INK + "!important;text-decoration:none!important;transition:box-shadow .2s}"
+    + H + ".kbd-rv__it:hover{box-shadow:0 0 14px 0 rgba(0,0,0,.14)}"
+    + H + ".kbd-rv__it img{width:100%;aspect-ratio:1;object-fit:contain;background:#fafafa;border-radius:6px}"
+    + H + ".kbd-rv__it span{display:block!important;font-size:12.5px;line-height:1.3;height:3.9em;overflow:hidden}"
+    + H + ".kbd-rv__it b{font-size:14px;font-weight:800}"
+    + "@media(max-width:991.98px){" + H + ".kbd-rv__list{grid-template-columns:repeat(4,minmax(0,1fr))}}"
+    + "@media(max-width:767.98px){" + H + "#kbd-rv{padding:26px 0 4px}" + H + ".kbd-rv__in{padding:0}" + H + ".kbd-rv__h{padding:0 16px}" + H + ".kbd-rv__h h2{font-size:19px}"
+    + H + ".kbd-rv__list{display:flex;overflow-x:auto;gap:10px;padding:4px 16px 10px;scroll-snap-type:x mandatory;scroll-padding:0 16px;scrollbar-width:none}"
+    + H + ".kbd-rv__list::-webkit-scrollbar{display:none}" + H + ".kbd-rv__it{flex:0 0 140px;scroll-snap-align:start}}"
+    /* alapítói blokk */
+    + H + "#kbd-founder{background:" + CREAM + ";padding:56px 0}"
+    + H + ".kbd-fd__in{max-width:1180px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:48px;align-items:center;color:" + INK + "}"
+    + H + ".kbd-fd__ey{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:" + BR + "}"
+    + H + ".kbd-fd__in h2{margin:8px 0 14px;font-size:clamp(26px,2.6vw,36px);line-height:1.05;font-weight:800;text-transform:uppercase;color:" + INK + "}"
+    + H + ".kbd-fd__in p{margin:0;font-size:15.5px;line-height:1.65;color:#333;max-width:58ch}"
+    + H + ".kbd-fd__box{background:#fff;border-radius:14px;padding:22px 24px;box-shadow:0 0 5px 0 rgba(0,0,0,.08)}"
+    + H + ".kbd-fd__box ul{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:12px}"
+    + H + ".kbd-fd__box li{display:flex;gap:10px;font-size:14px;line-height:1.45;color:#333}"
+    + H + ".kbd-fd__box li svg{flex:none;width:20px;height:20px;color:" + BR + ";margin-top:1px}"
+    + H + ".kbd-fd__box a{font-size:14px;font-weight:700;color:" + INK + "!important;text-decoration:underline!important;text-underline-offset:3px}"
+    + "@media(max-width:767.98px){" + H + "#kbd-founder{padding:36px 0}" + H + ".kbd-fd__in{grid-template-columns:minmax(0,1fr);gap:20px;padding:0 16px}" + H + ".kbd-fd__in p{font-size:14.5px}}"
     + "@media(prefers-reduced-motion:reduce){#kbd-bar .kbd-bar__msg span{transition:none}" + H + ".kbd-btn{transition:none}}";
 
   function addCss() {
@@ -367,16 +417,81 @@
     else if (grown) flkResize(body.querySelector(".kbd-pane.on"));
   }
 
-  /* ---------- 7) sorrend: hero, előnyök, kategóriák, fülek, [mobilon banner], méretek, UGG/márkák ---------- */
+  /* ---------- 6b) kapcsolati kártya a GYIK bal oszlopában ---------- */
+  function buildContact() {
+    var p = document.querySelector("#kbd-faq .kbd-faq__contact");
+    if (!p || $id("kbd-contact")) return;
+    var c = document.createElement("div");
+    c.id = "kbd-contact";
+    c.className = "kbd-contact";
+    c.innerHTML = "<b>" + T.cQ + "</b><span>" + T.cA + "</span>"
+      + '<a href="tel:' + T.phone.replace(/\s/g, "") + '"><em>' + T.cTel + "</em><strong>" + T.phone + "</strong></a>"
+      + '<a href="mailto:info@kicksbydavid.com"><em>' + T.cMail + "</em><strong>info@kicksbydavid.com</strong></a>";
+    after(c, p);
+    p.classList.add("kbd-hid");
+  }
+
+  /* ---------- 6c) Club-sáv: konkrét ajánlat a Hűségprogram oldalról ---------- */
+  function fixClub() {
+    var t = document.querySelector(".kbdc-hero-title");
+    if (t && !t.getAttribute("data-kbd")) { t.innerHTML = T.club; t.setAttribute("data-kbd", "1"); }
+  }
+
+  /* ---------- 6d) nemrég megnézett termékek (a terméklapi script menti a böngészőbe) ---------- */
+  function money(v, cur) {
+    var n = Math.round(parseFloat(v));
+    if (isNaN(n)) return "";
+    var s = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
+    return cur === "EUR" ? s + "\u00a0€" : s + "\u00a0Ft";
+  }
+  function buildRecent() {
+    if ($id("kbd-rv")) return;
+    var list = [];
+    try { list = JSON.parse(localStorage.getItem("kbd_rv") || "[]"); } catch (e) { list = []; }
+    if (!list || list.length < 2) return;
+    var h = "";
+    for (var i = 0; i < list.length && i < 6; i++) {
+      var it = list[i];
+      if (!it || !it.u || !it.n) continue;
+      h += '<a class="kbd-rv__it" href="' + it.u + '"><img src="' + (it.i || "") + '" alt="" loading="lazy"><span></span><b>' + money(it.p, it.c) + "</b></a>";
+    }
+    var s = document.createElement("section");
+    s.id = "kbd-rv";
+    s.innerHTML = '<div class="kbd-rv__in"><div class="kbd-rv__h"><h2>' + T.rv + "</h2><span>" + T.rvSub + '</span></div><div class="kbd-rv__list">' + h + "</div></div>";
+    /* a terméknév szövegként kerül be, nem HTML-ként */
+    var spans = s.querySelectorAll(".kbd-rv__it span"), k = 0;
+    for (var j = 0; j < list.length && j < 6; j++) if (list[j] && list[j].u && list[j].n) spans[k++].textContent = list[j].n;
+    var ref = $id("kbd-ptabs");
+    if (ref) after(s, ref);
+  }
+
+  /* ---------- 6e) alapítói blokk (szöveg a Rólunk oldalról) ---------- */
+  function buildFounder() {
+    if ($id("kbd-founder")) return;
+    var ref = document.querySelector("#main > .kbd-home-extra") || $id("kbd-ptabs");
+    if (!ref) return;
+    var li = "";
+    for (var i = 0; i < T.fL.length; i++) li += "<li>" + svg("shield") + "<span>" + T.fL[i] + "</span></li>";
+    var f = document.createElement("section");
+    f.id = "kbd-founder";
+    f.innerHTML = '<div class="kbd-fd__in"><div><span class="kbd-fd__ey">' + T.fEy + "</span><h2>" + T.fH + "</h2><p>" + T.fP + "</p></div>"
+      + '<div class="kbd-fd__box"><ul>' + li + '</ul><a href="' + abs(T.fUrl) + '">' + T.fMore + " →</a></div></div>";
+    after(f, ref);
+  }
+
+  /* ---------- 7) sorrend: [mobilon banner], hero, előnyök, kategóriák, fülek, méretek, UGG/márkák, nemrég nézett, alapító ---------- */
   var lastMob = null;
   function arrange() {
     var main = $id("main"), cat = $id("start_category_offer");
     if (!main || !cat) return;
     var hero = $id("kbd-hero"), usp = $id("kbd-usp"), tabs = $id("kbd-ptabs"), bn = $id("start_banner_big");
     var bs = $id("start_brand_slider"), ex = document.querySelector("#main > .kbd-home-extra");
-    var mob = MQ.matches, seq = [hero, usp, cat, tabs];
-    if (mob && bn) seq.push(bn);
-    seq.push(bs, ex);
+    var mob = MQ.matches, seq = [];
+    /* mobilon a banner marad a lap tetején, közvetlenül alatta a szlogen és a gombok */
+    if (mob && bn && hero) {
+      if (bn.parentNode !== hero.parentNode || bn.nextElementSibling !== hero) hero.parentNode.insertBefore(bn, hero);
+    }
+    seq.push(hero, usp, cat, tabs, bs, ex, $id("kbd-rv"), $id("kbd-founder"));
     seq = seq.filter(function (x) { return x && x.parentNode; });
     for (var i = 1; i < seq.length; i++) if (seq[i - 1].nextElementSibling !== seq[i]) after(seq[i], seq[i - 1]);
     var media = hero && hero.querySelector(".kbd-hero__media");
@@ -393,7 +508,7 @@
     try {
       buildBar();
       if (document.body && document.body.id === "ud_shop_start") {
-        buildHero(); buildUsp(); orderCats(); buildTabs(); arrange();
+        buildHero(); buildUsp(); orderCats(); buildTabs(); buildContact(); fixClub(); buildRecent(); buildFounder(); arrange();
       }
     } catch (e) { if (window.console) console.warn("kbd-home", e); }
     busy = false;

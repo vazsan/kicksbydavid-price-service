@@ -609,3 +609,25 @@ d.addEventListener("click", function(e){
 if(e.target.closest && e.target.closest(".product-type__value--text")) setTimeout(safe, 400);
 });
 })();
+
+/* KBD – megnézett termék mentése a böngészőbe (a kezdőlap „Nemrég megnézted” sora ebből dolgozik) */
+(function(){
+function save(){
+try{
+if(document.body&&document.body.id!=="ud_shop_artdet")return;
+var ld=null,ss=document.querySelectorAll('script[type="application/ld+json"]');
+for(var i=0;i<ss.length&&!ld;i++){try{var o=JSON.parse(ss[i].textContent);if(o&&o["@type"]==="Product")ld=o;}catch(e){}}
+if(!ld||!ld.offers)return;
+var ta=document.createElement("textarea");ta.innerHTML=ld.name||"";var name=ta.value.replace(/\s+/g," ").trim();
+var img=(ld.image&&ld.image.length?ld.image[0]:"").replace("/0x0,","/496x496,");
+var url=(location.origin+location.pathname);
+var it={u:url,n:name,i:img,p:ld.offers.price,c:ld.offers.priceCurrency,t:Date.now()};
+if(!it.n||!it.p)return;
+var list=[];try{list=JSON.parse(localStorage.getItem("kbd_rv")||"[]")||[];}catch(e){list=[];}
+list=list.filter(function(x){return x&&x.n!==it.n;});
+list.unshift(it);
+localStorage.setItem("kbd_rv",JSON.stringify(list.slice(0,12)));
+}catch(e){}
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",save);else save();
+})();
