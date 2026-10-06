@@ -7,6 +7,16 @@
 Options -Indexes
 Options -MultiViews
 
+# Explicitly grant access to the webroot. The repo-root .htaccess denies
+# everything as a safety net (in case the repo root is ever used as the
+# docroot); when the docroot is correctly set to this "public/" folder,
+# Apache still reads that parent .htaccess in the directory chain, so its
+# "Require all denied" would otherwise 403 the whole site. Re-granting here
+# overrides the inherited deny for the one directory that must be served.
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
 

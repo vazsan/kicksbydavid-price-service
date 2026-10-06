@@ -86,5 +86,6 @@ Not yet applicable in this first commit - `cron/` currently has no job scripts (
 
 - **500 error, blank page**: set `APP_DEBUG=true` temporarily in `.env` to see the real error, or check `storage/logs/php-*.log`. Set it back to `false` afterward.
 - **"Database connection failed"**: check `DB_HOST`/`DB_DATABASE`/`DB_USERNAME`/`DB_PASSWORD` in `.env`; check `storage/logs/database-*.log` for the underlying PDO error (never shown to the browser on purpose).
+- **403 Forbidden on the whole site**: the repo-root `.htaccess` is `Require all denied` (a safety net). When the docroot is `public/`, Apache still reads that parent `.htaccess` in the directory chain, so it can 403 the site. `public/.htaccess` re-grants access with `Require all granted` to override it; if you still get a 403, make sure that line is present in `public/.htaccess` (or remove the repo-root `.htaccess` on the server, since the docroot already points at `public/`).
 - **CSS/JS not loading**: confirm the docroot really is `public/` (or that the `public_html` fallback in step 3 was done correctly) - `assets/` must be reachable at `/assets/...` directly.
 - **`.env` not found**: it must live in the repo root (one level above `public/`), not inside `public/`, and not be named `.env.example`.
