@@ -213,17 +213,21 @@ final class DpdApiService
      */
     private function buildLabelsRequest(int|string $sessionId, string $sessionType, string $pageFormat): array
     {
+        // Field names confirmed from the live WSDL type generateSpedLabelsV4:
+        // dpdServicesParamsV1, outputDocFormatV1, outputDocPageFormatV1,
+        // outputLabelType (no "EnumV1" suffix), labelVariant, authDataV1.
         return [
-            'dpdServicesParams' => [
+            'dpdServicesParamsV1' => [
                 'policy' => 'STOP_ON_FIRST_ERROR',
                 'session' => [
+                    'sessionId' => (int) $sessionId,
                     'sessionType' => $sessionType,
-                    'sessionId' => $sessionId,
                 ],
             ],
             'outputDocFormatV1' => 'PDF',
             'outputDocPageFormatV1' => $pageFormat,
-            'outputLabelTypeEnumV1' => 'BIC3',
+            'outputLabelType' => 'BIC3',
+            'labelVariant' => '',
             'authDataV1' => $this->authData(),
         ];
     }
@@ -260,7 +264,8 @@ final class DpdApiService
 
     /**
      * Collects every parcel waybill number from a generatePackageNumbers
-     * response. Each parcel's number lives under packages[].parcels[].waybill.
+     * response. The live DPD Polska shape is PascalCase and doubly nested:
+     * return.Packages.Package[].Parcels.Parcel[].Waybill.
      *
      * @param array<string, mixed> $response
      * @return array<int, string>
@@ -270,21 +275,55 @@ final class DpdApiService
         $root = $this->unwrapReturn($response);
         $waybills = [];
 
-        foreach ($this->asList($root['packages'] ?? null) as $package) {
+        foreach ($this->childList($root, ['Packages', 'packages'], ['Package', 'package']) as $package) {
             if (!is_array($package)) {
                 continue;
             }
-            foreach ($this->asList($package['parcels'] ?? null) as $parcel) {
-                if (is_array($parcel) && isset($parcel['waybill']) && is_scalar($parcel['waybill'])) {
-                    $waybill = (string) $parcel['waybill'];
-                    if ($waybill !== '') {
-                        $waybills[] = $waybill;
-                    }
+            foreach ($this->childList($package, ['Parcels', 'parcels'], ['Parcel', 'parcel']) as $parcel) {
+                if (!is_array($parcel)) {
+                    continue;
+                }
+                $waybill = $parcel['Waybill'] ?? ($parcel['waybill'] ?? null);
+                if (is_scalar($waybill) && (string) $waybill !== '') {
+                    $waybills[] = (string) $waybill;
                 }
             }
         }
 
         return $waybills;
+    }
+
+    /**
+     * Resolves a SOAP "wrapper -> repeated item" shape (e.g. Packages ->
+     * Package[]) into a plain list, tolerating case and the one-vs-many
+     * collapsing. Checks each wrapper key, then each item key inside it;
+     * if no item key matches, the wrapper itself is treated as the list.
+     *
+     * @param array<string, mixed> $node
+     * @param array<int, string> $wrapperKeys
+     * @param array<int, string> $itemKeys
+     * @return array<int, mixed>
+     */
+    private function childList(array $node, array $wrapperKeys, array $itemKeys): array
+    {
+        $wrapper = null;
+        foreach ($wrapperKeys as $wk) {
+            if (isset($node[$wk]) && is_array($node[$wk])) {
+                $wrapper = $node[$wk];
+                break;
+            }
+        }
+        if ($wrapper === null) {
+            return [];
+        }
+
+        foreach ($itemKeys as $ik) {
+            if (isset($wrapper[$ik])) {
+                return $this->asList($wrapper[$ik]);
+            }
+        }
+
+        return $this->asList($wrapper);
     }
 
     /**
@@ -295,8 +334,10 @@ final class DpdApiService
      */
     public function extractLabelPdf(array $response): ?string
     {
-        $root = $this->unwrapReturn($response);
-        $data = $root['documentData'] ?? ($root['DocumentData'] ?? null);
+        // The label bytes live in documentGenerationResponseV1.documentData,
+        // but casing/nesting varies, so search the response tree for the
+        // document-data field by name.
+        $data = $this->deepFindDocumentData($response);
 
         if (!is_string($data) || $data === '') {
             return null;
@@ -307,6 +348,36 @@ final class DpdApiService
         // Some WSDL type maps already hand back decoded bytes; if base64
         // decoding fails, assume the string is the raw document already.
         return $decoded === false ? $data : $decoded;
+    }
+
+    /**
+     * Recursively finds the first value under a key that names the label
+     * document (documentData / fileData / fileContent), in any casing and
+     * at any depth.
+     *
+     * @param array<string, mixed> $node
+     */
+    private function deepFindDocumentData(array $node): ?string
+    {
+        foreach ($node as $key => $value) {
+            if (is_string($key)
+                && preg_match('/document.?data|file.?data|file.?content/i', $key) === 1
+                && is_string($value) && $value !== ''
+            ) {
+                return $value;
+            }
+        }
+
+        foreach ($node as $value) {
+            if (is_array($value)) {
+                $found = $this->deepFindDocumentData($value);
+                if ($found !== null) {
+                    return $found;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
