@@ -19,6 +19,7 @@ $user = Auth::user();
             <nav class="sidebar-nav">
                 <a href="/dashboard" class="active">Dashboard</a>
                 <a href="/orders">Orders</a>
+                <a href="/dpd">DPD Labels</a>
                 <a href="/products">Products</a>
                 <a href="/inventory">Inventory</a>
                 <a href="/purchase-costs">Purchase Costs</a>

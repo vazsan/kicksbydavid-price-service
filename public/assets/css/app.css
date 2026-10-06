@@ -212,3 +212,41 @@ a:hover { text-decoration: underline; }
     font-size: 14px;
 }
 .auth-form .btn { margin-top: 16px; }
+
+/* ---- DPD Labels page ------------------------------------------------ */
+.card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+}
+.card h2 { margin: 0 0 6px; font-size: 16px; }
+
+.alert-success { background: #e8f7f1; color: var(--color-success); border: 1px solid #b6e6d4; }
+
+.dpd-form { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+.dpd-form input[type="text"] {
+    flex: 1 1 260px;
+    padding: 9px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 14px;
+}
+.dpd-form .checkbox { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-muted); }
+
+.data-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+.data-table th, .data-table td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+}
+.data-table th { color: var(--color-text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; }
+
+.badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge-ok { background: #e8f7f1; color: var(--color-success); }
+.badge-error { background: #fdeaea; color: var(--color-danger); }
+
+.btn-small { padding: 5px 12px; font-size: 13px; }
+.small { font-size: 12px; }

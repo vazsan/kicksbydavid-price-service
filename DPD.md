@@ -76,6 +76,18 @@ dev machine).
    shipment in `dpd_shipments`. A second run for the same order is refused unless
    you pass `--force` (which registers a duplicate waybill).
 
+## Everyday use: the web page
+
+Once the app is deployed and DPD is configured, sign in and open
+**DPD Labels** in the sidebar (`/dpd`). Type the UNAS order id, click
+**Generate label**, and download the PDF - no shell needed. The page also
+lists recent labels with a download button and shows failures with their
+reason. Tick **Force** only to deliberately register a second waybill for an
+order that already has one.
+
+The web button and the CLI script run the exact same flow
+(`App\Services\DpdLabelGenerator`).
+
 ## Design notes / honest unknowns
 
 - The SOAP request field names (`openUMLFeV3`, `authDataV1`, the

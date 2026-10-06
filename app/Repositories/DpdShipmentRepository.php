@@ -28,6 +28,23 @@ final class DpdShipmentRepository
     }
 
     /**
+     * Most recently generated/attempted shipments, newest first.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function recent(int $limit = 50): array
+    {
+        $limit = max(1, min(200, $limit));
+        $stmt = Database::connection()->prepare(
+            'SELECT * FROM dpd_shipments ORDER BY created_at DESC, id DESC LIMIT ' . $limit
+        );
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+
+        return is_array($rows) ? $rows : [];
+    }
+
+    /**
      * Inserts or updates the shipment record for an order (unas_order_id
      * is unique). Returns the row id.
      *

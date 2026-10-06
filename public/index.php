@@ -39,5 +39,9 @@ $router->post('/login', [App\Controllers\AuthController::class, 'login']);
 $router->post('/logout', [App\Controllers\AuthController::class, 'logout']);
 $router->get('/dashboard', [App\Controllers\DashboardController::class, 'index']);
 
+$router->get('/dpd', [App\Controllers\DpdController::class, 'index']);
+$router->post('/dpd/generate', [App\Controllers\DpdController::class, 'generate']);
+$router->get('/dpd/label/:orderId', [App\Controllers\DpdController::class, 'download']);
+
 $route = $_GET['route'] ?? '/';
 $router->dispatch($_SERVER['REQUEST_METHOD'], '/' . ltrim((string) $route, '/'));
