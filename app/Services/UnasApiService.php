@@ -196,16 +196,24 @@ final class UnasApiService
     }
 
     /**
-     * Fetches a single order by UNAS order id. Field name for the filter
-     * (assumed "OrderID" here, matching UNAS's PascalCase convention seen
-     * elsewhere) is unconfirmed - verify against a real response before
-     * relying on this for anything beyond a manual diagnostic.
+     * Fetches a single order by its UNAS identifier. UNAS's /getOrder
+     * filters a single order by <Id> (the numeric order id) or <Key> (the
+     * unique order key string) - "OrderID" is NOT a recognized filter and
+     * would return an unfiltered list (confirmed from UNAS's getOrder
+     * docs). We try <Id> first (the identifier this app stores as
+     * unas_order_id), then fall back to <Key>, so the caller can pass
+     * whichever identifier they have on hand.
      *
      * @return array<string, mixed>
      */
     public function getOrderDetails(string $unasOrderId): array
     {
-        return $this->request('POST', '/getOrder', ['OrderID' => $unasOrderId]);
+        $byId = $this->request('POST', '/getOrder', ['Id' => $unasOrderId]);
+        if (isset($byId['Order'])) {
+            return $byId;
+        }
+
+        return $this->request('POST', '/getOrder', ['Key' => $unasOrderId]);
     }
 
     /**
