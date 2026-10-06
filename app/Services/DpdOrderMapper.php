@@ -139,7 +139,7 @@ final class DpdOrderMapper
         $name = $pick(['Name', 'ContactName', 'FullName'])
             ?? $this->firstScalar($contact, ['Name']);
         $company = $pick(['Company', 'CompanyName']);
-        $street = $pick(['Street', 'Address', 'StreetName', 'Address1']);
+        $street = $pick(['Street', 'Address', 'Address1']);
         $houseNumber = $pick(['StreetNumber', 'HouseNumber', 'Number']);
         $city = $pick(['City', 'Town']);
         $postalCode = $pick(['ZIP', 'Zip', 'PostalCode', 'PostCode', 'Postcode', 'ZipCode']);
@@ -150,8 +150,15 @@ final class DpdOrderMapper
             ?? $this->firstScalar($customer, ['Email'])
             ?? $this->firstScalar($order, ['Email']);
 
-        if ($street !== null && $houseNumber !== null && $houseNumber !== '') {
-            $street = trim($street . ' ' . $houseNumber);
+        // UNAS's <Street> already includes the house number (e.g. "Vyhonska 1"),
+        // so it is used as-is. Only when no complete street line exists do we
+        // build one from the split <StreetName> + <StreetNumber>, to avoid
+        // duplicating the number ("Vyhonska 1 1").
+        if ($street === null) {
+            $streetName = $pick(['StreetName']);
+            if ($streetName !== null) {
+                $street = trim($streetName . ' ' . ($houseNumber ?? ''));
+            }
         }
 
         $countryCode = $countryRaw !== null ? $this->resolveCountryCode($countryRaw) : null;
@@ -316,9 +323,17 @@ final class DpdOrderMapper
             );
         }
 
+        // COD is collected in the order's own currency (an SK order is in
+        // EUR, a HU order in HUF, ...). The configured cod_currency is only a
+        // fallback for an order that somehow carries no <Currency>.
+        $orderCurrency = $this->firstScalar($order, ['Currency']);
+        $currency = ($orderCurrency !== null && $orderCurrency !== '')
+            ? $orderCurrency
+            : (string) ($options['cod_currency'] ?? 'EUR');
+
         return [
             'amount' => round((float) $amount, 2),
-            'currency' => strtoupper((string) ($options['cod_currency'] ?? 'PLN')),
+            'currency' => strtoupper($currency),
         ];
     }
 

@@ -91,6 +91,22 @@ $t->assertThrows(
     'missing receiver fields raise an error instead of a blank label'
 );
 
+// --- COD via Payment.Type='cod' + currency from the order ------------
+$codTypeOrder = $orderFactory();
+$codTypeOrder['Payment'] = ['Type' => 'cod', 'Name' => 'Utánvét (+1.100 ft)'];
+$codTypeOrder['Currency'] = 'EUR';
+$codPkg2 = $mapper->buildPackage($codTypeOrder, $sender, ['cod_payment_methods' => ['cod'], 'cod_currency' => 'PLN']);
+$cod2 = $codPkg2['packages'][0]['services']['cod'] ?? null;
+$t->assertTrue($cod2 !== null, 'COD detected from Payment.Type=cod');
+$t->assertSame('EUR', $cod2['currency'] ?? null, 'COD currency comes from the order currency, not the config fallback');
+
+// --- street number already in <Street> is not duplicated -------------
+$streetOrder = $orderFactory();
+$streetOrder['Customer']['Addresses']['Shipping']['Street'] = 'Vyhonska 1';
+$streetOrder['Customer']['Addresses']['Shipping']['StreetName'] = 'Vyhonska';
+$streetOrder['Customer']['Addresses']['Shipping']['StreetNumber'] = '1';
+$t->assertSame('Vyhonska 1', $mapper->buildReceiver($streetOrder)['address'], 'Street used as-is, house number not duplicated');
+
 // --- sender without FID throws ---------------------------------------
 $t->assertThrows(
     static fn () => $mapper->buildSender(['country_code' => 'PL']),
