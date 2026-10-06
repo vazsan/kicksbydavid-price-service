@@ -167,7 +167,9 @@ final class DpdApiService
     public function generatePackageNumbers(
         array $openUMLFe,
         string $policy = 'STOP_ON_FIRST_ERROR',
-        string $langCode = 'EN'
+        // DPD Polska's DPDServices rejects 'EN' with UNSUPPORTED_LANG_CODE;
+        // 'PL' is the value its account WSDL accepts.
+        string $langCode = 'PL'
     ): array {
         return $this->call('generatePackagesNumbersV4', $this->buildPackageNumbersRequest($openUMLFe, $policy, $langCode));
     }
