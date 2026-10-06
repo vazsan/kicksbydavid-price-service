@@ -441,18 +441,38 @@ final class DpdApiService
      * Converts SoapClient's nested stdClass graph into plain arrays so
      * callers have one predictable shape to read.
      *
+     * Done without json_encode on purpose: the label response carries the
+     * PDF as a base64Binary element, which SoapClient hands back as RAW
+     * binary bytes. json_encode() fails on non-UTF-8 bytes and would return
+     * false, dropping the entire response (the symptom: an empty label
+     * response and "no label document"). A recursive object->array cast
+     * preserves the binary payload.
+     *
      * @return array<string, mixed>
      */
     private function normalize(mixed $result): array
     {
-        $encoded = json_encode($result);
-        if ($encoded === false) {
-            return [];
+        $array = $this->toArrayDeep($result);
+
+        return is_array($array) ? $array : [];
+    }
+
+    private function toArrayDeep(mixed $value): mixed
+    {
+        if (is_object($value)) {
+            $value = get_object_vars($value);
         }
 
-        $decoded = json_decode($encoded, true);
+        if (is_array($value)) {
+            $out = [];
+            foreach ($value as $key => $item) {
+                $out[$key] = $this->toArrayDeep($item);
+            }
 
-        return is_array($decoded) ? $decoded : [];
+            return $out;
+        }
+
+        return $value;
     }
 
     /**
