@@ -107,6 +107,13 @@ $streetOrder['Customer']['Addresses']['Shipping']['StreetName'] = 'Vyhonska';
 $streetOrder['Customer']['Addresses']['Shipping']['StreetNumber'] = '1';
 $t->assertSame('Vyhonska 1', $mapper->buildReceiver($streetOrder)['address'], 'Street used as-is, house number not duplicated');
 
+// --- postal code separators are stripped (DPD rejects "72-005") ------
+$plPost = $orderFactory();
+$plPost['Customer']['Addresses']['Shipping']['Country'] = 'Lengyelország';
+$plPost['Customer']['Addresses']['Shipping']['ZIP'] = '72-005';
+$t->assertSame('72005', $mapper->buildReceiver($plPost)['postalCode'], 'dash stripped from postal code');
+$t->assertSame('72005', $mapper->buildSender(['fid' => '1', 'postal_code' => '72-005', 'country_code' => 'PL'])['postalCode'], 'dash stripped from sender postal code');
+
 // --- sender without FID throws ---------------------------------------
 $t->assertThrows(
     static fn () => $mapper->buildSender(['country_code' => 'PL']),

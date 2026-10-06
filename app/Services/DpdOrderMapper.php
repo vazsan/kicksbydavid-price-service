@@ -400,10 +400,10 @@ final class DpdOrderMapper
             return '';
         }
 
-        // DPD expects the raw postcode; just collapse surrounding/inner
-        // whitespace. Country-specific formatting (e.g. the PL "00-000"
-        // dash) is left as the merchant entered it in UNAS.
-        return trim(preg_replace('/\s+/', '', $value) ?? $value);
+        // DPD Polska rejects a postcode that carries separators (it returned
+        // INCORRECT_SENDER_POSTAL_CODE for "72-005"), so strip spaces AND
+        // dashes to the bare code - "72-005" -> "72005", "831 06" -> "83106".
+        return trim(preg_replace('/[\s-]+/', '', $value) ?? $value);
     }
 
     private function clean(?string $value): string
