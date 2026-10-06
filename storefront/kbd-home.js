@@ -33,7 +33,10 @@
     fL: ["Na každej stránke produktu je výrobný kód, pred platbou si ho môžeš overiť.", "Sme nezávislý predajca: nové, originálne produkty z overených obchodných zdrojov.", "KICKSBYDAVID s.r.o. · 943 42 Šarkan 115, Slovensko · DIČ 2121629928"],
     fMore: "Celý príbeh", fUrl: "/o-nas",
     club: "5 € za registráciu<br>a z každej objednávky 5 % späť",
-    rv: "Nedávno si si pozrel", rvSub: "Pokračuj tam, kde si skončil"
+    rv: "Nedávno si si pozrel", rvSub: "Pokračuj tam, kde si skončil",
+    rate: "4,8 / 5 · 18 hodnotení zákazníkov",
+    revH: "Čo o nás hovoria zákazníci", revCnt: "18 hodnotení", revSrc: "Na základe hodnotení z Googlu, Árukereső a Trustindexu", revAll: "Všetky hodnotenia",
+    reviews: []
   } : {
     bar: ["Ingyenes szállítás 50 000 Ft felett", "Utánvéttel is fizethetsz", "Sok modellből csak 1–2 pár van"],
     phone: "+36 20 556 4258",
@@ -56,7 +59,20 @@
     fL: ["Minden terméklapon ott a gyári cikkszám, fizetés előtt le tudod ellenőrizni.", "Független viszonteladók vagyunk: új, eredeti termékek, ellenőrzött kereskedelmi forrásból.", "KICKSBYDAVID s.r.o. · 94342 Sarkan 115, Szlovákia · adószám 2121629928"],
     fMore: "A teljes történet", fUrl: "/rolunk",
     club: "1800 Ft a regisztrációért,<br>és minden rendelésből 5% vissza",
-    rv: "Nemrég megnézted", rvSub: "Folytasd ott, ahol abbahagytad"
+    rv: "Nemrég megnézted", rvSub: "Folytasd ott, ahol abbahagytad",
+    rate: "4,8 / 5 · 18 vásárlói értékelés",
+    revH: "Mit mondanak rólunk", revCnt: "18 értékelés", revSrc: "Google, Árukereső és Trustindex értékelések alapján", revAll: "Összes értékelés",
+    /* valós vélemények a Trustindex összesítő oldaláról (2026. október), szó szerint */
+    reviews: [
+      ["Tamás N.", "2026. szeptember", "Minden rendben zajlott, korrekt kommunikáció, hibátlan termék. Ajánlom mindenkinek!"],
+      ["Arnold A.", "2026. április", "Csak ajánlani tudom, gyors szállitás, eredeti,nagyon jó áron van minden termék ,minden tökéletes!! Nagyon elégedett vagyok!!"],
+      ["Dzsesszika Sz.", "2026. szeptember", "Minden rendben ment. Nagyon meg vagyok elégedve."],
+      ["Ádiii.", "2026. április", "Gyors szállítás, megbízható, csak eredeti cipők jó áron! Csak ajánlani tudom!"],
+      ["Csaba Sz.", "2026. június", "Profi szolgáltatás, gyors kiszállítás."],
+      ["Robert K.", "2026. április", "A legjobb sneakerek. Megbízható forrásból"],
+      ["Jennifer K.", "2026. április", "Gyors szállítás, tökéletes minőség 👌"],
+      ["Gergő B.", "2026. április", "Csak ajánlani tudom teljesen megvagyok elégedve a termékkel!!"]
+    ]
   };
 
   var ICON = {
@@ -164,6 +180,27 @@
     + "@media(max-width:767.98px){" + H + "#kbd-ptabs{padding:18px 0 22px}" + H + ".kbd-pt__head{padding:0 16px;gap:6px}"
     + H + ".kbd-pt__tab{height:34px;padding:0 13px;font-size:13px}" + H + ".kbd-pt__nav{display:none}"
     + H + ".kbd-pt__side{margin-left:0;width:100%;order:3}" + H + ".kbd-pt__all{font-size:13px;margin:4px 0 0}}"
+    /* értékelések */
+    + H + ".kbd-hero__rate{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:" + INK + "!important;text-decoration:none!important}"
+    + H + ".kbd-hero__rate span{color:#E7A614;letter-spacing:1px;font-size:15px}"
+    + H + "#kbd-reviews{background:#fff;padding:40px 0 36px;scroll-margin-top:90px}"
+    + H + ".kbd-rev__in{max-width:1320px;margin:0 auto;padding:0 24px}"
+    + H + ".kbd-rev__head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}"
+    + H + ".kbd-rev__head h2{margin:0 0 8px;font-size:22px;font-weight:800;text-transform:uppercase;color:" + INK + "}"
+    + H + ".kbd-rev__score{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:" + INK + "}"
+    + H + ".kbd-rev__score b{font-size:30px;font-weight:800;line-height:1}"
+    + H + ".kbd-rev__score .st{color:#E7A614;font-size:19px;letter-spacing:2px}"
+    + H + ".kbd-rev__score small{font-size:13px;color:#666}"
+    + H + ".kbd-rev__all{font-size:14px;font-weight:700;color:" + INK + "!important;text-decoration:underline!important;text-underline-offset:3px;white-space:nowrap}"
+    + H + ".kbd-rev__list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}"
+    + H + ".kbd-rev__it{background:#F9F9F9;border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;margin:0}"
+    + H + ".kbd-rev__it blockquote{margin:0;font-size:14.5px;line-height:1.5;color:#222}"
+    + H + ".kbd-rev__it figcaption{margin-top:auto;font-size:12.5px;color:#777}"
+    + H + ".kbd-rev__it figcaption b{color:" + INK + ";font-weight:700;margin-right:6px}"
+    + "@media(max-width:991.98px){" + H + ".kbd-rev__list{grid-template-columns:repeat(2,minmax(0,1fr))}}"
+    + "@media(max-width:767.98px){" + H + "#kbd-reviews{padding:28px 0 24px}" + H + ".kbd-rev__in{padding:0}" + H + ".kbd-rev__head{padding:0 16px;margin-bottom:12px}" + H + ".kbd-rev__head h2{font-size:19px}"
+    + H + ".kbd-rev__list{display:flex;overflow-x:auto;gap:10px;padding:2px 16px 8px;scroll-snap-type:x mandatory;scroll-padding:0 16px;scrollbar-width:none}"
+    + H + ".kbd-rev__list::-webkit-scrollbar{display:none}" + H + ".kbd-rev__it{flex:0 0 78%;scroll-snap-align:start}" + H + ".kbd-hero__rate{font-size:12.5px}}"
     /* kapcsolati kártya a GYIK-ben */
     + H + ".kbd-faq__contact.kbd-hid{display:none!important}"
     + H + ".kbd-contact{margin-top:22px;background:" + INK + ";color:#fff;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;max-width:420px}"
@@ -262,7 +299,8 @@
     h.innerHTML = '<div class="kbd-hero__txt"><span class="kbd-hero__ey">' + T.ey + "</span><h1>" + T.h1 + '</h1><p class="kbd-hero__p">' + T.p + "</p>"
       + '<div class="kbd-hero__cta"><a class="kbd-btn" href="' + catHref(/\/(ferfi|panske)$/i, T.menUrl) + '">' + T.men + svg("arrow") + "</a>"
       + '<a class="kbd-btn kbd-btn--dark" href="' + catHref(/\/(noi|damske)$/i, T.womenUrl) + '">' + T.women + svg("arrow") + "</a>"
-      + '<a class="kbd-hero__link" href="' + catHref(/\/(akcios-termekek|akcie)$/i, T.saleUrl) + '">' + T.sale + "</a></div></div>"
+      + '<a class="kbd-hero__link" href="' + catHref(/\/(akcios-termekek|akcie)$/i, T.saleUrl) + '">' + T.sale + "</a></div>"
+      + '<a class="kbd-hero__rate" href="#kbd-reviews"><span aria-hidden="true">★★★★★</span>' + T.rate + "</a></div>"
       + '<div class="kbd-hero__media"></div>';
     anchor.parentNode.insertBefore(h, anchor);
   }
@@ -417,6 +455,29 @@
     else if (grown) flkResize(body.querySelector(".kbd-pane.on"));
   }
 
+  /* ---------- 6a) vásárlói értékelések ---------- */
+  function buildReviews() {
+    var ref = $id("kbd-ptabs");
+    if (!ref || $id("kbd-reviews")) return;
+    var r = document.createElement("section");
+    r.id = "kbd-reviews";
+    r.setAttribute("aria-label", T.revH);
+    r.innerHTML = '<div class="kbd-rev__in"><div class="kbd-rev__head"><div><h2>' + T.revH + '</h2><div class="kbd-rev__score"><b>4,8</b><span class="st" aria-hidden="true">★★★★★</span><small>' + T.revCnt + " · " + T.revSrc + "</small></div></div>"
+      + '<a class="kbd-rev__all" href="https://www.trustindex.io/reviews/www.kicksbydavid.sk" target="_blank" rel="noopener">' + T.revAll + ' →</a></div><div class="kbd-rev__list"></div></div>';
+    var list = r.querySelector(".kbd-rev__list");
+    for (var i = 0; i < T.reviews.length; i++) {
+      var f = document.createElement("figure"), q = document.createElement("blockquote"), c = document.createElement("figcaption"), b = document.createElement("b");
+      f.className = "kbd-rev__it";
+      q.textContent = "„" + T.reviews[i][2] + "”";
+      b.textContent = T.reviews[i][0];
+      c.appendChild(b);
+      c.appendChild(document.createTextNode(T.reviews[i][1]));
+      f.appendChild(q); f.appendChild(c); list.appendChild(f);
+    }
+    if (!T.reviews.length) list.style.display = "none";
+    after(r, ref);
+  }
+
   /* ---------- 6b) kapcsolati kártya a GYIK bal oszlopában ---------- */
   function buildContact() {
     var p = document.querySelector("#kbd-faq .kbd-faq__contact");
@@ -491,7 +552,7 @@
     if (mob && bn && hero) {
       if (bn.parentNode !== hero.parentNode || bn.nextElementSibling !== hero) hero.parentNode.insertBefore(bn, hero);
     }
-    seq.push(hero, usp, cat, tabs, bs, ex, $id("kbd-rv"), $id("kbd-founder"));
+    seq.push(hero, usp, cat, tabs, $id("kbd-reviews"), bs, ex, $id("kbd-rv"), $id("kbd-founder"));
     seq = seq.filter(function (x) { return x && x.parentNode; });
     for (var i = 1; i < seq.length; i++) if (seq[i - 1].nextElementSibling !== seq[i]) after(seq[i], seq[i - 1]);
     var media = hero && hero.querySelector(".kbd-hero__media");
@@ -508,7 +569,7 @@
     try {
       buildBar();
       if (document.body && document.body.id === "ud_shop_start") {
-        buildHero(); buildUsp(); orderCats(); buildTabs(); buildContact(); fixClub(); buildRecent(); buildFounder(); arrange();
+        buildHero(); buildUsp(); orderCats(); buildTabs(); buildReviews(); buildContact(); fixClub(); buildRecent(); buildFounder(); arrange();
       }
     } catch (e) { if (window.console) console.warn("kbd-home", e); }
     busy = false;
