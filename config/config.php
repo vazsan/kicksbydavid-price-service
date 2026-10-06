@@ -54,6 +54,33 @@ return [
         'rate_limit_per_minute' => (int) Env::get('TURUM_RATE_LIMIT_PER_MINUTE', 30),
     ],
 
+    // DPD Polska shipping labels (DPDServices SOAP API). See
+    // app/Services/DpdApiService.php for the protocol details and
+    // scripts/test_dpd_connection.php for the safe first-run check.
+    'dpd' => [
+        'env' => strtolower((string) Env::get('DPD_ENV', 'production')),
+        'login' => Env::get('DPD_LOGIN', ''),
+        'password' => Env::get('DPD_PASSWORD', ''),
+        'master_fid' => (string) Env::get('DPD_MASTER_FID', ''),
+        'sender_fid' => (string) Env::get('DPD_SENDER_FID', ''),
+        'wsdl_url' => Env::get('DPD_WSDL_URL', ''),
+        'label_page_format' => strtoupper((string) Env::get('DPD_LABEL_PAGE_FORMAT', 'A4')),
+        'default_parcel_weight_kg' => (float) Env::get('DPD_DEFAULT_PARCEL_WEIGHT_KG', 1.0),
+        'cod_payment_methods' => (string) Env::get('DPD_COD_PAYMENT_METHODS', ''),
+        'cod_currency' => strtoupper((string) Env::get('DPD_COD_CURRENCY', 'PLN')),
+        'rate_limit_per_minute' => (int) Env::get('DPD_RATE_LIMIT_PER_MINUTE', 30),
+        'sender' => [
+            'company' => Env::get('DPD_SENDER_COMPANY', ''),
+            'name' => Env::get('DPD_SENDER_NAME', ''),
+            'address' => Env::get('DPD_SENDER_ADDRESS', ''),
+            'city' => Env::get('DPD_SENDER_CITY', ''),
+            'postal_code' => (string) Env::get('DPD_SENDER_POSTAL_CODE', ''),
+            'country_code' => strtoupper((string) Env::get('DPD_SENDER_COUNTRY_CODE', 'PL')),
+            'phone' => (string) Env::get('DPD_SENDER_PHONE', ''),
+            'email' => Env::get('DPD_SENDER_EMAIL', ''),
+        ],
+    ],
+
     'meta' => [
         'app_id' => Env::get('META_APP_ID', ''),
         'app_secret' => Env::get('META_APP_SECRET', ''),
@@ -76,5 +103,6 @@ return [
 
     'storage' => [
         'cache_path' => dirname(__DIR__) . '/storage/cache',
+        'labels_path' => dirname(__DIR__) . '/storage/labels',
     ],
 ];
