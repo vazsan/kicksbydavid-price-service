@@ -196,24 +196,38 @@ final class UnasApiService
     }
 
     /**
-     * Fetches a single order by its UNAS identifier. UNAS's /getOrder
-     * filters a single order by <Id> (the numeric order id) or <Key> (the
-     * unique order key string) - "OrderID" is NOT a recognized filter and
-     * would return an unfiltered list (confirmed from UNAS's getOrder
-     * docs). We try <Id> first (the identifier this app stores as
-     * unas_order_id), then fall back to <Key>, so the caller can pass
-     * whichever identifier they have on hand.
+     * Fetches a single order by its UNAS identifier - either the <Key>
+     * (the order-number string merchants see, e.g. "26121-100149") or the
+     * internal numeric <Id>.
      *
-     * @return array<string, mixed>
+     * CRITICAL UNAS quirk (confirmed live): when /getOrder is filtered by
+     * an <Id> that doesn't match, UNAS returns the FULL unfiltered order
+     * list instead of nothing - so "a response came back" is NOT proof of
+     * a match. We therefore try <Key> first (what merchants actually type)
+     * and accept a result ONLY when the returned single order's matching
+     * field equals the requested id. Anything else (a multi-row unfiltered
+     * list, a mismatch) is treated as "not this order" and we move on.
+     *
+     * @return array<string, mixed> The matching /getOrder response, or an
+     *     empty array if no order matched (caller treats that as not found).
      */
     public function getOrderDetails(string $unasOrderId): array
     {
-        $byId = $this->request('POST', '/getOrder', ['Id' => $unasOrderId]);
-        if (isset($byId['Order'])) {
-            return $byId;
+        foreach (['Key', 'Id'] as $field) {
+            $response = $this->request('POST', '/getOrder', [$field => $unasOrderId]);
+            $order = $response['Order'] ?? null;
+
+            // A single matching order decodes as an assoc array, not a list.
+            // A list here means UNAS ignored the filter (the quirk above).
+            if (is_array($order) && !array_is_list($order)) {
+                $value = $order[$field] ?? null;
+                if (is_scalar($value) && (string) $value === $unasOrderId) {
+                    return $response;
+                }
+            }
         }
 
-        return $this->request('POST', '/getOrder', ['Key' => $unasOrderId]);
+        return [];
     }
 
     /**
