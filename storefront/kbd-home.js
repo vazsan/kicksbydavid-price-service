@@ -493,7 +493,18 @@
   }
 
   /* ---------- 6c) Club-sáv: konkrét ajánlat a Hűségprogram oldalról ---------- */
+  /* a régi 11–14.jpg képek helyett az Unas fájlkezelőbe feltöltött kbdc-11–14.webp (mindkét domainen elérhetők) */
+  var CLUB_IMG = { "11": [600, 900], "12": [600, 742], "13": [600, 750], "14": [600, 750] };
   function fixClub() {
+    var im = document.querySelectorAll(".kbdc-hero-img");
+    for (var i = 0; i < im.length; i++) {
+      var m = (im[i].getAttribute("src") || "").match(/\/shop_ordered\/26121\/pic\/(1[1-4])\.jpg/);
+      if (!m) continue;
+      im[i].setAttribute("width", CLUB_IMG[m[1]][0]);
+      im[i].setAttribute("height", CLUB_IMG[m[1]][1]);
+      im[i].setAttribute("decoding", "async");
+      im[i].src = location.protocol + "//" + location.host + "/shop_ordered/26121/pic/kbdc-" + m[1] + ".webp";
+    }
     var t = document.querySelector(".kbdc-hero-title");
     if (t && !t.getAttribute("data-kbd")) { t.innerHTML = T.club; t.setAttribute("data-kbd", "1"); }
   }
