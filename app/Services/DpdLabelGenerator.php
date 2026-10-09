@@ -147,9 +147,11 @@ final class DpdLabelGenerator
         $waybills = $this->dpd->extractWaybills($numbers);
         if ($sessionId === null || $waybills === []) {
             $status = $this->dpd->extractStatus($numbers);
-            $message = 'DPD returned no sessionId/waybill (status=' . ($status ?? 'n/a') . ').';
+            $validation = $this->dpd->extractValidationMessages($numbers);
+            $detail = $validation !== [] ? ' - ' . implode('; ', $validation) : '';
+            $message = 'DPD rejected the shipment (status=' . ($status ?? 'n/a') . ')' . $detail;
             $this->recordFailure($orderId, $senderFid, $sessionId, $waybills, $message);
-            throw new \RuntimeException($message . ' See storage/logs/dpd_soap_last.xml.');
+            throw new \RuntimeException($message);
         }
 
         // 2. render label

@@ -47,6 +47,23 @@ $failResponse = [
 ];
 $t->assertSame([], $dpd->extractWaybills($failResponse), 'no waybill on a validation failure');
 
+// Validation messages (ErrorCode + Info) are collected from anywhere.
+$validationResponse = [
+    'return' => [
+        'Status' => 'INCORRECT_DATA',
+        'Packages' => ['Package' => [[
+            'Status' => 'INCORRECT_DATA',
+            'ValidationDetails' => ['ValidationInfo' => [
+                ['ErrorId' => 1506, 'ErrorCode' => 'INCORRECT_SENDER_POSTAL_CODE', 'Info' => 'Niepoprawny format'],
+                ['Info' => 'COD not available'],
+            ]],
+        ]]],
+    ],
+];
+$msgs = $dpd->extractValidationMessages($validationResponse);
+$t->assertTrue(in_array('INCORRECT_SENDER_POSTAL_CODE Niepoprawny format', $msgs, true), 'validation code+info extracted');
+$t->assertTrue(in_array('COD not available', $msgs, true), 'validation info-only extracted');
+
 // Label PDF: documentData (base64) found at any depth/casing.
 $labelResponse = ['return' => ['documentData' => base64_encode('%PDF-1.4 fake')]];
 $t->assertSame('%PDF-1.4 fake', $dpd->extractLabelPdf($labelResponse), 'label PDF decoded from documentData');

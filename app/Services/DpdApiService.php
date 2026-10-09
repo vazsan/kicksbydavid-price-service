@@ -395,6 +395,50 @@ final class DpdApiService
         return is_scalar($status) ? (string) $status : null;
     }
 
+    /**
+     * Collects DPD's per-field validation messages (ErrorCode + Info) from
+     * anywhere in a response, so a business-level rejection (INCORRECT_DATA,
+     * which comes back as a normal 200, not a SoapFault) can be shown to the
+     * user instead of a bare status word.
+     *
+     * @param array<string, mixed> $response
+     * @return array<int, string>
+     */
+    public function extractValidationMessages(array $response): array
+    {
+        $messages = [];
+        $this->collectValidation($response, $messages);
+
+        return array_values(array_unique($messages));
+    }
+
+    /**
+     * @param array<string, mixed> $node
+     * @param array<int, string> $messages
+     */
+    private function collectValidation(array $node, array &$messages): void
+    {
+        foreach ($node as $key => $value) {
+            if ($key === 'ValidationInfo' || $key === 'validationInfo') {
+                foreach ($this->asList($value) as $info) {
+                    if (!is_array($info)) {
+                        continue;
+                    }
+                    $code = isset($info['ErrorCode']) && is_scalar($info['ErrorCode']) ? (string) $info['ErrorCode'] : '';
+                    $text = isset($info['Info']) && is_scalar($info['Info']) ? (string) $info['Info'] : '';
+                    $message = trim($code . ' ' . trim($text));
+                    if ($message !== '') {
+                        $messages[] = $message;
+                    }
+                }
+                continue;
+            }
+            if (is_array($value)) {
+                $this->collectValidation($value, $messages);
+            }
+        }
+    }
+
     // -----------------------------------------------------------------
     // Low-level call pipeline
     // -----------------------------------------------------------------
