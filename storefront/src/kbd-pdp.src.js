@@ -5,6 +5,7 @@
    Blokkok: 0) nyelv+szótár  1) v1 CSS  2) v2 CSS  3) DOM-rendező
             4) SK lapfül-fordítás (csak SK)  5) v3 CRO-bővítés
    ============================================================================
+   v11: load után a többi méret készletét is lekéri (elfogyott méret áthúzva).
    v10: <head>-ből, async töltődik. A CSS azonnal, a DOM-átrendezés a termékblokk beolvasásakor fut
    (MutationObserver), a html.kbd-ready osztályig a mozgatandó blokkok rejtve vannak (CLS).
 */
@@ -295,8 +296,8 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
     }
   }
 
-  /* Csak a kiválasztott méretet jelöljük, ha elfogyott. A többi méret oldalát NEM töltjük le:
-     a sok háttér-lekérés miatt az Unas ideiglenesen letilthatja a látogatót. */
+  /* A kiválasztott méretet a saját .artdet__stock alapján jelöljük (checkSizes); a többit load után
+     az Unas saját tooltip-végpontjából (checkOtherSizes): max. 2 párhuzamos kérés, 10 perces gyorsítótár. */
   function markSize(v) {
     v.classList.add("kbd-oos");
     var a = $(".product-type__value-link", v);
@@ -311,6 +312,53 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
     var own = $(".artdet__stock");
     var act = $(".product-type__value--text.is-active", type);
     if (act && own && own.classList.contains("no-stock")) markSize(act);
+  }
+
+  var STK_TTL = 600000, STK_MAX = 40, stkCtl = [], stkStop = false;
+  function stkKey(lang, sku) { return "kbd_stk_" + lang + "_" + sku; }
+  function stkGet(lang, sku) {
+    try { var v = JSON.parse(sessionStorage.getItem(stkKey(lang, sku)) || "null"); if (v && Date.now() - v.t < STK_TTL && (v.s === 0 || v.s === 1)) return v.s; } catch (e) {}
+    return null;
+  }
+  function stkSet(lang, sku, st) { try { sessionStorage.setItem(stkKey(lang, sku), JSON.stringify({ s: st, t: Date.now() })); } catch (e) {} }
+  function checkOtherSizes() {
+    if (!window.fetch || !window.DOMParser) return;
+    if (navigator.connection && navigator.connection.saveData) return;
+    var type = $("#artdet__type");
+    if (!type || type.dataset.kbdStockAll) return;
+    type.dataset.kbdStockAll = "1";
+    var lang = String(K.lang || (window.UNAS && UNAS.shop && UNAS.shop.lang) || "hu").toLowerCase().slice(0, 2);
+    var queue = [];
+    $$(".product-type__value--text[data-sku]", type).filter(function (v) { return !v.classList.contains("is-active"); })
+      .slice(0, STK_MAX).forEach(function (v) {
+        var sku = v.getAttribute("data-sku"), c = sku ? stkGet(lang, sku) : 1;
+        if (c === 0) markSize(v); else if (c === null) queue.push(v);
+      });
+    if (!queue.length) return;
+    window.addEventListener("pagehide", function () {
+      stkStop = true;
+      stkCtl.forEach(function (c) { try { c.abort(); } catch (e) {} });
+    });
+    function next() {
+      if (stkStop) return;
+      var v = queue.shift();
+      if (!v) return;
+      var sku = v.getAttribute("data-sku"), ctl = window.AbortController ? new AbortController() : null;
+      if (ctl) stkCtl.push(ctl);
+      fetch("/shop_artdet.php?ajax_tooltip=1&get_ajax=1&ajax_nodesign=1&cikk=" + encodeURIComponent(sku) + "&change_lang=" + lang,
+        { credentials: "same-origin", signal: ctl ? ctl.signal : undefined })
+        .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.text(); })
+        .then(function (html) {
+          /* csak a stock-osztály számít, a fordított szöveg nem; ismeretlen válasznál nem jelölünk */
+          var st = new DOMParser().parseFromString(html, "text/html").querySelector(".artdet__stock");
+          if (!st) return;
+          if (st.classList.contains("no-stock")) { stkSet(lang, sku, 0); markSize(v); }
+          else if (st.classList.contains("on-stock")) stkSet(lang, sku, 1);
+        })
+        .catch(function () {})
+        .then(function () { if (ctl) stkCtl.splice(stkCtl.indexOf(ctl), 1); next(); });
+    }
+    next(); next();
   }
 
   function ensureSingle(inner) {
@@ -440,6 +488,8 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
   onLoad(function () {
     safeRun();
     setTimeout(function () { try { checkSizes(); } catch (e) {} }, 200);
+    var idle = window.requestIdleCallback ? function (f) { window.requestIdleCallback(f, { timeout: 3000 }); } : function (f) { setTimeout(f, 200); };
+    idle(function () { try { checkOtherSizes(); } catch (e) {} });
   });
 })();
 

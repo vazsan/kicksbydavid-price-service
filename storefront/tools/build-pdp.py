@@ -1,5 +1,5 @@
 # Builds storefront/kbd-pdp.js from storefront/src/kbd-pdp.src.js:
-#   python3 storefront/tools/build-pdp.py storefront/src/kbd-pdp.src.js storefront/kbd-pdp.js v10
+#   python3 storefront/tools/build-pdp.py storefront/src/kbd-pdp.src.js storefront/kbd-pdp.js v11
 import re, sys
 src, dst, tag = sys.argv[1], sys.argv[2], sys.argv[3]
 s=open(src,encoding='utf-8').read()
