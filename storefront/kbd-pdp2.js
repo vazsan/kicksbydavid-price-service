@@ -25,7 +25,8 @@
     /* pipálós kiegészítő termék: az Unas „Kiegészítő termékek” listájából (termékenként az adminban állítható) */
     upsell: {
       enabled: true,                                /* be/ki */
-      pick: "first",                                /* "first": a lista első raktáron lévő eleme; "cheapest": a legolcsóbb */
+      count: 4,                                     /* legfeljebb ennyi kiegészítő jelenik meg, jobbra-balra lapozható sorban */
+      pick: "cheapest",                             /* "cheapest": a legolcsóbbak; "first": a lista sorrendje az Unasban */
       maxPrice: 0                                   /* 0: nincs felső határ; különben ennél drágább kiegészítőt nem ajánl */
     },
     /* a lap második fele (kbd-pdp2-body.js). Ahol az adat még hiányzik, az érintett szekció nem jelenik meg. */
@@ -76,7 +77,7 @@
       sizeHint: "Nem vagy biztos a méretben? A csere 30 napig ingyenes, és ha megírod, mit hordasz, megmondjuk a méreted.",
       saving: "akció kezdete: %D%, a készlet erejéig",
       cod: "Utánvét felára:",
-      upsell: { add: "Add hozzá:", sub: "Egy pipával a kosárba kerül a cipővel együtt.", subShort: "Egy pipával a kosárba kerül." },
+      upsell: { add: "Add hozzá:", sub: "Egy pipával a kosárba kerül a cipővel együtt.", prev: "Előző", next: "Következő" },
       points: null, sku: null
     },
     /* Az SK szöveget anyanyelvi lektor írja. Ahol nincs kulcs, a szekció az SK oldalon a v11 szövegeivel marad. */
@@ -177,17 +178,26 @@
     r.push(MQ + M + "#kbd2-ship{padding:16px;gap:12px}" + M + "#kbd2-ship .kbd2-row{font-size:13px;gap:12px}" + M + "#kbd2-ship .kbd2-row>svg{width:20px;height:20px}" + EQ);
 
     /* pipálós kiegészítő termék */
-    r.push(M + "#kbd2-upsell{display:flex;align-items:center;gap:14px;margin-top:18px;padding:14px 16px;border:1.5px solid var(--kbd-line);border-radius:6px;background:#fff;cursor:pointer}");
-    r.push(M + "#kbd2-upsell.on{border-color:var(--kbd-ink);background:var(--kbd-cream)}");
+    r.push(M + "#kbd2-upsell{margin-top:18px}");
+    r.push(M + "#kbd2-upsell .kbd2-up-h{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}");
+    r.push(M + "#kbd2-upsell .kbd2-up-h b{display:block;font-size:14px;font-weight:700}");
+    r.push(M + "#kbd2-upsell .kbd2-up-h>div>span{display:block;font-size:13px;color:var(--kbd-muted);line-height:1.4}");
+    r.push(M + "#kbd2-upsell .kbd2-up-nav{display:flex;gap:6px;flex:none}");
+    r.push(M + "#kbd2-upsell .kbd2-up-nav button{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--kbd-ink);background:#fff;color:var(--kbd-ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}");
+    r.push(M + "#kbd2-upsell .kbd2-up-nav button[disabled]{opacity:.35;cursor:default}");
+    r.push(M + "#kbd2-upsell .kbd2-up-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}");
+    r.push(M + "#kbd2-upsell .kbd2-up-row::-webkit-scrollbar{display:none}");
+    r.push(M + "#kbd2-upsell .kbd2-up-c{flex:0 0 78%;scroll-snap-align:start;display:flex;align-items:center;gap:12px;padding:12px 14px;min-height:64px;border:1.5px solid var(--kbd-line);border-radius:6px;background:#fff;cursor:pointer;box-sizing:border-box}");
+    r.push(M + "#kbd2-upsell.kbd2-one .kbd2-up-c{flex-basis:100%}");
+    r.push(M + "#kbd2-upsell .kbd2-up-c.on{border-color:var(--kbd-ink);background:var(--kbd-cream)}");
     r.push(M + "#kbd2-upsell input{width:22px;height:22px;flex:none;margin:0;accent-color:var(--kbd-ink)}");
     r.push(M + "#kbd2-upsell .kbd2-up-img{width:56px;height:56px;flex:none;border-radius:4px;overflow:hidden;background:var(--kbd-cream)}");
     r.push(M + "#kbd2-upsell .kbd2-up-img img{width:100%;height:100%;object-fit:cover;display:block}");
     r.push(M + "#kbd2-upsell .kbd2-up-t{flex:1;min-width:0}");
-    r.push(M + "#kbd2-upsell .kbd2-up-t b{display:block;font-size:14px;font-weight:700;line-height:1.35}");
-    r.push(M + "#kbd2-upsell .kbd2-up-t small{display:block;font-size:13px;color:var(--kbd-muted);line-height:1.4}");
-    r.push(M + "#kbd2-upsell .kbd2-up-t .kbd2-short{display:none}");
-    r.push(M + "#kbd2-upsell .kbd2-up-p{font-weight:800;font-size:14px;white-space:nowrap}");
-    r.push(MQ + M + "#kbd2-upsell{gap:12px;min-height:64px;padding:12px 14px}" + M + "#kbd2-upsell input{width:24px;height:24px}" + M + "#kbd2-upsell .kbd2-up-img{width:48px;height:48px}" + M + "#kbd2-upsell .kbd2-up-t b{font-size:13px}" + M + "#kbd2-upsell .kbd2-up-t small{font-size:12px}" + M + "#kbd2-upsell .kbd2-up-t .kbd2-long{display:none}" + M + "#kbd2-upsell .kbd2-up-t .kbd2-short{display:block}" + M + "#kbd2-upsell .kbd2-up-p{font-size:13px}" + EQ);
+    r.push(M + "#kbd2-upsell .kbd2-up-t b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;font-weight:700;line-height:1.35}");
+    r.push(M + "#kbd2-upsell .kbd2-up-p{display:block;margin-top:2px;font-weight:800;font-size:13px;white-space:nowrap}");
+    r.push("@media (min-width:768px){" + M + "#kbd2-upsell .kbd2-up-c{flex-basis:calc(50% - 5px)}" + M + "#kbd2-upsell.kbd2-one .kbd2-up-c{flex-basis:100%}" + M + "#kbd2-upsell .kbd2-up-t b{font-size:14px}" + EQ);
+    r.push(MQ + M + "#kbd2-upsell .kbd2-up-nav{display:none}" + M + "#kbd2-upsell input{width:24px;height:24px}" + M + "#kbd2-upsell .kbd2-up-img{width:48px;height:48px}" + M + "#kbd2-upsell .kbd2-up-h>div>span{font-size:12px}" + EQ);
 
     /* garanciakártyák */
     r.push(M + "#kbd-pdp-trust{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px 20px!important;margin:22px 0 0!important;padding:0!important;border:0!important}");
@@ -357,7 +367,7 @@
 
 
   /* ========================= PIPÁLÓS KIEGÉSZÍTŐ TERMÉK ========================= */
-  var UP = { item: null, busy: false, bypass: false, built: false };
+  var UP = { items: null, busy: false, bypass: false, built: false };
   /* a kártyakép lusta betöltésű: az Unas a betöltésig space.gif helyőrzőt tart az src-ben, ezért minden forrást végignézünk */
   function firstUrl(ss) { return ss ? String(ss).trim().split(/\s+/)[0] : ""; }
   function cardImage(card) {
@@ -378,52 +388,73 @@
       inStock: !stock || !stock.classList.contains("no-stock")
     };
   }
-  function pickUpsell() {
+  function pickUpsells() {
     var list = $$(SEL.addList).map(cardInfo).filter(function (c) {
       return c.sku && c.name && c.value > 0 && c.inStock && (!CFG.upsell.maxPrice || c.value <= CFG.upsell.maxPrice);
     });
-    if (!list.length) return null;
+    var seen = {};
+    list = list.filter(function (c) { if (seen[c.sku]) return false; seen[c.sku] = 1; return true; });
     if (CFG.upsell.pick === "cheapest") list.sort(function (a, b) { return a.value - b.value; });
-    return list[0];
+    return list.slice(0, CFG.upsell.count || 1);
   }
+  var ARR_L = "M15 5l-7 7 7 7", ARR_R = "M9 5l7 7-7 7";
   function upsellBox() {
     if (!CFG.upsell.enabled || !TX.upsell || UP.built) return;
     var inner = $(SEL.inner);
     if (!inner || !window.cart_add) return;
-    var it = pickUpsell();
-    if (!it) return;
-    UP.item = it; UP.built = true;
-    var u = TX.upsell, e = d.createElement("label");
+    var items = pickUpsells();
+    if (!items.length) return;
+    UP.items = items; UP.built = true;
+    var u = TX.upsell, e = d.createElement("div");
     e.id = "kbd2-upsell";
-    e.innerHTML = '<input type="checkbox" aria-label="' + esc(u.add + " " + it.name) + '">' +
-      (it.img ? '<span class="kbd2-up-img"><img src="' + esc(it.img) + '" alt="" width="56" height="56"></span>' : "") +
-      '<span class="kbd2-up-t"><b>' + esc(u.add) + " " + esc(it.name) + "</b><small><span class=\"kbd2-long\">" + esc(u.sub) + '</span><span class="kbd2-short">' + esc(u.subShort) + "</span></small></span>" +
-      '<span class="kbd2-up-p">+' + esc(it.price) + "</span>";
+    if (items.length === 1) e.className = "kbd2-one";
+    var nav = items.length > 2 ? '<span class="kbd2-up-nav"><button type="button" class="kbd2-prev" aria-label="' + esc(u.prev) + '">' + ico2(ARR_L) + '</button><button type="button" class="kbd2-next" aria-label="' + esc(u.next) + '">' + ico2(ARR_R) + "</button></span>" : "";
+    e.innerHTML = '<div class="kbd2-up-h"><div><b>' + esc(u.add.replace(/:\s*$/, "")) + "</b><span>" + esc(u.sub) + "</span></div>" + nav + '</div><div class="kbd2-up-row">' +
+      items.map(function (it, i) {
+        return '<label class="kbd2-up-c"><input type="checkbox" data-i="' + i + '" aria-label="' + esc(u.add + " " + it.name) + '">' +
+          (it.img ? '<span class="kbd2-up-img"><img src="' + esc(it.img) + '" alt="" width="56" height="56"></span>' : "") +
+          '<span class="kbd2-up-t"><b>' + esc(it.name) + '</b><span class="kbd2-up-p">+' + esc(it.price) + "</span></span></label>";
+      }).join("") + "</div>";
     inner.appendChild(e);
-    var cb = $("input", e), im = $(".kbd2-up-img img", e);
-    if (im) im.addEventListener("error", function () { im.parentNode.style.display = "none"; });
-    cb.addEventListener("change", function () { e.classList.toggle("on", cb.checked); });
+    $$(".kbd2-up-img img", e).forEach(function (im) { im.addEventListener("error", function () { im.parentNode.style.display = "none"; }); });
+    e.addEventListener("change", function (ev) { var c = ev.target.closest && ev.target.closest(".kbd2-up-c"); if (c) c.classList.toggle("on", ev.target.checked); });
+    var row = $(".kbd2-up-row", e), prev = $(".kbd2-prev", e), next = $(".kbd2-next", e);
+    if (prev && next) {
+      var step = function () { var c = $(".kbd2-up-c", row); return c ? c.getBoundingClientRect().width + 10 : 240; };
+      var sync = function () { prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4; };
+      prev.addEventListener("click", function () { row.scrollBy({ left: -step(), behavior: "smooth" }); });
+      next.addEventListener("click", function () { row.scrollBy({ left: step(), behavior: "smooth" }); });
+      row.addEventListener("scroll", sync, { passive: true });
+      sync();
+    }
   }
-  /* A fő gomb(ok) kattintásakor, ha be van pipálva: előbb az Unas saját cart_add függvényével a kiegészítő, utána az eredeti kattintás. */
+  function ico2(path) { return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + path + '"/></svg>'; }
+
+  /* A fő gomb(ok) kattintásakor, ha van bepipált kiegészítő: előbb az Unas saját cart_add függvényével egymás után a kiegészítők,
+     utána az eredeti kattintás. */
   d.addEventListener("click", function (ev) {
-    if (UP.bypass || !UP.item) return;
-    var cb = $("#kbd2-upsell input");
+    if (UP.bypass || !UP.items) return;
     var btn = ev.target.closest && ev.target.closest(SEL.cartBtns);
-    if (!btn || !cb || !cb.checked || !window.cart_add) return;
+    var cbs = $$("#kbd2-upsell input:checked");
+    if (!btn || !cbs.length || !window.cart_add) return;
     ev.preventDefault(); ev.stopImmediatePropagation();
     if (UP.busy) return;
     UP.busy = true;
-    var done = false;
+    var done = false, picked = cbs.map(function (c) { return UP.items[parseInt(c.getAttribute("data-i"), 10)]; }).filter(Boolean);
     function go() {
       if (done) return; done = true;
-      cb.checked = false; $("#kbd2-upsell").classList.remove("on");
+      $$("#kbd2-upsell input").forEach(function (c) { c.checked = false; c.closest(".kbd2-up-c").classList.remove("on"); });
       UP.bypass = true;
       try { btn.click(); } finally { UP.bypass = false; UP.busy = false; }
     }
-    setTimeout(go, 4000);
-    try {
-      Promise.resolve(window.cart_add(UP.item.sku.replace(/-/g, "__unas__"), "additional_", 1, 0)).then(go, go);
-    } catch (e) { go(); }
+    setTimeout(go, 3000 + 2500 * picked.length);
+    var chain = Promise.resolve();
+    picked.forEach(function (it) {
+      chain = chain.then(function () {
+        try { return Promise.resolve(window.cart_add(it.sku.replace(/-/g, "__unas__"), "additional_", 1, 0)).catch(function () {}); } catch (e) { return null; }
+      });
+    });
+    chain.then(go, go);
   }, true);
 
   function run() {
