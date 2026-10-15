@@ -1,4 +1,4 @@
-/* KicksByDavid termékoldal v12 (HU+SK) */
+/* KicksByDavid termékoldal v13 (HU+SK) */
 (function(){
 var host=(location.hostname||"").split(":")[0].toLowerCase();
 var lang=(document.documentElement.getAttribute("lang")||"").toLowerCase();
@@ -771,10 +771,14 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 })();
 (function(){
 try{
-var d=document, h=d.documentElement, q=location.search, ls=window.localStorage;
-if(/[?&]kbdv2=1/.test(q)) ls.setItem("kbdv2","1");
-if(/[?&]kbdv2=0/.test(q)) ls.removeItem("kbdv2");
-if(ls.getItem("kbdv2")!=="1" || !h.classList.contains("kbd-pdp")) return;
+var LIVE={ hu:true,sk:true};
+var d=document, h=d.documentElement, q=location.search, ls=null;
+try{ ls=window.localStorage; }catch(e){}
+if(ls){ if(/[?&]kbdv2=1/.test(q)) ls.setItem("kbdv2","1"); if(/[?&]kbdv2=0/.test(q)) ls.setItem("kbdv2","0"); }
+var sk=/\.sk$/i.test(location.hostname)||(h.getAttribute("lang")||"").toLowerCase().indexOf("sk")===0;
+var v=ls?ls.getItem("kbdv2"):null;
+var on=v==="1"||(v!=="0"&&(sk?LIVE.sk:LIVE.hu));
+if(!on||!h.classList.contains("kbd-pdp")) return;
 var cs=d.currentScript, ld=d.getElementById("kbd-pdp-loader"), src=(cs&&cs.src)||(ld&&ld.src)||"";
 if(!/kbd-pdp\.js/.test(src)) return;
 h.classList.add("kbd-v2");
