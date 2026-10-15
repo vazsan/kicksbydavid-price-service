@@ -187,7 +187,7 @@
     r.push(M + "#kbd2-upsell .kbd2-up-t small{display:block;font-size:13px;color:var(--kbd-muted);line-height:1.4}");
     r.push(M + "#kbd2-upsell .kbd2-up-t .kbd2-short{display:none}");
     r.push(M + "#kbd2-upsell .kbd2-up-p{font-weight:800;font-size:14px;white-space:nowrap}");
-    r.push(MQ + M + "#kbd2-upsell{gap:12px;min-height:64px;padding:12px 14px}" + M + "#kbd2-upsell input{width:24px;height:24px}" + M + "#kbd2-upsell .kbd2-up-img{display:none}" + M + "#kbd2-upsell .kbd2-up-t b{font-size:13px}" + M + "#kbd2-upsell .kbd2-up-t small{font-size:12px}" + M + "#kbd2-upsell .kbd2-up-t .kbd2-long{display:none}" + M + "#kbd2-upsell .kbd2-up-t .kbd2-short{display:block}" + M + "#kbd2-upsell .kbd2-up-p{font-size:13px}" + EQ);
+    r.push(MQ + M + "#kbd2-upsell{gap:12px;min-height:64px;padding:12px 14px}" + M + "#kbd2-upsell input{width:24px;height:24px}" + M + "#kbd2-upsell .kbd2-up-img{width:48px;height:48px}" + M + "#kbd2-upsell .kbd2-up-t b{font-size:13px}" + M + "#kbd2-upsell .kbd2-up-t small{font-size:12px}" + M + "#kbd2-upsell .kbd2-up-t .kbd2-long{display:none}" + M + "#kbd2-upsell .kbd2-up-t .kbd2-short{display:block}" + M + "#kbd2-upsell .kbd2-up-p{font-size:13px}" + EQ);
 
     /* garanciakártyák */
     r.push(M + "#kbd-pdp-trust{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px 20px!important;margin:22px 0 0!important;padding:0!important;border:0!important}");
@@ -358,14 +358,23 @@
 
   /* ========================= PIPÁLÓS KIEGÉSZÍTŐ TERMÉK ========================= */
   var UP = { item: null, busy: false, bypass: false, built: false };
+  /* a kártyakép lusta betöltésű: az Unas a betöltésig space.gif helyőrzőt tart az src-ben, ezért minden forrást végignézünk */
+  function firstUrl(ss) { return ss ? String(ss).trim().split(/\s+/)[0] : ""; }
+  function cardImage(card) {
+    var img = $(".product__img", card), c = [];
+    if (img) c.push(img.getAttribute("data-src"), img.currentSrc, img.getAttribute("src"), firstUrl(img.getAttribute("data-srcset")), firstUrl(img.getAttribute("srcset")));
+    $$("picture source", card).forEach(function (so) { c.push(firstUrl(so.getAttribute("data-srcset")), firstUrl(so.getAttribute("srcset"))); });
+    for (var i = 0; i < c.length; i++) if (c[i] && !/space\.gif/.test(c[i])) return c[i];
+    return "";
+  }
   function cardInfo(card) {
-    var link = $(".product__name-link", card), img = $(".product__img", card);
+    var link = $(".product__name-link", card);
     var pr = $(".product__price-discount .price-gross-format", card) || $(".product__price-base .price-gross-format", card);
     var num = parseInt(txt(pr).replace(/[^\d]/g, ""), 10);
     var stock = $(".product__stock", card);
     return {
       sku: card.getAttribute("data-sku"), name: txt(link), price: txt(pr), value: isNaN(num) ? 0 : num,
-      img: img ? (img.getAttribute("data-src") || img.getAttribute("src") || "") : "",
+      img: cardImage(card),
       inStock: !stock || !stock.classList.contains("no-stock")
     };
   }
@@ -391,7 +400,8 @@
       '<span class="kbd2-up-t"><b>' + esc(u.add) + " " + esc(it.name) + "</b><small><span class=\"kbd2-long\">" + esc(u.sub) + '</span><span class="kbd2-short">' + esc(u.subShort) + "</span></small></span>" +
       '<span class="kbd2-up-p">+' + esc(it.price) + "</span>";
     inner.appendChild(e);
-    var cb = $("input", e);
+    var cb = $("input", e), im = $(".kbd2-up-img img", e);
+    if (im) im.addEventListener("error", function () { im.parentNode.style.display = "none"; });
     cb.addEventListener("change", function () { e.classList.toggle("on", cb.checked); });
   }
   /* A fő gomb(ok) kattintásakor, ha be van pipálva: előbb az Unas saját cart_add függvényével a kiegészítő, utána az eredeti kattintás. */
