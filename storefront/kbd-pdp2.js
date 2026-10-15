@@ -21,7 +21,13 @@
       hu: { small: "0d3908782f85181dd586d19e174", big: "3ba033477a0d031a5f060029c5d" },
       sk: { small: "f2ddae483a2767044106f3718af", big: "3ba033477a0d031a5f060029c5d" }
     },
-    reviewsAnchor: "#velemenyek"                    /* a jelvény erre görget, ha az oldalon van ilyen szekció */
+    reviewsAnchor: "#velemenyek",                   /* a jelvény erre görget, ha az oldalon van ilyen szekció */
+    /* pipálós kiegészítő termék: az Unas „Kiegészítő termékek” listájából (termékenként az adminban állítható) */
+    upsell: {
+      enabled: true,                                /* be/ki */
+      pick: "first",                                /* "first": a lista első raktáron lévő eleme; "cheapest": a legolcsóbb */
+      maxPrice: 0                                   /* 0: nincs felső határ; különben ennél drágább kiegészítőt nem ajánl */
+    }
   };
 
   var SEL = {
@@ -35,7 +41,9 @@
     points: ".artdet__virtual-point-highlighted",
     saving: ".artdet__discount-texts .artdet__discount-saving",
     periodStart: ".artdet__price-discount-period-start", periodEnd: ".artdet__price-discount-period-end",
-    benefits: "#kbd3-benefits", trust: "#kbd-pdp-trust", reviews: "#kbd-pdp-reviews"
+    benefits: "#kbd3-benefits", trust: "#kbd-pdp-trust", reviews: "#kbd-pdp-reviews",
+    addList: "#artdet__additional-products .product[data-sku]",
+    cartBtns: ".artdet__cart-btn, #artdet__fixed-cart .fixed-cart__btn, .artdet__quick-order-btn"
   };
 
   /* ========================= SZÖVEGEK ========================= */
@@ -51,10 +59,11 @@
       sizeHint: "Nem vagy biztos a méretben? A csere 30 napig ingyenes, és ha megírod, mit hordasz, megmondjuk a méreted.",
       saving: "akció kezdete: %D%, a készlet erejéig",
       cod: "Utánvét felára:",
+      upsell: { add: "Add hozzá:", sub: "Egy pipával a kosárba kerül a cipővel együtt.", subShort: "Egy pipával a kosárba kerül." },
       points: null, sku: null
     },
     /* Az SK szöveget anyanyelvi lektor írja. Ahol nincs kulcs, a szekció az SK oldalon a v11 szövegeivel marad. */
-    sk: { benefits: null, sizeHint: null, saving: null, cod: null }
+    sk: { benefits: null, sizeHint: null, saving: null, cod: null, upsell: null }
   };
   var TX = SK ? TXT.sk : TXT.hu;
 
@@ -149,6 +158,19 @@
     r.push(M + "#kbd2-ship .kbd2-row a{color:var(--kbd-ink);text-decoration:none}");
     r.push(M + "#kbd2-ship .kbd3-shipinfo{margin:0;font-size:14px;color:var(--kbd-ink)}");
     r.push(MQ + M + "#kbd2-ship{padding:16px;gap:12px}" + M + "#kbd2-ship .kbd2-row{font-size:13px;gap:12px}" + M + "#kbd2-ship .kbd2-row>svg{width:20px;height:20px}" + EQ);
+
+    /* pipálós kiegészítő termék */
+    r.push(M + "#kbd2-upsell{display:flex;align-items:center;gap:14px;margin-top:18px;padding:14px 16px;border:1.5px solid var(--kbd-line);border-radius:6px;background:#fff;cursor:pointer}");
+    r.push(M + "#kbd2-upsell.on{border-color:var(--kbd-ink);background:var(--kbd-cream)}");
+    r.push(M + "#kbd2-upsell input{width:22px;height:22px;flex:none;margin:0;accent-color:var(--kbd-ink)}");
+    r.push(M + "#kbd2-upsell .kbd2-up-img{width:56px;height:56px;flex:none;border-radius:4px;overflow:hidden;background:var(--kbd-cream)}");
+    r.push(M + "#kbd2-upsell .kbd2-up-img img{width:100%;height:100%;object-fit:cover;display:block}");
+    r.push(M + "#kbd2-upsell .kbd2-up-t{flex:1;min-width:0}");
+    r.push(M + "#kbd2-upsell .kbd2-up-t b{display:block;font-size:14px;font-weight:700;line-height:1.35}");
+    r.push(M + "#kbd2-upsell .kbd2-up-t small{display:block;font-size:13px;color:var(--kbd-muted);line-height:1.4}");
+    r.push(M + "#kbd2-upsell .kbd2-up-t .kbd2-short{display:none}");
+    r.push(M + "#kbd2-upsell .kbd2-up-p{font-weight:800;font-size:14px;white-space:nowrap}");
+    r.push(MQ + M + "#kbd2-upsell{gap:12px;min-height:64px;padding:12px 14px}" + M + "#kbd2-upsell input{width:24px;height:24px}" + M + "#kbd2-upsell .kbd2-up-img{display:none}" + M + "#kbd2-upsell .kbd2-up-t b{font-size:13px}" + M + "#kbd2-upsell .kbd2-up-t small{font-size:12px}" + M + "#kbd2-upsell .kbd2-up-t .kbd2-long{display:none}" + M + "#kbd2-upsell .kbd2-up-t .kbd2-short{display:block}" + M + "#kbd2-upsell .kbd2-up-p{font-size:13px}" + EQ);
 
     /* garanciakártyák */
     r.push(M + "#kbd-pdp-trust{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px 20px!important;margin:22px 0 0!important;padding:0!important;border:0!important}");
@@ -316,6 +338,67 @@
     if (f.cells.length <= 1) { var nav = $(".carousel__nav--artdet-alt-images"); if (nav) nav.style.display = "none"; }
   }
 
+
+  /* ========================= PIPÁLÓS KIEGÉSZÍTŐ TERMÉK ========================= */
+  var UP = { item: null, busy: false, bypass: false, built: false };
+  function cardInfo(card) {
+    var link = $(".product__name-link", card), img = $(".product__img", card);
+    var pr = $(".product__price-discount .price-gross-format", card) || $(".product__price-base .price-gross-format", card);
+    var num = parseInt(txt(pr).replace(/[^\d]/g, ""), 10);
+    var stock = $(".product__stock", card);
+    return {
+      sku: card.getAttribute("data-sku"), name: txt(link), price: txt(pr), value: isNaN(num) ? 0 : num,
+      img: img ? (img.getAttribute("data-src") || img.getAttribute("src") || "") : "",
+      inStock: !stock || !stock.classList.contains("no-stock")
+    };
+  }
+  function pickUpsell() {
+    var list = $$(SEL.addList).map(cardInfo).filter(function (c) {
+      return c.sku && c.name && c.value > 0 && c.inStock && (!CFG.upsell.maxPrice || c.value <= CFG.upsell.maxPrice);
+    });
+    if (!list.length) return null;
+    if (CFG.upsell.pick === "cheapest") list.sort(function (a, b) { return a.value - b.value; });
+    return list[0];
+  }
+  function upsellBox() {
+    if (!CFG.upsell.enabled || !TX.upsell || UP.built) return;
+    var inner = $(SEL.inner);
+    if (!inner || !window.cart_add) return;
+    var it = pickUpsell();
+    if (!it) return;
+    UP.item = it; UP.built = true;
+    var u = TX.upsell, e = d.createElement("label");
+    e.id = "kbd2-upsell";
+    e.innerHTML = '<input type="checkbox" aria-label="' + esc(u.add + " " + it.name) + '">' +
+      (it.img ? '<span class="kbd2-up-img"><img src="' + esc(it.img) + '" alt="" width="56" height="56"></span>' : "") +
+      '<span class="kbd2-up-t"><b>' + esc(u.add) + " " + esc(it.name) + "</b><small><span class=\"kbd2-long\">" + esc(u.sub) + '</span><span class="kbd2-short">' + esc(u.subShort) + "</span></small></span>" +
+      '<span class="kbd2-up-p">+' + esc(it.price) + "</span>";
+    inner.appendChild(e);
+    var cb = $("input", e);
+    cb.addEventListener("change", function () { e.classList.toggle("on", cb.checked); });
+  }
+  /* A fő gomb(ok) kattintásakor, ha be van pipálva: előbb az Unas saját cart_add függvényével a kiegészítő, utána az eredeti kattintás. */
+  d.addEventListener("click", function (ev) {
+    if (UP.bypass || !UP.item) return;
+    var cb = $("#kbd2-upsell input");
+    var btn = ev.target.closest && ev.target.closest(SEL.cartBtns);
+    if (!btn || !cb || !cb.checked || !window.cart_add) return;
+    ev.preventDefault(); ev.stopImmediatePropagation();
+    if (UP.busy) return;
+    UP.busy = true;
+    var done = false;
+    function go() {
+      if (done) return; done = true;
+      cb.checked = false; $("#kbd2-upsell").classList.remove("on");
+      UP.bypass = true;
+      try { btn.click(); } finally { UP.bypass = false; UP.busy = false; }
+    }
+    setTimeout(go, 4000);
+    try {
+      Promise.resolve(window.cart_add(UP.item.sku.replace(/-/g, "__unas__"), "additional_", 1, 0)).then(go, go);
+    } catch (e) { go(); }
+  }, true);
+
   function run() {
     var inner = $(SEL.inner);
     if (!inner) return;
@@ -330,11 +413,13 @@
     var ship = shipBox(); if (ship.parentNode !== inner) inner.appendChild(ship);
     var meta = metaRow(); if (meta && meta.parentNode !== inner) inner.appendChild(meta);
     limitGallery();
+    upsellBox();
   }
   function safe() { try { run(); } catch (e) { if (window.console) console.warn("[kbd-pdp2]", e); } }
 
   if (d.readyState !== "loading") safe(); else d.addEventListener("DOMContentLoaded", safe);
   if (d.readyState === "complete") setTimeout(safe, 300); else window.addEventListener("load", function () { safe(); setTimeout(safe, 400); });
+  if (window.jQuery) window.jQuery(d).on("ajaxComplete", function () { setTimeout(safe, 50); });
   var n = 0, iv = setInterval(function () { safe(); if (++n > 20) clearInterval(iv); }, 500);
   d.addEventListener("click", function (e) { if (e.target.closest && e.target.closest(".product-type__value--text")) setTimeout(safe, 400); });
 })();

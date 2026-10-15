@@ -24,3 +24,4 @@ Frissítés: módosítsd a fájlt, commitold, és az Unas mezőben cseréld a `<
 - A beállítások (telefonszám, utánvét díja, Trustindex-azonosítók, képek száma) a `kbd-pdp2.js` elején, a `CFG` blokkban vannak. A szelektorok a `SEL` blokkban.
 - A szövegek a `TXT` blokkban nyelvi kulcsok alatt állnak. Szlovák szöveg csak a v11 szótárából jön, új szlovák szöveget a lektor ad.
 - A régi állapot mentése: `kbd-pdp-v11-backup` tag.
+- Pipálós kiegészítő termék: a `CFG.upsell` kapcsolja (`enabled`, `pick`, `maxPrice`). A termék az Unas „Kiegészítő termékek” listájából jön (termékenként az adminban állítható), a kosárba tétel az Unas `cart_add` függvényével történik: előbb a kiegészítő, utána az eredeti gomb kattintása. Ha a terméknél nincs kiegészítő, a pipa nem jelenik meg. SK-n addig rejtett, amíg a lektor nem adja meg a szlovák szöveget (`TXT.sk.upsell`).
