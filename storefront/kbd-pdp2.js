@@ -27,6 +27,23 @@
       enabled: true,                                /* be/ki */
       pick: "first",                                /* "first": a lista első raktáron lévő eleme; "cheapest": a legolcsóbb */
       maxPrice: 0                                   /* 0: nincs felső határ; különben ennél drágább kiegészítőt nem ajánl */
+    },
+    /* a lap második fele (kbd-pdp2-body.js). Ahol az adat még hiányzik, az érintett szekció nem jelenik meg. */
+    body: {
+      enabled: true,                                /* be/ki */
+      nativeTabs: "policy",                         /* az Unas lapfülei: "policy" (csak Szállítás és Eredetiség), "all" (mind), "none" (egyik sem) */
+      similarMax: 4,                                /* a „Hasonló termékek” sorban legfeljebb ennyi termék */
+      /* „Kinek és mihez ajánljuk?”: modellcsalád (kisbetűvel) -> szöveg. Egy szöveg a modellcsalád minden termékén megjelenik. */
+      fit: {},
+      /* hangulatfotó a leírásban: modellcsalád (kisbetűvel) -> kép URL-je */
+      moodPhoto: {},
+      /* eladó bemutatása: a szekció csak akkor jelenik meg, ha a bemutatkozás szövege ki van töltve */
+      seller: { photo: "", text: "" },
+      /* összehasonlító táblázat: a szekció csak akkor jelenik meg, ha minden versenytárs-cella ki van töltve.
+         others: a négy sor (Ár, Eredetiség ellenőrzése, Csere és visszaküldés, Fizetés) sorrendjében [resell webshopok, nagy webshopok] */
+      compare: { others: [] },
+      /* videós vélemény: YouTube/Vimeo beágyazási URL; üresen a hely nem jelenik meg */
+      videoReview: ""
     }
   };
 
@@ -422,4 +439,15 @@
   if (window.jQuery) window.jQuery(d).on("ajaxComplete", function () { setTimeout(safe, 50); });
   var n = 0, iv = setInterval(function () { safe(); if (++n > 20) clearInterval(iv); }, 500);
   d.addEventListener("click", function (e) { if (e.target.closest && e.target.closest(".product-type__value--text")) setTimeout(safe, 400); });
+
+  /* a második fél (kbd-pdp2-body.js) ugyanabból a könyvtárból töltődik, ahonnan ez a fájl */
+  window.KBD2 = { CFG: CFG, TX: TX, SK: SK, T1: T1, esc: esc, txt: txt, $: $, $$: $$, ico: ico };
+  if (CFG.body && CFG.body.enabled) {
+    var cs = d.currentScript, src = (cs && cs.src) || "";
+    if (/kbd-pdp2\.js/.test(src)) {
+      var bs = d.createElement("script");
+      bs.async = true; bs.src = src.replace(/kbd-pdp2\.js/, "kbd-pdp2-body.js");
+      (d.head || h).appendChild(bs);
+    }
+  }
 })();
