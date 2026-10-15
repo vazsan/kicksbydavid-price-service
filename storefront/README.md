@@ -17,3 +17,10 @@ Frissítés: módosítsd a fájlt, commitold, és az Unas mezőben cseréld a `<
 - `src/kbd-pdp.src.js` a forrás, ebből készül a `kbd-pdp.js`: `python3 storefront/tools/build-pdp.py storefront/src/kbd-pdp.src.js storefront/kbd-pdp.js v10`
 - `kbd-pdp-head.html` az Unas head tag tartalma: kapcsoló + a teljes CSS soron belül + aszinkron JS-betöltő. Minden `kbd-pdp.js`-változás után újra kell generálni (`node storefront/tools/make-pdp-head.js storefront/kbd-pdp.js <cdn-url> storefront/kbd-pdp-head.html`, Playwright kell hozzá), mert a CSS benne van.
 - Ha a fájl a lap aljáról töltődik (régi betöltő), ugyanúgy viselkedik, mint a v9.
+
+## Termékoldal v2 (prototípus szerinti kinézet)
+
+- `kbd-pdp2.js` a v11 fölé kerülő réteg. A `kbd-pdp.js` (v12) betöltője csak akkor tölti be, ha a böngészőben be van kapcsolva: `?kbdv2=1` bekapcsolja (a böngésző megjegyzi), `?kbdv2=0` kikapcsolja. Kapcsoló nélkül az oldal pontosan úgy működik, mint a v11.
+- A beállítások (telefonszám, utánvét díja, Trustindex-azonosítók, képek száma) a `kbd-pdp2.js` elején, a `CFG` blokkban vannak. A szelektorok a `SEL` blokkban.
+- A szövegek a `TXT` blokkban nyelvi kulcsok alatt állnak. Szlovák szöveg csak a v11 szótárából jön, új szlovák szöveget a lektor ad.
+- A régi állapot mentése: `kbd-pdp-v11-backup` tag.
