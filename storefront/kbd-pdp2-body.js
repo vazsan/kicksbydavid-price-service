@@ -3,7 +3,7 @@
    Szekciók: fekete sáv, leírás + Adatok, méretsegéd, vélemények, összehasonlítás, GYIK, eladó, hasonló termékek.
    A leírás, az Adatok és a GYIK a termék saját Unas-szövegeiből épül (#pane-details), a mérettáblázat az
    1. lapfül táblázatából. A beállítások a kbd-pdp2.js CFG.body blokkjában vannak. Ahol az adat hiányzik,
-   az érintett szekció nem jelenik meg. Szlovák statikus szöveg itt nincs: azt a lektor adja (TXT.sk).
+   az érintett szekció nem jelenik meg. A szlovák szövegek a TXT.sk blokkban vannak (gépi fordítás, anyanyelvi átnézés javasolt).
    ============================================================================ */
 (function () {
   "use strict";
@@ -39,9 +39,35 @@
       sellerList: ["KICKSBYDAVID s.r.o., adószám 2121629928", "Ügyfélszolgálati válaszidő: 1 munkanap", "Minden rendelésről elektronikus számlát küldünk"],
       sellerCall: "Hívj minket:", sellerMail: "Írj nekünk", mail: "info@kicksbydavid.com"
     },
-    sk: null
+    /* Szlovák szövegek. Gépi fordítás a meglévő szlovák kifejezések (výmena, vrátenie, dobierka, kód výrobcu, DIČ) alapján; anyanyelvi átnézés javasolt. */
+    sk: {
+      diff: [
+        { ic: "M3 12l9-9h8v8l-9 9z M16 8h.01", t: "Pod resellovou cenou", s: "Pár prichádza od overeného európskeho veľkoobchodného partnera, nový, v originálnej krabici. Preto ho môžeme predávať pod resellovou cenou." },
+        { ic: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z M9 12l2 2 4-4", t: "Originalitu si môžeš overiť", s: "Kód výrobcu je uvedený. Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model." },
+        { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "Firma vystupuje pod svojím menom", s: "KICKSBYDAVID s.r.o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail. Na správy odpovedáme do 1 pracovného dňa." },
+        { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "Riziko nesieme my", s: "Môžeš platiť na dobierku, výmenu aj vrátenie do 30 dní platíme my." }
+      ],
+      fitTitle: "Komu a k čomu ich odporúčame?",
+      sizeTitle: "Bude ti veľkosť sedieť?",
+      sizeText: "Tabuľka veľkostí ti pomôže podľa vnútornej dĺžky chodidla. Ak veľkosť predsa nesedí, výmenu aj vrátenie do 30 dní platíme my. Napíš nám, aké topánky nosíš, a povieme ti tvoju veľkosť.",
+      sizeAsk: "Mám otázku k veľkosti", sizeEu: "Veľkosť EU", sizeCm: "Vnútorná dĺžka chodidla (cm)",
+      reviewsTitle: "Názory našich zákazníkov",
+      compareTitle: "Čím sa líši KicksByDavid?", compareBrand: "KicksByDavid", compareCols: ["Resellové e-shopy", "Veľké e-shopy"],
+      compareRows: [
+        ["Cena", "Pod resellovou cenou"],
+        ["Overenie originality", "Kód výrobcu je uvedený, údaje o firme sú verejné"],
+        ["Výmena a vrátenie", "Platíme my, 30 dní"],
+        ["Platba", "Aj na dobierku, peniaze máš u seba až do prevzatia"]
+      ],
+      faqTitle: "Časté otázky", faqText: "Čo ti môže pred nákupom napadnúť. Ak odpoveď nenájdeš, odpovieme ti do 1 pracovného dňa.",
+      sellerTitle: "Kto stojí za obchodom?",
+      sellerList: ["KICKSBYDAVID s.r.o., DIČ 2121629928", "Odpoveď zákazníckej podpory: do 1 pracovného dňa", "Ku každej objednávke posielame elektronickú faktúru"],
+      sellerCall: "Zavolaj nám:", sellerMail: "Napíš nám", mail: "info@kicksbydavid.com"
+    }
   };
   var TX = SK ? TXT.sk : TXT.hu;
+  /* nyelvfüggő beállítások: sima érték (csak HU) vagy { hu: ..., sk: ... } */
+  function L(v) { return v && typeof v === "object" && !Array.isArray(v) ? v[SK ? "sk" : "hu"] : (SK ? "" : v); }
 
   /* ========================= SEGÉD ========================= */
   function svg(path, size, stroke, w) {
@@ -201,7 +227,7 @@
     if (!D || !D.desc) return null;
     var fam = modelFamily(D.rows), main = "<h2>" + esc(D.desc.title) + "</h2><p>" + esc(D.desc.p.join(" ")) + "</p>";
     if (B.moodPhoto && B.moodPhoto[fam]) main += '<img class="kbd2-mood" src="' + esc(B.moodPhoto[fam]) + '" alt="" loading="lazy">';
-    if (TX && B.fit && B.fit[fam]) main += "<h3>" + esc(TX.fitTitle) + '</h3><p class="kbd2-muted">' + esc(B.fit[fam]) + "</p>";
+    var fit = B.fit ? L(B.fit[fam]) : ""; if (TX && fit) main += "<h3>" + esc(TX.fitTitle) + '</h3><p class="kbd2-muted">' + esc(fit) + "</p>";
     if (D.why) main += "<h3>" + esc(D.why.title) + "</h3><p>" + esc(D.why.p.join(" ")) + "</p>";
     var side = "";
     if (D.rows && D.rows.length) {
@@ -271,12 +297,14 @@
   }
 
   function secCompare() {
-    if (!TX || !B.compare || !B.compare.others || B.compare.others.length < TX.compareRows.length) return null;
-    var ok = B.compare.others.every(function (o) { return o && o.length >= 2 && o[0] && o[1]; });
+    var others = B.compare ? B.compare.others : null;
+    if (others && !Array.isArray(others)) others = others[SK ? "sk" : "hu"];
+    if (!TX || !others || others.length < TX.compareRows.length) return null;
+    var ok = others.every(function (o) { return o && o.length >= 2 && o[0] && o[1]; });
     if (!ok) return null;
     var head = '<tr><th scope="col"></th><th scope="col" class="kbd2-us">' + esc(TX.compareBrand) + "</th>" + TX.compareCols.map(function (c) { return '<th scope="col">' + esc(c) + "</th>"; }).join("") + "</tr>";
     var rows = TX.compareRows.map(function (r, i) {
-      var o = B.compare.others[i];
+      var o = others[i];
       return '<tr><th scope="row">' + esc(r[0]) + '</th><td class="kbd2-us">' + esc(r[1]) + "</td><td>" + esc(o[0]) + "</td><td>" + esc(o[1]) + "</td></tr>";
     }).join("");
     return el("section", "kbd2-cmp", "kbd2-cmp", wrap("<h2>" + esc(TX.compareTitle) + '</h2><div class="kbd2-cmp-t"><table><thead>' + head + "</thead><tbody>" + rows + "</tbody></table></div>"));
@@ -302,10 +330,11 @@
   }
 
   function secSeller() {
-    if (!TX || !B.seller || !B.seller.text) return null;
+    var sellerText = B.seller ? L(B.seller.text) : "";
+    if (!TX || !sellerText) return null;
     return el("section", "kbd2-seller", "kbd2-sel", wrap(
       (B.seller.photo ? '<img class="kbd2-sel-p" src="' + esc(B.seller.photo) + '" alt="" loading="lazy">' : "") +
-      '<div class="kbd2-sel-t"><h2>' + esc(TX.sellerTitle) + "</h2><p>" + esc(B.seller.text) + "</p><ul>" + TX.sellerList.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" +
+      '<div class="kbd2-sel-t"><h2>' + esc(TX.sellerTitle) + "</h2><p>" + esc(sellerText) + "</p><ul>" + TX.sellerList.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" +
       '<div class="kbd2-btns"><a class="kbd2-btn kbd2-pri" href="tel:' + CFG.phone.tel + '">' + esc(TX.sellerCall) + " " + esc(CFG.phone.label) + '</a><a class="kbd2-btn" href="mailto:' + TXT.hu.mail + '">' + esc(TX.sellerMail) + "</a></div></div>"));
   }
 

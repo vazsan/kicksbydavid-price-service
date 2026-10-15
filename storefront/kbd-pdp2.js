@@ -2,7 +2,7 @@
    KicksByDavid – termékoldal v2 (HU + SK): a prototípus szerinti réteg a v11 (kbd-pdp.js) fölött.
    Csak akkor töltődik, ha a v11 betöltője bekapcsolta: ?kbdv2=1 (a böngésző megjegyzi), ?kbdv2=0 kikapcsolja.
    Minden beállítás és szelektor a CFG / SEL blokkban van. A szövegek nyelvi kulcsok alatt állnak:
-   az SK oldal a v11 meglévő szlovák szövegeit használja, új szlovák szöveg itt nincs (lásd TXT.sk).
+   az SK szövegek a TXT.sk blokkban vannak (gépi fordítás, anyanyelvi átnézés javasolt), egyébként a v11 szlovák szótárát használja.
    ============================================================================ */
 (function () {
   "use strict";
@@ -35,14 +35,14 @@
       nativeTabs: "policy",                         /* az Unas lapfülei: "policy" (csak Szállítás és Eredetiség), "all" (mind), "none" (egyik sem) */
       similarMax: 4,                                /* a „Hasonló termékek” sorban legfeljebb ennyi termék */
       /* „Kinek és mihez ajánljuk?”: modellcsalád (kisbetűvel) -> szöveg. Egy szöveg a modellcsalád minden termékén megjelenik. */
-      fit: {},
+      fit: {},                                      /* szöveg: sima érték (csak HU) vagy { hu: "...", sk: "..." } */
       /* hangulatfotó a leírásban: modellcsalád (kisbetűvel) -> kép URL-je */
       moodPhoto: {},
       /* eladó bemutatása: a szekció csak akkor jelenik meg, ha a bemutatkozás szövege ki van töltve */
-      seller: { photo: "", text: "" },
+      seller: { photo: "", text: "" },              /* text: sima érték (csak HU) vagy { hu: "...", sk: "..." } */
       /* összehasonlító táblázat: a szekció csak akkor jelenik meg, ha minden versenytárs-cella ki van töltve.
          others: a négy sor (Ár, Eredetiség ellenőrzése, Csere és visszaküldés, Fizetés) sorrendjében [resell webshopok, nagy webshopok] */
-      compare: { others: [] },
+      compare: { others: [] },                      /* others: tömb (csak HU) vagy { hu: [...], sk: [...] } */
       /* videós vélemény: YouTube/Vimeo beágyazási URL; üresen a hely nem jelenik meg */
       videoReview: ""
     }
@@ -75,13 +75,22 @@
         "30 nap ingyenes csere, utánvéttel is fizethetsz"
       ],
       sizeHint: "Nem vagy biztos a méretben? A csere 30 napig ingyenes, és ha megírod, mit hordasz, megmondjuk a méreted.",
-      saving: "akció kezdete: %D%, a készlet erejéig",
+      saving: { d: "akció kezdete: ", end: "a készlet erejéig", re: /készlet/i },
       cod: "Utánvét felára:",
-      upsell: { add: "Add hozzá:", sub: "Egy pipával a kosárba kerül a cipővel együtt.", prev: "Előző", next: "Következő" },
-      points: null, sku: null
+      upsell: { add: "Add hozzá:", sub: "Egy pipával a kosárba kerül a cipővel együtt.", prev: "Előző", next: "Következő" }
     },
-    /* Az SK szöveget anyanyelvi lektor írja. Ahol nincs kulcs, a szekció az SK oldalon a v11 szövegeivel marad. */
-    sk: { benefits: null, sizeHint: null, saving: null, cod: null, upsell: null }
+    /* Szlovák szövegek. Gépi fordítás a meglévő szlovák kifejezések (dobierka, výmena, kód výrobcu) alapján; anyanyelvi átnézés javasolt. */
+    sk: {
+      benefits: [
+        "Nové, v originálnej krabici, od overeného európskeho veľkoobchodníka",
+        "Kód výrobcu je uvedený (%SKU%), vo vyhľadávači si ho môžeš overiť",
+        "30 dní výmena zdarma, platiť môžeš aj na dobierku"
+      ],
+      sizeHint: "Nie si si istý veľkosťou? Výmena je 30 dní zdarma, a ak nám napíšeš, aké topánky nosíš, povieme ti tvoju veľkosť.",
+      saving: { d: "začiatok akcie: ", end: "kým sú zásoby", re: /zásob|vypred/i },
+      cod: null,
+      upsell: { add: "Pridaj k objednávke:", sub: "Jedným zaškrtnutím sa pridá do košíka spolu s topánkami.", prev: "Predchádzajúce", next: "Ďalšie" }
+    }
   };
   var TX = SK ? TXT.sk : TXT.hu;
 
@@ -275,10 +284,10 @@
     if (!TX.saving) return;
     var box = $(SEL.saving);
     if (!box || $(".kbd2-period", box)) return;
-    var start = txt($(SEL.periodStart)).match(/\d{4}\.\s?\d{2}\.\s?\d{2}/), end = txt($(SEL.periodEnd));
-    if (!start || !/készlet/i.test(end)) return;
-    var parts = TX.saving.split("%D%");
-    box.insertAdjacentHTML("beforeend", ' <span class="kbd2-period">· <span class="kbd2-d">' + esc(parts[0]) + esc(start[0]) + esc(parts[1].replace(/a készlet erejéig/, "")) + "</span>a készlet erejéig</span>");
+    var st = txt($(SEL.periodStart)), end = txt($(SEL.periodEnd));
+    var start = st.match(/\d{4}\.\s?\d{1,2}\.\s?\d{1,2}/) || st.match(/\d{1,2}\.\s?\d{1,2}\.\s?\d{4}/);
+    if (!start || !TX.saving.re.test(end)) return;
+    box.insertAdjacentHTML("beforeend", ' <span class="kbd2-period">· <span class="kbd2-d">' + esc(TX.saving.d) + esc(start[0]) + ", </span>" + esc(TX.saving.end) + "</span>");
   }
 
   function payRow() {
@@ -322,7 +331,6 @@
   });
 
   function trustTexts() {
-    if (SK) return;
     $$(SEL.trust + " .kbd-trust span").forEach(function (s) { if (!s.getAttribute("data-kbd2")) { s.textContent = txt(s).replace(/\.$/, ""); s.setAttribute("data-kbd2", "1"); } });
   }
 
@@ -380,7 +388,7 @@
   function cardInfo(card) {
     var link = $(".product__name-link", card);
     var pr = $(".product__price-discount .price-gross-format", card) || $(".product__price-base .price-gross-format", card);
-    var num = parseInt(txt(pr).replace(/[^\d]/g, ""), 10);
+    var num = parseFloat(txt(pr).replace(/\s/g, "").replace(",", ".").replace(/[^\d.]/g, ""));
     var stock = $(".product__stock", card);
     return {
       sku: card.getAttribute("data-sku"), name: txt(link), price: txt(pr), value: isNaN(num) ? 0 : num,
