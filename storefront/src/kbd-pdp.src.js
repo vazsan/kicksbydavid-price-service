@@ -843,3 +843,19 @@ localStorage.setItem("kbd_rv",JSON.stringify(list.slice(0,12)));
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",save);else save();
 })();
+
+/* ========================= 7) v2 kinézet: kbd-pdp2.js betöltése (csak ?kbdv2=1 jelzéssel) =========================
+   A kapcsolót a böngésző megjegyzi (localStorage), a ?kbdv2=0 törli. A v11 változatlanul fut tovább, a v2 a fölé kerül. */
+(function(){
+  try{
+    var d=document, h=d.documentElement, q=location.search, ls=window.localStorage;
+    if(/[?&]kbdv2=1/.test(q)) ls.setItem("kbdv2","1");
+    if(/[?&]kbdv2=0/.test(q)) ls.removeItem("kbdv2");
+    if(ls.getItem("kbdv2")!=="1" || !h.classList.contains("kbd-pdp")) return;
+    var cs=d.currentScript, ld=d.getElementById("kbd-pdp-loader"), src=(cs&&cs.src)||(ld&&ld.src)||"";
+    if(!/kbd-pdp\.js/.test(src)) return;
+    h.classList.add("kbd-v2");
+    var s=d.createElement("script"); s.async=true; s.src=src.replace(/kbd-pdp\.js/,"kbd-pdp2.js");
+    (d.head||h).appendChild(s);
+  }catch(e){}
+})();
