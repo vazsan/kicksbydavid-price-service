@@ -74,8 +74,8 @@
     var S = "html.kbd-pdp.kbd-v2 ", M = S + "#artdet__main-block ";
     var MQ = "@media (max-width:767.98px){", EQ = "}";
     var r = [];
-    /* színek: a v11 változóit írjuk át, így a gombok, jelölők és a lebegő sáv is a prototípus színeit kapja */
-    r.push("html.kbd-pdp.kbd-v2{--kbd-cream:#F5F5F2;--kbd-ink:#0E0E0E;--kbd-brown:#0E0E0E;--kbd-brown-h:#2B2B28;--kbd-muted:#55554F;--kbd-line:#E4E4DF;--kbd-border:#CFCFC9;--kbd-ok:#17714A;--kbd-accent:#D6361F}");
+    /* színek: a v11 változóit írjuk át; a fő gombok barnája (--kbd-brown, --kbd-brown-h) a v11-ből marad */
+    r.push("html.kbd-pdp.kbd-v2{--kbd-cream:#F5F5F2;--kbd-ink:#0E0E0E;--kbd-muted:#55554F;--kbd-line:#E4E4DF;--kbd-border:#CFCFC9;--kbd-ok:#17714A;--kbd-accent:#D6361F}");
     /* a jobb oszlop elemeinek sorrendje: CSS order, így a v11 átrendezései nem írják felül */
     r.push(M + ".artdet__block-cart-inner{max-width:none}");
     r.push(M + ".artdet__block-cart-inner>*{order:20}");
@@ -123,13 +123,13 @@
     r.push(M + ".product-type__value--text:not(.kbd-oos):not(.is-active){border-color:var(--kbd-border)!important}");
     r.push(M + ".product-type__value--text:not(.kbd-oos):not(.is-active):hover{border-color:var(--kbd-ink)!important}");
     r.push(M + ".product-type__value--text .product-type__value-link{font-size:15px!important;font-weight:700!important}");
-    r.push(M + ".product-type__value--text.is-active{border-color:var(--kbd-ink)!important}");
+    r.push(M + ".product-type__value--text.is-active{border-color:var(--kbd-brown)!important}");
     r.push(M + "#kbd-size-help{margin:12px 0 0!important;font-size:13px;line-height:1.5;color:var(--kbd-muted)}");
     r.push(MQ + M + ".product-type__values--text{grid-template-columns:repeat(3,minmax(0,1fr))!important}" + M + "#kbd-size-help{font-size:12px}" + EQ);
 
     /* kosárgomb, gyorsrendelés, fizetés */
     r.push(M + "#artdet__cart{margin:18px 0 0!important;row-gap:10px}");
-    r.push(M + ".artdet__cart-btn{height:62px;border-radius:4px!important;background:var(--kbd-ink)!important;font:800 16px/1 Montserrat,Montserrat-fallback,sans-serif!important;letter-spacing:.05em;text-transform:uppercase}");
+    r.push(M + ".artdet__cart-btn{height:62px;border-radius:4px!important;background:var(--kbd-brown)!important;font:800 16px/1 Montserrat,Montserrat-fallback,sans-serif!important;letter-spacing:.05em;text-transform:uppercase}");
     r.push(M + ".artdet__cart-btn:hover," + M + ".artdet__cart-btn:focus-visible{background:var(--kbd-brown-h)!important}");
     r.push(M + ".artdet__cart-btn svg.kbd3-cart{display:none!important}");
     r.push(M + ".artdet__cart-btn .kbd-btn-price{font-weight:800;opacity:1;text-transform:none}");
