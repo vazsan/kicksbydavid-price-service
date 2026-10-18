@@ -84,9 +84,9 @@
       benefits: [
         "Nové, v originálnej krabici, od overeného európskeho veľkoobchodníka",
         "Kód výrobcu je uvedený (%SKU%), vo vyhľadávači si ho môžeš overiť",
-        "30 dní výmena zdarma, platiť môžeš aj na dobierku"
+        "Platiť môžeš aj na dobierku"
       ],
-      sizeHint: "Nie si si istý veľkosťou? Výmena je 30 dní zdarma, a ak nám napíšeš, aké topánky nosíš, povieme ti tvoju veľkosť.",
+      sizeHint: "Nie si si istý veľkosťou? Ak nám napíšeš, aké topánky nosíš, povieme ti tvoju veľkosť.",
       saving: { d: "začiatok akcie: ", end: "kým sú zásoby", re: /zásob|vypred/i },
       cod: null,
       upsell: { add: "Pridaj k objednávke:", sub: "Jedným zaškrtnutím sa pridá do košíka spolu s topánkami.", prev: "Predchádzajúce", next: "Ďalšie" }
