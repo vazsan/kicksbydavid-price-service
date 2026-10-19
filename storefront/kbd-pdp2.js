@@ -16,7 +16,7 @@
     maxImages: 6,                                   /* a galéria legfeljebb ennyi képet mutat */
     phone: (window.KBD && window.KBD.sk) ? { tel: "+421910252548", label: "+421 910 252 548" } : { tel: "+36205564258", label: "+36 20 556 4258" },   /* nyelvenként: SK +421, HU +36 */
     /* szállítási doboz a KOSÁRBA gomb fölött + felugró ablak (minta: store/pdp-minta). Pilot: a <html> osztályában page_shop_artdet_<id>* szerepel; "*" = minden termékoldal; üres lista = ki */
-    ship: { pilot: ["1122553_MVB_", "IM6001_475_", "HF7054_050_", "FZ0627_010_", "HJ5996_005_", "1166930_DCT_"] },
+    ship: { pilot: ["*"] },
     cod: { hu: "1 100 Ft" },                        /* utánvét felára, HU; az SK érték a v11 szótárából jön */
     /* Trustindex: kis jelvény (a hero-ban) és nagy vélemény-widget (a lap alján, a 6. lépésben) */
     trustindex: {
@@ -84,9 +84,9 @@
         eta: "Várható kézbesítés:", free: "✓ Ehhez a párhoz ingyenes a szállítás", miss: "Még <b>%X%</b> hiányzik az ingyenes szállításhoz",
         cod: "Utánvéttel is fizethetsz (+1 100 Ft)", btn: "Szállítási díjak és információk", title: "Szállítás és fizetés", close: "Bezárás",
         banner: ["46 250 Ft felett minden szállítás", "INGYENES"],
-        s1: "Szállítási módok", ship: [["Packeta csomagpont / automata", "1 089 Ft"], ["Packeta házhozszállítás", "2 179 Ft"], ["MPL", "3 800 Ft"]],
+        s1: "Szállítási módok", ship: [["Packeta csomagpont / automata", "1 089 Ft", "automatánál csak bankkártya"], ["Packeta házhozszállítás", "2 179 Ft"], ["MPL", "3 800 Ft"]],
         s2: "Fizetés", pay: [["Bankkártya (Visa, Mastercard)", "0 Ft"], ["Utánvét", "+1 100 Ft", "átvételkor fizetsz"]],
-        warn: "",
+        warn: "Utánvéttel fizetnél? Válassz csomagpontot vagy házhozszállítást. Csomagautomatánál csak bankkártyával fizethetsz.",
         foot: ["Kiszállítás nyomkövetéssel. E-mailben szólunk, hol tart a csomagod.", "↺ 30 napig ingyenes csere és visszaküldés.", "☎ Kérdésed van? %PHONE%"],
         tiles: [["100% eredeti", "dupla pénz vissza, ha hamis"], ["30 nap csere", "ingyen, mi fizetjük"], ["Nyomkövetés", "szólunk, hol tart"]],
         dup: [0, 1, 3]
