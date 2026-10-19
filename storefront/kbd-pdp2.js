@@ -88,8 +88,8 @@
         s2: "Fizetés", pay: [["Bankkártya (Visa, Mastercard)", "0 Ft"], ["Utánvét", "+1 100 Ft", "átvételkor fizetsz"]],
         warn: "Utánvéttel fizetnél? Válassz csomagpontot vagy házhozszállítást. Csomagautomatánál csak bankkártyával fizethetsz.",
         foot: ["Kiszállítás nyomkövetéssel. E-mailben szólunk, hol tart a csomagod.", "↺ 30 napig ingyenes csere és visszaküldés.", "☎ Kérdésed van? %PHONE%"],
-        tiles: [["100% eredeti", "dupla pénz vissza, ha hamis"], ["30 nap csere", "ingyen, mi fizetjük"], ["Nyomkövetés", "szólunk, hol tart"]],
-        dup: [0, 1, 3]
+        checks: ["Utánvét", "30 nap ingyenes csere", "Nyomkövetés"],
+        cards: [["truck", "Ingyenes szállítás", "46 250 Ft felett. Utánvét +1 100 Ft."], ["shield", "100% eredeti", "Eredeti dobozban, új állapotban. Dupla pénz vissza, ha hamis."], ["swap", "30 nap csere", "A cserét és a visszaküldést mi fizetjük."], ["ruler", "Méretgarancia", "Írd meg, mit hordasz, megmondjuk a méreted."]]
       }
     },
     /* Szlovák szövegek. Gépi fordítás a meglévő szlovák kifejezések (dobierka, výmena, kód výrobcu) alapján; anyanyelvi átnézés javasolt. */
@@ -111,8 +111,7 @@
         s2: "Platba", pay: [["Platba kartou (Visa, Mastercard)", "0 €"], ["Dobierka", "+3 €", "len s DPD kuriérom"]],
         warn: "Chcete platiť na dobierku? Vyberte <b>DPD kuriéra</b>. Pri Pickup a AlzaBoxe je možná len platba kartou.",
         foot: ["↺ 30 dní výmena a vrátenie zadarmo.", "☎ Máte otázku? %PHONE%"],
-        tiles: null,   /* az SK csempék a meglévő SK garanciakártyák szövegéből készülnek (nincs új SK szöveg) */
-        dup: [0, 1, 2]
+        checks: null, cards: null   /* az SK pipás sor és kártyák a meglévő SK szövegekből készülnek (nincs új SK szöveg), lásd skShip() */
       }
     }
   };
@@ -139,7 +138,7 @@
     /* a jobb oszlop elemeinek sorrendje: CSS order, így a v11 átrendezései nem írják felül */
     r.push(M + ".artdet__block-cart-inner{max-width:none}");
     r.push(M + ".artdet__block-cart-inner>*{order:20}");
-    var ord = ["#kbd-pdp-head", ".artdet__price-and-countdown", "#kbd-stock-line", "#kbd-size-head", "#artdet__type", "#kbd-size-help", "#kbd2-upsell", "#kbd4-ship", "#artdet__cart", "#kbd2-pay", "#kbd4-tiles", "#kbd2-ship", "#kbd-pdp-trust", "#kbd2-meta"];
+    var ord = ["#kbd-pdp-head", ".artdet__price-and-countdown", "#kbd-stock-line", "#kbd-size-head", "#artdet__type", "#kbd-size-help", "#kbd2-upsell", "#kbd4-ship", "#artdet__cart", "#kbd2-pay", "#kbd4-checks", "#kbd4-cards", "#kbd2-ship", "#kbd-pdp-trust", "#kbd2-meta"];
     ord.forEach(function (s, i) { r.push(M + ".artdet__block-cart-inner>" + s + "{order:" + (i + 1) + "}"); });
     /* a v11 elemei, amiket a prototípus szerinti sorok váltanak ki */
     r.push(M + "#kbd3-benefits," + M + "#kbd-pdp-delivery," + M + "#kbd-pdp-freeship," + M + "#kbd3-shipinfo," + M + "#kbd3-contact," + M + "#kbd3-pay," + M + "#kbd3-clar," + M + ".kbd-skuline," + M + ".artdet__virtual-point-highlighted," + M + ".kbd3-more," + M + ".kbd-skuhint," + M + ".artdet__price-base .info-icon," + M + ".artdet__prices .artdet__sale{display:none!important}");
@@ -216,10 +215,19 @@
     r.push(M + "#kbd4-ship .k4-d{min-height:19px}" + M + "#kbd4-ship .k4-f{color:var(--kbd-ok);font-weight:700}" + M + "#kbd4-ship .k4-c{color:var(--kbd-muted)}");
     r.push(M + "#kbd4-ship .k4-b{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:8px;border:1.5px solid var(--kbd-ink);border-radius:8px;padding:8px 10px;font:700 13px/1.3 Montserrat,Montserrat-fallback,sans-serif;background:#fff;color:var(--kbd-ink);cursor:pointer;text-align:left;text-transform:none;letter-spacing:normal}");
     r.push(M + "#kbd4-ship .k4-b:hover{background:var(--kbd-ink);color:#fff}");
-    r.push(M + "#kbd4-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px;text-align:center;font-size:10.5px;line-height:1.3;color:#333}");
-    r.push(M + "#kbd4-tiles>div{background:#F4F4F2;border-radius:8px;padding:8px 4px}" + M + "#kbd4-tiles b{display:block;font-size:11px;color:var(--kbd-ink);font-weight:700}");
-    r.push("@media (min-width:768px){" + M + "#kbd4-tiles{font-size:12px}" + M + "#kbd4-tiles b{font-size:13px}" + M + "#kbd4-ship{font-size:14px}" + EQ);
-    r.push(S + ".kbd-trust.kbd4-dup{display:none!important}");
+    /* KOSÁRBA alatt (adonio szerkezet): színes fizetési logók, pipás sor, 2x2 kártyarács; a régi garanciakártyák (#kbd-pdp-trust) ilyenkor rejtve */
+    var K4 = "html.kbd4t.kbd-pdp.kbd-v2 #artdet__main-block ";
+    r.push(K4 + "#kbd-pdp-trust{display:none!important}");
+    r.push(K4 + "#kbd2-pay{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:-8px}");
+    r.push(K4 + "#kbd2-pay .k4-chip{width:40px;height:26px;border:1px solid #e6e6e6;border-radius:6px;background:#fff;display:inline-flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box}");
+    r.push(K4 + "#kbd2-pay .k4-chip svg{width:38px;height:24px;display:block}");
+    r.push(M + "#kbd4-checks{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;margin-top:-10px;font-size:12.5px;line-height:1.3;font-weight:600;color:var(--kbd-muted);letter-spacing:normal}");
+    r.push(M + "#kbd4-checks span{display:inline-flex;align-items:center;gap:5px}" + M + "#kbd4-checks svg{width:12px;height:12px;flex:none;color:#1f7a4d;stroke-width:2.4}");
+    r.push(M + "#kbd4-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}");
+    r.push(M + "#kbd4-cards .k4-card{background:#fff;border:1px solid #e6e6e6;border-radius:12px;padding:16px;box-sizing:border-box;min-width:0}");
+    r.push(M + "#kbd4-cards .k4-card svg{width:24px;height:24px;display:block;margin:0 0 12px;color:#111;stroke-width:1.6}");
+    r.push(M + "#kbd4-cards .k4-card b{display:block;font-size:15px;font-weight:700;line-height:1.3;margin:0 0 4px;color:#111;letter-spacing:normal}");
+    r.push(M + "#kbd4-cards .k4-card span{display:block;font-size:13px;line-height:1.45;color:#666;letter-spacing:normal}");
     r.push("html.kbd4 #kbd2-ship{display:none!important}");
     r.push("#kbd4-ov{position:fixed;left:0;top:0;right:0;bottom:0;z-index:100000;background:rgba(0,0,0,.45);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;letter-spacing:normal;text-transform:none}#kbd4-ov.k4-on{display:block}");
     r.push("#kbd4-mo{position:relative;margin:70px 12px 24px;max-width:440px;background:#fff;border-radius:18px;padding:18px 18px 14px;color:#111;font-size:13.5px;line-height:1.4}");
@@ -351,6 +359,7 @@
 
   function payRow() {
     var e = mk("kbd2-pay"), t = T1.payments || [];
+    if (shipOn()) { h.classList.add("kbd4t"); setHtml(e, payChips()); return e; }
     if (!T1.clarity) return null;
     setHtml(e, "<b>" + esc(T1.clarity) + "</b>" + t.map(function (p) { return '<span class="pm">' + esc(p) + "</span>"; }).join(""));
     return e;
@@ -553,15 +562,35 @@
     setHtml(e, html);
     return e;
   }
-  function shipTiles() {
-    var S = TX.ship, cards = $$(SEL.trust + " .kbd-trust"), t = S.tiles;
-    if (!t) {
-      if (cards.length < 3) return null;
-      t = S.dup.map(function (i) { return [txt($("b", cards[i])), txt($("span", cards[i]))]; });
-    }
-    var e = mk("kbd4-tiles");
-    setHtml(e, t.map(function (x) { return "<div><b>" + esc(x[0]) + "</b>" + esc(x[1]) + "</div>"; }).join(""));
-    S.dup.forEach(function (i) { if (cards[i]) cards[i].classList.add("kbd4-dup"); });
+  var PAYSVG = {
+    cash: '<svg viewBox="0 0 40 26" aria-hidden="true"><rect x="8" y="6.5" width="24" height="13" rx="2" fill="none" stroke="#1f7a4d" stroke-width="1.6"/><circle cx="20" cy="13" r="3.2" fill="none" stroke="#1f7a4d" stroke-width="1.6"/><circle cx="12" cy="13" r="1" fill="#1f7a4d"/><circle cx="28" cy="13" r="1" fill="#1f7a4d"/></svg>',
+    visa: '<svg viewBox="0 0 40 26" aria-hidden="true"><text x="20" y="17.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="900" font-style="italic" fill="#1A1F71">VISA</text></svg>',
+    mc: '<svg viewBox="0 0 40 26" aria-hidden="true"><circle cx="15" cy="13" r="7" fill="#EB001B"/><circle cx="25" cy="13" r="7" fill="#F79E1B"/><path d="M20 8.1A7 7 0 0 1 20 17.9A7 7 0 0 1 20 8.1z" fill="#FF5F00"/></svg>'
+  };
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function payChips() {
+    var cod = (T1.payments || [])[2] || (SK ? "Dobierka" : "Utánvét");
+    function chip(svg, label) { return '<span class="k4-chip" role="img" aria-label="' + esc(label) + '">' + svg + "</span>"; }
+    return chip(PAYSVG.cash, cod) + chip(PAYSVG.visa, "VISA") + chip(PAYSVG.mc, "Mastercard");
+  }
+  /* SK: a pipás sor és a kártyák kizárólag a meglévő SK szövegekből (a v11 szótár és a lap szövegei) állnak össze */
+  function skShip() {
+    var tr = T1.trust || [];
+    return {
+      checks: [(T1.payments || [])[2] || "Dobierka", (tr[1] || {}).b || "", T1.delTrack || ""],
+      cards: [["truck", "Doprava zadarmo nad 120 €", T1.cod || ""], ["shield", (tr[0] || {}).b || "", (tr[0] || {}).s || ""], ["swap", (tr[1] || {}).b || "", (tr[1] || {}).s || ""], ["chat", (tr[3] || {}).b || "", (tr[3] || {}).s || ""]]
+    };
+  }
+  function checksRow() {
+    var S = TX.ship, src = S.checks || skShip().checks;
+    var e = mk("kbd4-checks");
+    setHtml(e, src.filter(Boolean).map(function (x) { return "<span>" + CHECK + esc(x) + "</span>"; }).join(""));
+    return e;
+  }
+  function cardsGrid() {
+    var S = TX.ship, src = S.cards || skShip().cards;
+    var e = mk("kbd4-cards");
+    setHtml(e, src.filter(function (c) { return c[1]; }).map(function (c) { return '<div class="k4-card">' + ico(c[0]) + "<b>" + esc(c[1]) + "</b>" + (c[2] ? "<span>" + esc(c[2]) + "</span>" : "") + "</div>"; }).join(""));
     return e;
   }
   var lastFocus = null;
@@ -612,10 +641,13 @@
     if (card) {
       h.classList.add("kbd4");
       if (card.parentNode !== inner) inner.appendChild(card);
-      var tiles = shipTiles(); if (tiles && tiles.parentNode !== inner) inner.appendChild(tiles);
       var gb = d.getElementById("kbd2-ship"); if (gb && gb.parentNode) gb.parentNode.removeChild(gb);
     } else {
       var ship = shipBox(); if (ship.parentNode !== inner) inner.appendChild(ship);
+    }
+    if (shipOn()) {
+      var chk = checksRow(); if (chk.parentNode !== inner) inner.appendChild(chk);
+      var crd = cardsGrid(); if (crd.parentNode !== inner) inner.appendChild(crd);
     }
     var meta = metaRow(); if (meta && meta.parentNode !== inner) inner.appendChild(meta);
     limitGallery();
