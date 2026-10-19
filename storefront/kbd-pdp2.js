@@ -290,6 +290,15 @@
     /* lebegő sáv: a színeket a változók adják, a gomb sarka és betűje a prototípus szerint */
     r.push(S + "#artdet__fixed-cart .fixed-cart__btn{border-radius:4px!important;text-transform:uppercase;letter-spacing:.04em;font-weight:800!important}");
 
+    /* az Unas a jobb oszlop elemei közé 20 px rést tesz (.artdet__block-cart-inner{gap:20px}); a felső blokk (értékelés, ár, Raktáron, Méret) összehúzása negatív felső margóval.
+       Mért célok (látható pixelek között): értékelés-ár ~16, ár-Raktáron ~8, Raktáron-Méret ~16. A fejléc a negatív margó alatt is kattintható marad (z-index). */
+    r.push(M + "#kbd-pdp-head{position:relative;z-index:1}");
+    r.push(M + ".artdet__price-and-countdown{margin-top:-45px!important}");
+    r.push(M + "#kbd-stock-line{margin-top:-24px}");
+    r.push(M + "#kbd-size-head{margin-top:-14px!important}");
+    r.push(M + "#kbd-size-head:has(.kbd-size-modal__open-btn){margin-top:-25px!important}");
+    r.push(MQ + M + ".artdet__price-and-countdown{margin-top:-31px!important}" + M + "#kbd-stock-line{margin-top:-23px}" + EQ);
+
     var st = d.createElement("style");
     st.id = "kbd-pdp-v2css";
     st.textContent = r.join("");
