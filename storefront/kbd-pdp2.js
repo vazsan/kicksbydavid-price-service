@@ -14,7 +14,9 @@
   /* ========================= KONFIGURÁCIÓ ========================= */
   var CFG = {
     maxImages: 6,                                   /* a galéria legfeljebb ennyi képet mutat */
-    phone: { tel: "+421910252548", label: "+421 910 252 548" },   /* minden nyelven ez a szám */
+    phone: (window.KBD && window.KBD.sk) ? { tel: "+421910252548", label: "+421 910 252 548" } : { tel: "+36205564258", label: "+36 20 556 4258" },   /* nyelvenként: SK +421, HU +36 */
+    /* szállítási doboz a KOSÁRBA gomb fölött + felugró ablak (minta: store/pdp-minta). Pilot: a <html> osztályában page_shop_artdet_<id>* szerepel; "*" = minden termékoldal; üres lista = ki */
+    ship: { pilot: ["1122553_MVB_", "FZ0627_010_"] },
     cod: { hu: "1 100 Ft" },                        /* utánvét felára, HU; az SK érték a v11 szótárából jön */
     /* Trustindex: kis jelvény (a hero-ban) és nagy vélemény-widget (a lap alján, a 6. lépésben) */
     trustindex: {
@@ -77,7 +79,18 @@
       sizeHint: "Nem vagy biztos a méretben? A csere 30 napig ingyenes, és ha megírod, mit hordasz, megmondjuk a méreted.",
       saving: { d: "akció kezdete: ", end: "a készlet erejéig", re: /készlet/i },
       cod: "Utánvét felára:",
-      upsell: { add: "Add hozzá:", sub: "Egy pipával a kosárba kerül a cipővel együtt.", prev: "Előző", next: "Következő" }
+      upsell: { add: "Add hozzá:", sub: "Egy pipával a kosárba kerül a cipővel együtt.", prev: "Előző", next: "Következő" },
+      ship: {
+        eta: "Várható kézbesítés:", free: "✓ Ehhez a párhoz ingyenes a szállítás", miss: "Még <b>%X%</b> hiányzik az ingyenes szállításhoz",
+        cod: "Utánvéttel is fizethetsz (+1 100 Ft)", btn: "Szállítási díjak és információk", title: "Szállítás és fizetés", close: "Bezárás",
+        banner: ["46 250 Ft felett minden szállítás", "INGYENES"],
+        s1: "Szállítási módok", ship: [["Packeta csomagpont / automata", "1 089 Ft"], ["Packeta házhozszállítás", "2 179 Ft"], ["MPL", "3 800 Ft"]],
+        s2: "Fizetés", pay: [["Bankkártya (Visa, Mastercard)", "0 Ft"], ["Utánvét", "+1 100 Ft", "átvételkor fizetsz"]],
+        warn: "",
+        foot: ["Kiszállítás nyomkövetéssel. E-mailben szólunk, hol tart a csomagod.", "↺ 30 napig ingyenes csere és visszaküldés.", "☎ Kérdésed van? %PHONE%"],
+        tiles: [["100% eredeti", "dupla pénz vissza, ha hamis"], ["30 nap csere", "ingyen, mi fizetjük"], ["Nyomkövetés", "szólunk, hol tart"]],
+        dup: [0, 1, 3]
+      }
     },
     /* Szlovák szövegek. Gépi fordítás a meglévő szlovák kifejezések (dobierka, výmena, kód výrobcu) alapján; anyanyelvi átnézés javasolt. */
     sk: {
@@ -89,7 +102,18 @@
       sizeHint: "Nie si si istý veľkosťou? Ak nám napíšeš, aké topánky nosíš, povieme ti tvoju veľkosť.",
       saving: { d: "začiatok akcie: ", end: "kým sú zásoby", re: /zásob|vypred/i },
       cod: null,
-      upsell: { add: "Pridaj k objednávke:", sub: "Jedným zaškrtnutím sa pridá do košíka spolu s topánkami.", prev: "Predchádzajúce", next: "Ďalšie" }
+      upsell: { add: "Pridaj k objednávke:", sub: "Jedným zaškrtnutím sa pridá do košíka spolu s topánkami.", prev: "Predchádzajúce", next: "Ďalšie" },
+      ship: {
+        eta: "Predpokladané doručenie:", free: "✓ Pri tomto páre je doprava zdarma", miss: "Do dopravy zdarma chýba ešte <b>%X%</b>",
+        cod: "Dobierka +3 € (len s DPD kuriérom)", btn: "Doprava a platba", title: "Doprava a platba", close: "Zavrieť",
+        banner: ["Nad 120 € je doprava", "ZADARMO"],
+        s1: "Spôsoby dopravy", ship: [["DPD Pickup / AlzaBox", "4 €", "len platba kartou"], ["DPD kuriér na adresu", "5 €"]],
+        s2: "Platba", pay: [["Platba kartou (Visa, Mastercard)", "0 €"], ["Dobierka", "+3 €", "len s DPD kuriérom"]],
+        warn: "Chcete platiť na dobierku? Vyberte <b>DPD kuriéra</b>. Pri Pickup a AlzaBoxe je možná len platba kartou.",
+        foot: ["↺ 30 dní výmena a vrátenie zadarmo.", "☎ Máte otázku? %PHONE%"],
+        tiles: null,   /* az SK csempék a meglévő SK garanciakártyák szövegéből készülnek (nincs új SK szöveg) */
+        dup: [0, 1, 2]
+      }
     }
   };
   var TX = SK ? TXT.sk : TXT.hu;
@@ -115,7 +139,7 @@
     /* a jobb oszlop elemeinek sorrendje: CSS order, így a v11 átrendezései nem írják felül */
     r.push(M + ".artdet__block-cart-inner{max-width:none}");
     r.push(M + ".artdet__block-cart-inner>*{order:20}");
-    var ord = ["#kbd-pdp-head", ".artdet__price-and-countdown", "#kbd-stock-line", "#kbd-size-head", "#artdet__type", "#kbd-size-help", "#kbd2-upsell", "#artdet__cart", "#kbd2-pay", "#kbd2-ship", "#kbd-pdp-trust", "#kbd2-meta"];
+    var ord = ["#kbd-pdp-head", ".artdet__price-and-countdown", "#kbd-stock-line", "#kbd-size-head", "#artdet__type", "#kbd-size-help", "#kbd2-upsell", "#kbd4-ship", "#artdet__cart", "#kbd2-pay", "#kbd4-tiles", "#kbd2-ship", "#kbd-pdp-trust", "#kbd2-meta"];
     ord.forEach(function (s, i) { r.push(M + ".artdet__block-cart-inner>" + s + "{order:" + (i + 1) + "}"); });
     /* a v11 elemei, amiket a prototípus szerinti sorok váltanak ki */
     r.push(M + "#kbd-pdp-delivery," + M + "#kbd-pdp-freeship," + M + "#kbd3-shipinfo," + M + "#kbd3-contact," + M + "#kbd3-pay," + M + "#kbd3-clar," + M + ".kbd-skuline," + M + ".artdet__virtual-point-highlighted," + M + ".kbd3-more," + M + ".kbd-skuhint," + M + ".artdet__price-base .info-icon," + M + ".artdet__prices .artdet__sale{display:none!important}");
@@ -185,6 +209,30 @@
     r.push(M + "#kbd2-ship .kbd2-row a{color:var(--kbd-ink);text-decoration:none}");
     r.push(M + "#kbd2-ship .kbd3-shipinfo{margin:0;font-size:14px;color:var(--kbd-ink)}");
     r.push(MQ + M + "#kbd2-ship{padding:16px;gap:12px}" + M + "#kbd2-ship .kbd2-row{font-size:13px;gap:12px}" + M + "#kbd2-ship .kbd2-row>svg{width:20px;height:20px}" + EQ);
+
+
+    /* szállítási doboz a KOSÁRBA gomb fölött, csempék a gomb alatt, felugró ablak (minta: store/pdp-minta/minta.html) */
+    r.push(M + "#kbd4-ship{border:1px solid var(--kbd-line);border-radius:12px;padding:11px 12px;margin:12px 0 0;font-size:13px;line-height:1.5;color:var(--kbd-ink);background:#fff;letter-spacing:normal;text-transform:none}");
+    r.push(M + "#kbd4-ship .k4-d{min-height:19px}" + M + "#kbd4-ship .k4-f{color:var(--kbd-ok);font-weight:700}" + M + "#kbd4-ship .k4-c{color:var(--kbd-muted)}");
+    r.push(M + "#kbd4-ship .k4-b{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:8px;border:1.5px solid var(--kbd-ink);border-radius:8px;padding:8px 10px;font:700 13px/1.3 Montserrat,Montserrat-fallback,sans-serif;background:#fff;color:var(--kbd-ink);cursor:pointer;text-align:left;text-transform:none;letter-spacing:normal}");
+    r.push(M + "#kbd4-ship .k4-b:hover{background:var(--kbd-ink);color:#fff}");
+    r.push(M + "#kbd4-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px;text-align:center;font-size:10.5px;line-height:1.3;color:#333}");
+    r.push(M + "#kbd4-tiles>div{background:#F4F4F2;border-radius:8px;padding:8px 4px}" + M + "#kbd4-tiles b{display:block;font-size:11px;color:var(--kbd-ink);font-weight:700}");
+    r.push("@media (min-width:768px){" + M + "#kbd4-tiles{font-size:12px}" + M + "#kbd4-tiles b{font-size:13px}" + M + "#kbd4-ship{font-size:14px}" + EQ);
+    r.push(S + ".kbd-trust.kbd4-dup{display:none!important}");
+    r.push("html.kbd4 #kbd2-ship{display:none!important}");
+    r.push("#kbd4-ov{position:fixed;left:0;top:0;right:0;bottom:0;z-index:100000;background:rgba(0,0,0,.45);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;letter-spacing:normal;text-transform:none}#kbd4-ov.k4-on{display:block}");
+    r.push("#kbd4-mo{position:relative;margin:70px 12px 24px;max-width:440px;background:#fff;border-radius:18px;padding:18px 18px 14px;color:#111;font-size:13.5px;line-height:1.4}");
+    r.push("@media (min-width:576px){#kbd4-mo{margin:8vh auto 24px}}");
+    r.push("#kbd4-mo h3{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px;font-size:21px;font-weight:800;line-height:1.2;text-transform:none;letter-spacing:normal}");
+    r.push("#kbd4-mo .k4-x{border:0;background:none;font-size:26px;line-height:1;padding:4px 6px;cursor:pointer;color:#111;min-width:44px;min-height:44px}");
+    r.push("#kbd4-mo .k4-free{display:flex;justify-content:space-between;gap:8px;background:#eaf6ef;border:1px solid #bfe3cd;color:var(--kbd-ok);border-radius:10px;padding:9px 11px;font-weight:700;font-size:13px;margin-bottom:6px}");
+    r.push("#kbd4-mo .k4-sec{font-size:11px;letter-spacing:1.5px;font-weight:800;color:var(--kbd-muted);margin:12px 0 2px;text-transform:uppercase}");
+    r.push("#kbd4-mo .k4-li{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--kbd-line)}#kbd4-mo .k4-li span:last-child{font-weight:700;white-space:nowrap}");
+    r.push("#kbd4-mo .k4-li em{display:block;font-style:normal;font-size:11.5px;color:var(--kbd-muted);font-weight:500}");
+    r.push("#kbd4-mo .k4-warn{background:#fff6e5;border:1px solid #f2d39b;border-radius:10px;padding:8px 10px;font-size:12px;margin-top:10px;line-height:1.4}");
+    r.push("#kbd4-mo .k4-foot{font-size:12px;color:var(--kbd-muted);margin-top:10px;line-height:1.5}");
+    r.push("html.kbd4-lock,html.kbd4-lock body{overflow:hidden!important}");
 
     /* pipálós kiegészítő termék */
     r.push(M + "#kbd2-upsell{margin-top:18px}");
@@ -465,6 +513,79 @@
     chain.then(go, go);
   }, true);
 
+
+  /* ========================= SZÁLLÍTÁSI DOBOZ + FELUGRÓ ABLAK (pilot) ========================= */
+  function shipOn() {
+    var l = CFG.ship && CFG.ship.pilot, S = TX.ship;
+    if (!l || !l.length || !S) return false;
+    return l.some(function (id) { return id === "*" ? /(^|\s)page_shop_artdet_/.test(h.className) : h.className.indexOf("page_shop_artdet_" + id) > -1; });
+  }
+  function moneyFmt(v) {
+    if (SK) { var r = Math.round(v * 100) / 100; return (r % 1 ? r.toFixed(2).replace(".", ",") : String(r)) + " €"; }
+    var t = String(Math.ceil(v)), o = "";
+    while (t.length > 3) { o = " " + t.slice(-3) + o; t = t.slice(0, -3); }
+    return t + o + " Ft";
+  }
+  function priceNum() {
+    var p = $("#artdet__main-block .artdet__price-discount .price-gross-format") || $("#artdet__main-block .artdet__prices .price-gross-format");
+    var t = p ? (p.textContent || "") : "";
+    if (SK) { var f = parseFloat(t.replace(/[^\d,.]/g, "").replace(",", ".")); return isNaN(f) ? 0 : f; }
+    var n = parseInt(t.replace(/[^\d]/g, ""), 10); return isNaN(n) ? 0 : n;
+  }
+  function shipCard() {
+    var S = TX.ship, cart = d.getElementById("artdet__cart");
+    if (!cart || !$(".artdet__cart-btn", cart)) return null;
+    var e = mk("kbd4-ship"), p = priceNum(), lim = K.FREE_SHIP || 0, dv = $("#kbd-pdp-delivery b"), html = "";
+    html += '<div class="k4-d">' + (dv ? esc(S.eta) + " <b>" + esc(txt(dv)) + "</b>" : "") + "</div>";
+    if (p > 0 && lim) html += '<div class="k4-f">' + (p >= lim ? esc(S.free) : S.miss.replace("%X%", esc(moneyFmt(lim - p)))) + "</div>";
+    html += '<div class="k4-c">' + esc(S.cod) + '</div><button type="button" class="k4-b" aria-haspopup="dialog"><span>' + esc(S.btn) + '</span><span aria-hidden="true">›</span></button>';
+    setHtml(e, html);
+    return e;
+  }
+  function shipTiles() {
+    var S = TX.ship, cards = $$(SEL.trust + " .kbd-trust"), t = S.tiles;
+    if (!t) {
+      if (cards.length < 3) return null;
+      t = S.dup.map(function (i) { return [txt($("b", cards[i])), txt($("span", cards[i]))]; });
+    }
+    var e = mk("kbd4-tiles");
+    setHtml(e, t.map(function (x) { return "<div><b>" + esc(x[0]) + "</b>" + esc(x[1]) + "</div>"; }).join(""));
+    S.dup.forEach(function (i) { if (cards[i]) cards[i].classList.add("kbd4-dup"); });
+    return e;
+  }
+  var lastFocus = null;
+  function modalHtml() {
+    var S = TX.ship;
+    function li(r) { return '<div class="k4-li"><span>' + esc(r[0]) + (r[2] ? "<em>" + esc(r[2]) + "</em>" : "") + "</span><span>" + esc(r[1]) + "</span></div>"; }
+    return '<div id="kbd4-mo"><h3 id="kbd4-h"><span>' + esc(S.title) + '</span><button type="button" class="k4-x" aria-label="' + esc(S.close) + '">✕</button></h3>' +
+      '<div class="k4-free"><span>' + esc(S.banner[0]) + "</span><span>" + esc(S.banner[1]) + "</span></div>" +
+      '<div class="k4-sec">' + esc(S.s1) + "</div>" + S.ship.map(li).join("") +
+      '<div class="k4-sec">' + esc(S.s2) + "</div>" + S.pay.map(li).join("") +
+      (S.warn ? '<div class="k4-warn">' + S.warn + "</div>" : "") +
+      '<div class="k4-foot">' + S.foot.map(function (x) { return esc(x).replace("%PHONE%", '<a href="tel:' + CFG.phone.tel + '">' + esc(CFG.phone.label) + "</a>"); }).join("<br>") + "</div></div>";
+  }
+  function openShip() {
+    var ov = d.getElementById("kbd4-ov");
+    if (!ov) {
+      ov = d.createElement("div"); ov.id = "kbd4-ov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); ov.setAttribute("aria-labelledby", "kbd4-h");
+      ov.innerHTML = modalHtml(); d.body.appendChild(ov);
+    }
+    lastFocus = d.activeElement; ov.classList.add("k4-on"); h.classList.add("kbd4-lock");
+    var x = $(".k4-x", ov); if (x) x.focus();
+  }
+  function closeShip() {
+    var ov = d.getElementById("kbd4-ov"); if (!ov) return;
+    ov.classList.remove("k4-on"); h.classList.remove("kbd4-lock");
+    if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
+  }
+  d.addEventListener("click", function (ev) {
+    var t = ev.target;
+    if (t.closest && t.closest("#kbd4-ship .k4-b")) { openShip(); return; }
+    var ov = d.getElementById("kbd4-ov");
+    if (ov && ov.classList.contains("k4-on") && (t === ov || (t.closest && t.closest("#kbd4-mo .k4-x")))) closeShip();
+  });
+  d.addEventListener("keydown", function (ev) { if ((ev.key === "Escape" || ev.keyCode === 27) && d.getElementById("kbd4-ov") && d.getElementById("kbd4-ov").classList.contains("k4-on")) closeShip(); });
+
   function run() {
     var inner = $(SEL.inner);
     if (!inner) return;
@@ -476,7 +597,15 @@
     reviewsWidget();
     var cart = d.getElementById("artdet__cart");
     var pay = payRow(); if (pay && pay.parentNode !== inner) inner.appendChild(pay);
-    var ship = shipBox(); if (ship.parentNode !== inner) inner.appendChild(ship);
+    var card = shipOn() ? shipCard() : null;
+    if (card) {
+      h.classList.add("kbd4");
+      if (card.parentNode !== inner) inner.appendChild(card);
+      var tiles = shipTiles(); if (tiles && tiles.parentNode !== inner) inner.appendChild(tiles);
+      var gb = d.getElementById("kbd2-ship"); if (gb && gb.parentNode) gb.parentNode.removeChild(gb);
+    } else {
+      var ship = shipBox(); if (ship.parentNode !== inner) inner.appendChild(ship);
+    }
     var meta = metaRow(); if (meta && meta.parentNode !== inner) inner.appendChild(meta);
     limitGallery();
     upsellBox();

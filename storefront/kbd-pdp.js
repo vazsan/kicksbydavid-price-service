@@ -1,4 +1,4 @@
-/* KicksByDavid termékoldal v13 (HU+SK) */
+/* KicksByDavid termékoldal v14 (HU+SK) */
 (function(){
 var host=(location.hostname||"").split(":")[0].toLowerCase();
 var lang=(document.documentElement.getAttribute("lang")||"").toLowerCase();
@@ -15,8 +15,8 @@ trust:[
 { ic:"cash",b:"Utánvét",s:"Nem kötelező előre fizetned."}
 ],
 contactQ:"Kérdésed van?", contactCall:"Hívj minket:", phone:"+36 20 556 4258", tel:"+36205564258",
-shipLabel:"Szállítás:", shipOpts:[["Packeta pont / automata","1 096 Ft"],["Packeta házhoz","2 192 Ft"]], cod:"Utánvét +1 100 Ft",
-freeFrom:"Ingyenes szállítás 45 657 Ft-tól", missing:"ehhez a párhoz még <b>%X%</b> hiányzik",
+shipLabel:"Szállítás:", shipOpts:[["Packeta pont / automata","1 089 Ft"],["Packeta házhoz","2 179 Ft"]], cod:"Utánvét +1 100 Ft",
+freeFrom:"Ingyenes szállítás 46 250 Ft-tól", missing:"ehhez a párhoz még <b>%X%</b> hiányzik",
 zoom:"Kép nagyítása",
 sizePick:"Méret (EU)",
 sizeHint:"Nem vagy biztos a méretben? A csere 30 napig ingyenes.",
@@ -61,7 +61,7 @@ more:"Podrobný popis a veľkosti →",
 payments:["VISA","Mastercard","Dobierka"],
 clarity:"Bezpečná platba, aj na dobierku"
 };
-window.KBD={ sk:SK, lang:SK?"sk":"hu", t:SK?sk:hu, FREE_SHIP:SK?120:45657 };
+window.KBD={ sk:SK, lang:SK?"sk":"hu", t:SK?sk:hu, FREE_SHIP:SK?120:46250 };
 })();
 (function(){ var LIVE=true,on=LIVE;try{ var q=location.search;
 if(/[?&]kbdnew=1/.test(q))localStorage.setItem("kbdnew","1");
@@ -93,7 +93,7 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
 "use strict";
 var root = document.documentElement;
 if (!root.classList.contains("kbd-pdp")) return;
-var K = window.KBD || { sk:false, t:{}, FREE_SHIP:50000 };
+var K = window.KBD || { sk:false, t:{}, FREE_SHIP:46250 };
 var T = K.t, SK = K.sk;
 var I = {
 shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.2-3 7.6-7 9-4-1.4-7-4.8-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>',

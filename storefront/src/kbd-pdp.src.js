@@ -27,8 +27,8 @@
       {ic:"cash",b:"Utánvét",s:"Nem kötelező előre fizetned."}
     ],
     contactQ:"Kérdésed van?", contactCall:"Hívj minket:", phone:"+36 20 556 4258", tel:"+36205564258",
-    shipLabel:"Szállítás:", shipOpts:[["Packeta pont / automata","1 096 Ft"],["Packeta házhoz","2 192 Ft"]], cod:"Utánvét +1 100 Ft",
-    freeFrom:"Ingyenes szállítás 45 657 Ft-tól", missing:"ehhez a párhoz még <b>%X%</b> hiányzik",
+    shipLabel:"Szállítás:", shipOpts:[["Packeta pont / automata","1 089 Ft"],["Packeta házhoz","2 179 Ft"]], cod:"Utánvét +1 100 Ft",
+    freeFrom:"Ingyenes szállítás 46 250 Ft-tól", missing:"ehhez a párhoz még <b>%X%</b> hiányzik",
     zoom:"Kép nagyítása",
     sizePick:"Méret (EU)",
     sizeHint:"Nem vagy biztos a méretben? A csere 30 napig ingyenes.",
@@ -73,7 +73,7 @@
     payments:["VISA","Mastercard","Dobierka"],
     clarity:"Bezpečná platba, aj na dobierku"
   };
-  window.KBD={ sk:SK, lang:SK?"sk":"hu", t:SK?sk:hu, FREE_SHIP:SK?120:45657 };
+  window.KBD={ sk:SK, lang:SK?"sk":"hu", t:SK?sk:hu, FREE_SHIP:SK?120:46250 };
 })();
 
 /* ========================= 1) v1 CSS ========================= */
@@ -117,7 +117,7 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
   "use strict";
   var root = document.documentElement;
   if (!root.classList.contains("kbd-pdp")) return;
-  var K = window.KBD || { sk:false, t:{}, FREE_SHIP:50000 };
+  var K = window.KBD || { sk:false, t:{}, FREE_SHIP:46250 };
   var T = K.t, SK = K.sk;
 
   var I = {
