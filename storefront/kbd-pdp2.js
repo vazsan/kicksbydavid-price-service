@@ -297,6 +297,8 @@
     r.push(M + "#kbd-stock-line{margin-top:-24px}");
     r.push(M + "#kbd-size-head{margin-top:-14px!important}");
     r.push(M + "#kbd-size-head:has(.kbd-size-modal__open-btn){margin-top:-25px!important}");
+    /* a méretválasztó alatti mondat ("Nem vagy biztos a méretben?" / "Nie si si istý veľkosťou?") kikerül a körülötte lévő hellyel együtt; a Méretgarancia kártya marad */
+    r.push(M + "#kbd-size-help{display:none!important}");
     r.push(MQ + M + ".artdet__price-and-countdown{margin-top:-31px!important}" + M + "#kbd-stock-line{margin-top:-23px}" + EQ);
 
     var st = d.createElement("style");
