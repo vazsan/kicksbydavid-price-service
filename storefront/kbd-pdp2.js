@@ -16,7 +16,7 @@
     maxImages: 6,                                   /* a galéria legfeljebb ennyi képet mutat */
     phone: (window.KBD && window.KBD.sk) ? { tel: "+421910252548", label: "+421 910 252 548" } : { tel: "+36205564258", label: "+36 20 556 4258" },   /* nyelvenként: SK +421, HU +36 */
     /* szállítási doboz a KOSÁRBA gomb fölött + felugró ablak (minta: store/pdp-minta). Pilot: a <html> osztályában page_shop_artdet_<id>* szerepel; "*" = minden termékoldal; üres lista = ki */
-    ship: { pilot: ["1122553_MVB_", "FZ0627_010_"] },
+    ship: { pilot: ["1122553_MVB_", "IM6001_475_", "HF7054_050_", "FZ0627_010_", "HJ5996_005_", "1166930_DCT_"] },
     cod: { hu: "1 100 Ft" },                        /* utánvét felára, HU; az SK érték a v11 szótárából jön */
     /* Trustindex: kis jelvény (a hero-ban) és nagy vélemény-widget (a lap alján, a 6. lépésben) */
     trustindex: {
