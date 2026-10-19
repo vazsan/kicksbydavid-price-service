@@ -142,7 +142,7 @@
     var ord = ["#kbd-pdp-head", ".artdet__price-and-countdown", "#kbd-stock-line", "#kbd-size-head", "#artdet__type", "#kbd-size-help", "#kbd2-upsell", "#kbd4-ship", "#artdet__cart", "#kbd2-pay", "#kbd4-tiles", "#kbd2-ship", "#kbd-pdp-trust", "#kbd2-meta"];
     ord.forEach(function (s, i) { r.push(M + ".artdet__block-cart-inner>" + s + "{order:" + (i + 1) + "}"); });
     /* a v11 elemei, amiket a prototípus szerinti sorok váltanak ki */
-    r.push(M + "#kbd-pdp-delivery," + M + "#kbd-pdp-freeship," + M + "#kbd3-shipinfo," + M + "#kbd3-contact," + M + "#kbd3-pay," + M + "#kbd3-clar," + M + ".kbd-skuline," + M + ".artdet__virtual-point-highlighted," + M + ".kbd3-more," + M + ".kbd-skuhint," + M + ".artdet__price-base .info-icon," + M + ".artdet__prices .artdet__sale{display:none!important}");
+    r.push(M + "#kbd3-benefits," + M + "#kbd-pdp-delivery," + M + "#kbd-pdp-freeship," + M + "#kbd3-shipinfo," + M + "#kbd3-contact," + M + "#kbd3-pay," + M + "#kbd3-clar," + M + ".kbd-skuline," + M + ".artdet__virtual-point-highlighted," + M + ".kbd3-more," + M + ".kbd-skuhint," + M + ".artdet__price-base .info-icon," + M + ".artdet__prices .artdet__sale{display:none!important}");
 
     /* fejléc: márka, cím, alcím */
     r.push(M + "#kbd-pdp-head{padding-top:0}");
@@ -151,9 +151,9 @@
     r.push(M + ".kbd-sub{font-size:16px;color:var(--kbd-muted);margin:8px 0 22px}");
     r.push(MQ + M + ".kbd-eyebrow{font-size:12px;margin-bottom:18px}" + M + ".kbd-title{font-size:25px}" + M + ".kbd-sub{font-size:14px;margin:6px 0 18px}" + EQ);
     /* csillagozás */
-    r.push(M + "#kbd-pdp-reviews{margin:0 0 22px;min-height:44px;align-items:center}");
+    r.push(M + "#kbd-pdp-reviews{margin:0 0 14px;min-height:44px;align-items:center}");
     r.push(M + "#kbd-pdp-reviews .ti-header{font-size:14px;font-weight:600;min-height:44px;align-items:center}");
-    r.push(MQ + M + "#kbd-pdp-reviews{margin-bottom:18px}" + EQ);
+    r.push(MQ + M + "#kbd-pdp-reviews{margin-bottom:10px}" + EQ);
     /* három ígéret */
     r.push(M + ".kbd3-benefits{border:0;padding:0;margin:0;gap:10px}");
     r.push(M + ".kbd3-benefits li{font-size:15px;gap:12px;line-height:1.5}");
@@ -161,7 +161,7 @@
     r.push(MQ + M + ".kbd3-benefits li{font-size:14px}" + M + ".kbd3-benefits li svg{width:18px;height:18px}" + EQ);
 
     /* ár és megtakarítás */
-    r.push(M + ".artdet__price-and-countdown{margin:18px 0 0!important;padding-top:18px;border-top:1px solid var(--kbd-line);row-gap:0!important}");
+    r.push(M + ".artdet__price-and-countdown{margin:0!important;padding-top:0;border-top:0!important;row-gap:0!important}");
     r.push(S + "#artdet__main-block .artdet__price-discount," + M + ".artdet__prices>.product-price--base:only-child," + M + ".artdet__prices:not(.has-price-sale) .price-gross-format{font-size:38px!important;font-weight:800!important;letter-spacing:-.01em;line-height:1.1}");
     r.push(M + ".artdet__prices.has-price-sale .artdet__price-discount{color:var(--kbd-accent)!important}");
     r.push(M + ".artdet__price-base{font-size:18px!important;font-weight:400}");
@@ -178,14 +178,14 @@
     r.push(M + "#kbd-size-head{margin:14px 0 2px!important;align-items:center}");
     r.push(M + ".kbd-size-label{font-size:14px!important;font-weight:700!important}" + M + ".kbd-size-label b{font-weight:800}");
     r.push(M + "#kbd-size-head .kbd-size-modal__open-btn{font-size:13px!important;font-weight:600!important;min-height:44px;text-decoration-color:currentColor}");
-    r.push(M + ".product-type__values--text{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important}");
-    r.push(M + ".product-type__value--text{height:50px!important;border-width:1.5px!important;border-radius:4px!important}");
-    r.push(M + ".product-type__value--text:not(.kbd-oos):not(.is-active){border-color:var(--kbd-border)!important}");
+    r.push(M + ".product-type__values--text{display:flex!important;flex-wrap:wrap;grid-template-columns:none!important;gap:8px!important}");
+    r.push(M + ".product-type__value--text{width:auto!important;min-width:52px!important;height:37px!important;border-width:1px!important;border-radius:8px!important;box-sizing:border-box}");
+    r.push(M + ".product-type__value--text:not(.kbd-oos):not(.is-active){border-color:#ccc!important}");
     r.push(M + ".product-type__value--text:not(.kbd-oos):not(.is-active):hover{border-color:var(--kbd-ink)!important}");
-    r.push(M + ".product-type__value--text .product-type__value-link{font-size:15px!important;font-weight:700!important}");
+    r.push(M + ".product-type__value--text .product-type__value-link{font-size:14px!important;font-weight:700!important;padding:0 8px!important;margin:-1px!important;width:calc(100% + 2px)!important;height:calc(100% + 2px)!important;min-height:0!important;white-space:nowrap}");
     r.push(M + ".product-type__value--text.is-active{border-color:var(--kbd-brown)!important}");
     r.push(M + "#kbd-size-help{margin:12px 0 0!important;font-size:13px;line-height:1.5;color:var(--kbd-muted)}");
-    r.push(MQ + M + ".product-type__values--text{grid-template-columns:repeat(3,minmax(0,1fr))!important}" + M + "#kbd-size-help{font-size:12px}" + EQ);
+    r.push(MQ + M + "#kbd-size-help{font-size:12px}" + EQ);
 
     /* kosárgomb, gyorsrendelés, fizetés */
     r.push(M + "#artdet__cart{margin:18px 0 0!important;row-gap:10px}");
