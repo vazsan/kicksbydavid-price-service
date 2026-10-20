@@ -38,7 +38,7 @@
     club: "5 € za registráciu<br>a z každej objednávky 5 % späť",
     rv: "Nedávno si si pozrel", rvSub: "Pokračuj tam, kde si skončil",
     rate: "5,0 / 5 · 16 hodnotení na Google",
-    revH: "Čo o nás hovoria zákazníci", revCnt: "18 hodnotení", revSrc: "Na základe hodnotení z Googlu, Árukereső a Trustindexu", revAll: "Všetky hodnotenia",
+    revH: "Čo o nás hovoria zákazníci", revSrc: "Na základe hodnotení z Googlu, Árukereső a Trustindexu", revAll: "Všetky hodnotenia",
     reviews: [],
     /* SK DRAFT (lektorálásra): mobil bizalmi sáv, modellcsempék, polcok, hírlevél-kártya, fizetés/szállítás sor, blog gomb */
     tick: ["★★★★★ 5,0 · 16 hodnotení na Google", "Výmena a vrátenie zadarmo do 30 dní", "Výrobný kód pri každom produkte"],
@@ -87,7 +87,7 @@
     club: "1800 Ft a regisztrációért,<br>és minden rendelésből 5% vissza",
     rv: "Nemrég megnézted", rvSub: "Folytasd ott, ahol abbahagytad",
     rate: "5,0 / 5 · 16 Google-értékelés",
-    revH: "Mit mondanak rólunk", revCnt: "18 értékelés", revSrc: "Google, Árukereső és Trustindex értékelések alapján", revAll: "Összes értékelés",
+    revH: "Mit mondanak rólunk", revSrc: "Google, Árukereső és Trustindex értékelések alapján", revAll: "Összes értékelés",
     /* valós vélemények a Trustindex összesítő oldaláról (2026. október), szó szerint */
     reviews: [
       ["Tamás N.", "2026. szeptember", "Minden rendben zajlott, korrekt kommunikáció, hibátlan termék. Ajánlom mindenkinek!"],
@@ -897,6 +897,74 @@
     eyebrow(document.querySelector(".kbd-brands .main-title"), T.eyb.brands);
   }
 
+  /* ---------- 6m) élő értékelés: a Trustindex widget tartalmából (szám + darab), a hero sor és a mobil futósáv frissítése ---------- */
+  /* forrás 1: a widgetek content.html-je (CORS: *), így a lap tetején lévő sorok a widget lusta betöltése előtt is frissülnek;
+     forrás 2: a már lerenderelt nagy widget DOM-ja (#kbd-reviews), 8 mp-ig figyelve. Ha egyik sem olvasható, marad a beírt szöveg. */
+  var TI_BIG = SK ? "6b883db76988873e850692b71b0" : "3ba033477a0d031a5f060029c5d";
+  var TI_SMALL = SK ? "f2ddae483a2767044106f3718af" : "0d3908782f85181dd586d19e174";
+  function tiUrl(pid) { return "https://cdn.trustindex.io/widgets/" + pid.slice(0, 2) + "/" + pid + "/content.html"; }
+  function tiCount(root) {
+    var a = root.querySelector(".ti-footer .ti-rating-text a") || root.querySelector(".ti-footer .ti-rating-text"), m;
+    if (a && (m = (a.textContent || "").match(/\d+/))) return parseInt(m[0], 10);
+    return 0;
+  }
+  function tiRating(root) {
+    var el = root.querySelector(".ti-header .nowrap strong") || root.querySelector(".ti-header strong"), v;
+    if (el) { v = parseFloat((el.textContent || "").replace(",", ".")); if (v > 0 && v <= 5) return v; }
+    return 0;
+  }
+  function tiMean(root, cnt) {
+    var it = root.querySelectorAll(".ti-review-item[data-rating]"), sum = 0, k = 0;
+    for (var i = 0; i < it.length; i++) { var v = parseFloat(it[i].getAttribute("data-rating")); if (v > 0 && v <= 5) { sum += v; k++; } }
+    return k && k >= cnt ? sum / k : 0;
+  }
+  function skPl(n) { return n === 1 ? "hodnotenie" : (n >= 2 && n <= 4 ? "hodnotenia" : "hodnotení"); }
+  function rateText(r, n, tick) {
+    var rs = r.toFixed(1).replace(".", ",");
+    if (SK) return rs + (tick ? "" : " / 5") + " · " + n + " " + skPl(n) + " na Google";
+    return rs + (tick ? "" : " / 5") + " · " + n + " Google-értékelés";
+  }
+  function applyRating(r, n, src) {
+    if (!(r > 0 && r <= 5) || !(n > 0) || document.body.getAttribute("data-kbd-rating")) return;
+    var h = document.querySelector(".kbd-hero__rate");
+    if (h) h.innerHTML = '<span aria-hidden="true">★★★★★</span>' + rateText(r, n, false);
+    var sp = document.querySelectorAll("#kbd-tick span");
+    for (var i = 0; i < sp.length; i++) if (sp[i].querySelector(".kbd-tick__s")) sp[i].innerHTML = '<i class="kbd-tick__s" aria-hidden="true">★★★★★</i>' + rateText(r, n, true);
+    document.body.setAttribute("data-kbd-rating", src + ":" + r.toFixed(1) + ":" + n);
+  }
+  function syncRating() {
+    if (!document.body || document.body.id !== "ud_shop_start" || window.KBD_RATING_SYNC) return;
+    window.KBD_RATING_SYNC = 1;
+    try {
+      var c = JSON.parse(sessionStorage.getItem("kbd_ti") || "null");
+      if (c && c.t && Date.now() - c.t < 3600000 && c.r && c.n) return applyRating(c.r, c.n, "cache");
+    } catch (e) {}
+    var cnt = 0, rat = 0, pend = 2;
+    function fin() {
+      if (--pend) return;
+      if (cnt && rat) {
+        try { sessionStorage.setItem("kbd_ti", JSON.stringify({ t: Date.now(), r: rat, n: cnt })); } catch (e) {}
+        applyRating(rat, cnt, "fetch");
+      }
+    }
+    function parse(txt) { try { return new DOMParser().parseFromString(txt, "text/html"); } catch (e) { return null; } }
+    if (window.fetch && window.DOMParser) {
+      fetch(tiUrl(TI_BIG)).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { var d = t && parse(t); if (d) cnt = tiCount(d); fin(); }).catch(fin);
+      fetch(tiUrl(TI_SMALL)).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { var d = t && parse(t); if (d) rat = tiRating(d); fin(); }).catch(fin);
+    }
+    /* 2. forrás: a lapon lerenderelt nagy widget (darab + a betöltött értékelések átlaga, ha mind megvan) */
+    var w = document.querySelector("#kbd-reviews .kbd-rev__w"), t0 = Date.now();
+    if (!w) return;
+    function fromDom() {
+      if (document.body.getAttribute("data-kbd-rating")) return true;
+      var n = tiCount(w); if (!n) return false;
+      var r = tiMean(w, n) || rat;
+      if (r) { applyRating(r, n, "dom"); return true; }
+      return false;
+    }
+    var iv = setInterval(function () { if (fromDom() || Date.now() - t0 > 8000) clearInterval(iv); }, 500);
+  }
+
   /* ---------- 7) sorrend: asztalon hero, előnyök, kategóriák, csempék, fülek, ...; mobilon banner, kategóriák, hero, előnyök, csempék, fülek, ... ---------- */
   var lastMob = null;
   function arrange() {
@@ -929,7 +997,7 @@
     try {
       buildBar(); prefillNewsletter();
       if (document.body && document.body.id === "ud_shop_start") {
-        buildTick(); buildHero(); buildUsp(); orderCats(); buildTiles(); buildTabs(); buildReviews(); buildContact(); fixClub(); buildRecent(); buildFounder(); buildShelves(); buildNewsletter(); buildPay(); fixBlog(); skin(); arrange();
+        buildTick(); buildHero(); buildUsp(); orderCats(); buildTiles(); buildTabs(); buildReviews(); buildContact(); fixClub(); buildRecent(); buildFounder(); buildShelves(); buildNewsletter(); buildPay(); fixBlog(); skin(); arrange(); syncRating();
       }
     } catch (e) { if (window.console) console.warn("kbd-home", e); }
     busy = false;
