@@ -2,6 +2,7 @@
    termékfülek (Akciós / Legnépszerűbb / Újdonságok). HU + SK, domain alapján.
    2026-10-20 kör: mobil bizalmi sáv + banner-számláló nélkül, modellcsempék + "ár alatt", márkapolcok,
    hírlevél-kártya (natív űrlapra), fizetés/szállítás sor, blog 3 kártya + könnyű képek, widget-pozíciók.
+   Dizájn-irány B: streetwear-prémium (sötét sávok, nagy képek, overlay-feliratú kategóriacsempék).
    Az infosáv és a menüjavítás minden oldalon fut, ahol a betöltő van; a többi csak a kezdőlapon (body#ud_shop_start).
    Kikapcsolás teszteléshez: ?kbdoff=1 */
 (function () {
@@ -60,7 +61,8 @@
     /* a hírlevél-kártya szövege a lábléc meglévő (Unas) szövege, nem új ajánlat */
     nlH: "Získaj 10 % zľavu na svoj prvý nákup!", nlP: "Zadaj svoj e-mail a okamžite ti pošleme tvoj zľavový kód!", nlB: "Prihlásiť sa na odber", nlPh: "E-mail", nlUrl: "/shop_newsletter.php", nlNote: "Žiadny spam. Odhlásiť sa môžeš kedykoľvek.",
     payH: "Platba", pay: ["Visa", "Mastercard", "Maestro", "American Express", "Dobierka"], shipH: "Doručenie", ship: ["DPD kuriér", "DPD Pickup / AlzaBox", "Osobný odber"],
-    blogAll: "Všetky články"
+    blogAll: "Všetky články",
+    eyb: { tiles: "Rýchly vstup", rev: "Hodnotenia", sh: "Značka", rv: "Pokračuj", sizes: "Podľa veľkosti", blog: "Magazín", brands: "Značky" }
   } : {
     bar: ["Ingyenes szállítás 46 250 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere"],
     phone: "+36 20 556 4258",
@@ -121,7 +123,8 @@
     nlH: "Szerezz 10% kedvezményt az első vásárlásodra!", nlP: "Add meg az e-mail címed, és azonnal elküldjük a kedvezménykódodat!", nlB: "Kérem a 10% kedvezményt!", nlPh: "E-mail címed", nlUrl: "/shop_newsletter.php", nlNote: "Nincs spam. Bármikor leiratkozhatsz.",
     /* csak a Fizetés/Szállítás infó-oldalon ténylegesen felsorolt módok (2026-10-20) */
     payH: "Fizetés", pay: ["Bankkártya (Stripe)", "Utánvét"], shipH: "Szállítás", ship: ["Packeta csomagautomata", "Packeta csomagpont", "Packeta házhozszállítás"],
-    blogAll: "Összes cikk"
+    blogAll: "Összes cikk",
+    eyb: { tiles: "Gyors belépő", rev: "Vélemények", sh: "Márka", rv: "Folytasd", sizes: "Méret szerint", blog: "Magazin", brands: "Márkák" }
   };
 
   var ICON = {
@@ -351,11 +354,59 @@
     + H + "#start-blog .blog__contents .row > .page_content_item:nth-child(n+4){display:none!important}"
     + "@media(min-width:1200px){" + H + "#start-blog .page_content--blog{flex:0 0 33.3333%!important;max-width:33.3333%!important}}";
 
+  /* ---------- 1c) 2026-10-20 dizájn-irány B: streetwear-prémium (sötét sávok, nagy képek, overlay-feliratú kategóriacsempék) ---------- */
+  var css3 = ""
+    + "#kbd-bar{background:#000;letter-spacing:.04em;text-transform:uppercase;font-size:11.5px}"
+    + "#kbd-tick{background:#111111;color:#fff;border:0}#kbd-tick span+span:before{opacity:.35}"
+    + "#ud_shop_start #kbd-hero{background:#111111;color:#fff;grid-template-columns:minmax(0,5fr) minmax(0,7fr)}"
+    + "#ud_shop_start .kbd-hero__txt{padding:40px 40px 40px max(24px,calc((100vw - 1320px)/2));gap:14px;color:#fff;position:relative;z-index:3}"
+    + "#ud_shop_start .kbd-hero__ey{color:#A3481F;letter-spacing:.22em;font-size:11.5px}"
+    + "#ud_shop_start #kbd-hero h1{color:#fff;font-size:clamp(40px,4vw,60px);line-height:.94;letter-spacing:-.03em;font-weight:900}"
+    + "#ud_shop_start .kbd-hero__p{color:#c9c7c2;font-size:15px;line-height:1.5;max-width:44ch}"
+    + "#ud_shop_start .kbd-btn{height:52px;padding:0 26px;border-radius:12px;font-size:14.5px;text-transform:uppercase;letter-spacing:.06em}"
+    + "#ud_shop_start .kbd-btn--dark{background:transparent;border:1.5px solid rgba(255,255,255,.55);color:#fff!important}#ud_shop_start .kbd-btn--dark:hover{background:#fff;color:#171717!important}"
+    + "#ud_shop_start .kbd-hero__link{color:#fff!important}#ud_shop_start .kbd-hero__rate{color:#fff!important}#ud_shop_start .kbd-hero__rate span{color:#E7A614}"
+    + "#ud_shop_start .kbd-hero__media{background:#111111;position:relative;overflow:hidden;align-items:center}#ud_shop_start .kbd-hero__media:before{content:\"\";position:absolute;top:0;bottom:0;left:0;width:30%;background:linear-gradient(90deg,#111111 0%,rgba(17,17,17,0) 100%);z-index:2;pointer-events:none}#ud_shop_start .kbd-hero__media:after{content:\"\";position:absolute;left:0;right:0;top:0;height:100%;background:linear-gradient(180deg,#111111 0,rgba(17,17,17,0) 12%,rgba(17,17,17,0) 88%,#111111 100%);z-index:2;pointer-events:none}"
+    + "#ud_shop_start .kbd-hero__media #start_banner_big{opacity:.96}"
+    + "#ud_shop_start #kbd-usp{background:#1c1c1c;border:0;color:#fff}#ud_shop_start #kbd-usp .kbd-usp__in{padding:20px 24px}#ud_shop_start .kbd-usp__it{color:#fff}#ud_shop_start .kbd-usp__it svg{color:#fff;opacity:.9}#ud_shop_start .kbd-usp__it b{font-size:14px}#ud_shop_start .kbd-usp__it span{color:#9a9893}"
+    + ".kbd-ey{display:block;font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#8f8d87;margin-bottom:8px}"
+    + "#ud_shop_start .kbd-tl__h h2,#ud_shop_start .kbd-rev__head h2,#ud_shop_start .kbd-rv__h h2,#ud_shop_start .kbd-fd__in h2{font-size:34px;letter-spacing:-.03em;font-weight:900}"
+    + "#ud_shop_start .main-title__wrap{text-align:left;margin-bottom:20px!important}#ud_shop_start .main-title{font-size:34px!important;font-weight:900!important;letter-spacing:-.03em;padding:0!important}#ud_shop_start .main-title:after,#ud_shop_start .main-title:before{display:none!important}"
+    + "#ud_shop_start #start_category_offer{padding-top:48px!important;padding-bottom:8px!important}"
+    + "#ud_shop_start .carousel--start_category_offer.kbd-grid{gap:14px!important}"
+    + "#ud_shop_start .carousel--start_category_offer.kbd-grid .start_categories__slide-inner{display:block!important;position:relative;padding:0!important;border-radius:18px;overflow:hidden;background:#111111!important;box-shadow:none!important}"
+    + "#ud_shop_start .carousel--start_category_offer.kbd-grid .start_categories__slide-inner img{border-radius:0!important;aspect-ratio:4/5;object-fit:cover;display:block}"
+    + "#ud_shop_start .carousel--start_category_offer.kbd-grid .start_categories__element-texts{position:absolute;left:0;right:0;bottom:0;margin:0!important;padding:34px 14px 14px!important;text-align:left;background:linear-gradient(0deg,rgba(0,0,0,.78),rgba(0,0,0,0))}"
+    + "#ud_shop_start .carousel--start_category_offer.kbd-grid .start_categories__element-texts h4,#ud_shop_start .carousel--start_category_offer.kbd-grid .start_categories__element-texts h4 a{color:#fff!important;font-size:14px!important;font-weight:800!important;text-transform:uppercase;letter-spacing:.04em}"
+    + "#ud_shop_start #kbd-tiles{padding:36px 0 28px}#ud_shop_start .kbd-tl__it{box-shadow:none;background:#f3f2ee;border-radius:18px;padding:12px 10px 14px}#ud_shop_start .kbd-tl__it:hover{box-shadow:none;background:#e9e7e1}#ud_shop_start .kbd-tl__it img{background:transparent;mix-blend-mode:multiply}#ud_shop_start .kbd-tl__it b{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}"
+    + "#ud_shop_start .kbd-tl__price{border-radius:12px;height:40px;text-transform:uppercase;letter-spacing:.06em;font-size:12px}"
+    + "#ud_shop_start #kbd-ptabs{background:#fff;padding:44px 0 44px}#ud_shop_start .kbd-pt__head{margin-bottom:20px}"
+    + "#ud_shop_start .kbd-pt__tab{height:42px;padding:0 20px;border-radius:12px;border-color:#171717;text-transform:uppercase;letter-spacing:.06em;font-size:12.5px}"
+    + "#ud_shop_start .kbd-pt__nav{border-radius:12px;border-color:#171717}#ud_shop_start .kbd-pt__all{text-transform:uppercase;letter-spacing:.06em;font-size:12.5px}"
+    + "#ud_shop_start .product__inner{box-shadow:none!important;border:0!important;border-radius:18px;background:#fff;overflow:hidden}"
+    + "#ud_shop_start .product__img-outer{background:#f3f2ee;border-radius:18px;overflow:hidden}#ud_shop_start .product__img{mix-blend-mode:multiply}"
+    + "#ud_shop_start .product__name,#ud_shop_start .product__name a{font-size:13.5px!important;font-weight:600!important;line-height:1.35!important;color:#171717!important}"
+    + "#ud_shop_start .product__price-base,#ud_shop_start .product__price-base-value,#ud_shop_start .price-gross{font-size:17px!important;font-weight:900!important;color:#171717!important}"
+    + "#ud_shop_start .product__badges .badge{border-radius:8px!important;background:#171717!important;color:#fff!important;font-size:10.5px!important;letter-spacing:.08em;text-transform:uppercase;font-weight:800!important}"
+    + "#ud_shop_start .product__details-btn{border-radius:12px!important;background:#171717!important;color:#fff!important;border:0!important}"
+    + "#ud_shop_start .product__stock{font-size:11.5px!important;color:#8f8d87!important}"
+    + "#ud_shop_start #kbd-reviews{padding:48px 0 40px;background:#f3f2ee}"
+    + "#ud_shop_start .start_brand_slider.kbd-on{background:#fff!important}#ud_shop_start .start_brand_slider.kbd-on .carousel-cell img{box-shadow:none!important;border-radius:14px;background:#f3f2ee}#ud_shop_start .start_brand_slider.kbd-on .carousel-cell a:hover img{box-shadow:none!important;background:#171717}"
+    + "#ud_shop_start .kbd-home-extra{padding:56px 0}#ud_shop_start .kbd-promo{box-shadow:none!important;border-radius:24px;background:#111111;color:#fff!important}#ud_shop_start .kbd-promo .pt{padding:48px 52px}#ud_shop_start .kbd-promo .t1{color:#A3481F;font-size:13px;letter-spacing:.2em;font-weight:700}#ud_shop_start .kbd-promo .t2{font-size:38px;font-weight:900;letter-spacing:-.02em}#ud_shop_start .kbd-promo .ln{background:rgba(255,255,255,.3)}#ud_shop_start .kbd-promo .pd{color:#c9c7c2}#ud_shop_start .kbd-promo .bt{border-radius:12px;text-transform:uppercase;letter-spacing:.06em}"
+    + "#ud_shop_start .kbd-brands{margin-top:56px}#ud_shop_start .kbd-brands .kbd-bl a{box-shadow:none!important;background-color:#f3f2ee!important;border-radius:14px}#ud_shop_start .kbd-brands .kbd-bl a:hover{box-shadow:none!important;background-color:#e9e7e1!important}"
+    + "#ud_shop_start .kbd-sh,#ud_shop_start #kbd-rv{padding:48px 0 8px}#ud_shop_start .kbd-rv__it{box-shadow:none;border-radius:18px;padding:0 0 12px}#ud_shop_start .kbd-rv__it:hover{box-shadow:none}#ud_shop_start .kbd-rv__it img{background:#f3f2ee;border-radius:18px;mix-blend-mode:multiply}#ud_shop_start .kbd-rv__it span{padding:0 12px;font-weight:600}#ud_shop_start .kbd-rv__it b{padding:0 12px;font-size:16px;font-weight:900}"
+    + "#ud_shop_start #kbd-founder{background:#111111;color:#fff;padding:72px 0}#ud_shop_start .kbd-fd__in{color:#fff}#ud_shop_start .kbd-fd__in h2{color:#fff}#ud_shop_start .kbd-fd__in p{color:#c9c7c2}#ud_shop_start .kbd-fd__ey{color:#A3481F;letter-spacing:.22em}#ud_shop_start .kbd-fd__box{background:#1c1c1c;box-shadow:none;border:1px solid #2a2a2a;border-radius:22px}#ud_shop_start .kbd-fd__box li{color:#e6e4df}#ud_shop_start .kbd-fd__box li svg{color:#fff}#ud_shop_start .kbd-fd__box a{color:#fff!important}"
+    + "html body#ud_shop_start #kbd-faq{background:#fff;margin:0;padding:64px 40px}html body#ud_shop_start #kbd-faq .kbd-faq__list{background:#f3f2ee;border-radius:18px}"
+    + "#ud_shop_start #start-blog{background:#f3f2ee}#ud_shop_start .blog-item__inner{box-shadow:none!important;border:0!important;background:none!important}#ud_shop_start .blog-item__img-wrap{border-radius:18px;overflow:hidden}#ud_shop_start .blog-item__title a{font-size:19px!important;font-weight:800!important;letter-spacing:-.02em}#ud_shop_start .blog__btn-more{border-radius:12px!important;text-transform:uppercase;letter-spacing:.06em}"
+    + "#kbd-nl{background:#111111;padding:64px 24px}#kbd-nl h2{font-size:30px;letter-spacing:-.03em;font-weight:900}#kbd-nl input{border-radius:12px}#kbd-nl button{border-radius:12px;text-transform:uppercase;letter-spacing:.06em}"
+    + "#footer{border-top:1px solid #2a2a2a}#kbd-pay{border-top-color:rgba(255,255,255,.12)}#kbd-pay span{background:#1c1c1c;border-color:#333;color:#fff}#kbd-pay b{color:#fff}"
+    + "@media(max-width:767.98px){#ud_shop_start #kbd-hero{background:#111111}#ud_shop_start .kbd-hero__txt{padding:26px 16px 28px;gap:12px}#ud_shop_start #kbd-hero h1{font-size:36px}#ud_shop_start .kbd-hero__p{font-size:14.5px}#ud_shop_start .kbd-btn{height:48px;font-size:13px}#ud_shop_start .kbd-hero__ey{display:block}#ud_shop_start #kbd-usp .kbd-usp__in{padding:10px 16px}#ud_shop_start .kbd-usp__it{background:#111111;color:#fff;border:1px solid #2e2e2e}#ud_shop_start .kbd-usp__it svg{color:#fff;width:16px;height:16px}#ud_shop_start #start_category_offer{padding-top:16px!important;padding-bottom:4px!important;background:#fff}#ud_shop_start .carousel--start_category_offer.kbd-grid .carousel-cell{flex-basis:104px!important}#ud_shop_start .carousel--start_category_offer.kbd-grid .start_categories__slide-inner{border-radius:14px}#ud_shop_start .carousel--start_category_offer.kbd-grid img{width:104px!important;height:130px!important;border-radius:0!important}#ud_shop_start .carousel--start_category_offer.kbd-grid .start_categories__element-texts{padding:26px 10px 10px!important}#ud_shop_start .carousel--start_category_offer.kbd-grid .start_categories__element-texts h4{font-size:12px!important;white-space:normal}#ud_shop_start .kbd-tl__h h2,#ud_shop_start .kbd-rev__head h2,#ud_shop_start .kbd-rv__h h2,#ud_shop_start .kbd-fd__in h2{font-size:26px}#ud_shop_start .main-title{font-size:26px!important}#ud_shop_start .kbd-pt__tab{height:36px;padding:0 14px;font-size:11.5px}#ud_shop_start #kbd-ptabs{padding:28px 0 28px}#ud_shop_start #kbd-tiles{padding:24px 0 16px}#ud_shop_start .kbd-tl__price{height:34px;font-size:11px}#ud_shop_start .kbd-promo .pt{padding:22px 20px 26px}#ud_shop_start .kbd-promo .t2{font-size:28px}#ud_shop_start #kbd-founder{padding:44px 0}}";
+
   function addCss() {
     if (document.getElementById("kbd-home-v1-css")) return;
     var s = document.createElement("style");
     s.id = "kbd-home-v1-css";
-    s.textContent = css + css2;
+    s.textContent = css + css2 + css3;
     (document.head || document.documentElement).appendChild(s);
   }
   addCss();
@@ -824,6 +875,27 @@
     }
   }
 
+
+  /* ---------- 6l) dizájn-irány: szekció-feliratok (eyebrow) a címek fölé, body-osztály ---------- */
+  function eyebrow(h, txt) {
+    if (!h || !txt || h.previousElementSibling && h.previousElementSibling.className === "kbd-ey") return;
+    var e = document.createElement("span");
+    e.className = "kbd-ey";
+    e.textContent = txt;
+    h.parentNode.insertBefore(e, h);
+  }
+  function skin() {
+    if (document.body) document.body.setAttribute("data-kbd-skin", "b");
+    eyebrow(document.querySelector("#kbd-tiles .kbd-tl__h h2"), T.eyb.tiles);
+    eyebrow(document.querySelector("#kbd-reviews .kbd-rev__head h2"), T.eyb.rev);
+    eyebrow(document.querySelector("#kbd-rv .kbd-rv__h h2"), T.eyb.rv);
+    var sh = document.querySelectorAll(".kbd-sh .kbd-rv__h h2");
+    for (var i = 0; i < sh.length; i++) eyebrow(sh[i], T.eyb.sh);
+    eyebrow(document.querySelector("#start_brand_slider .main-title"), T.eyb.sizes);
+    eyebrow(document.querySelector("#start-blog .blog__main-title.main-title"), T.eyb.blog);
+    eyebrow(document.querySelector(".kbd-brands .main-title"), T.eyb.brands);
+  }
+
   /* ---------- 7) sorrend: asztalon hero, előnyök, kategóriák, csempék, fülek, ...; mobilon banner, kategóriák, hero, előnyök, csempék, fülek, ... ---------- */
   var lastMob = null;
   function arrange() {
@@ -856,7 +928,7 @@
     try {
       buildBar(); prefillNewsletter();
       if (document.body && document.body.id === "ud_shop_start") {
-        buildTick(); buildHero(); buildUsp(); orderCats(); buildTiles(); buildTabs(); buildReviews(); buildContact(); fixClub(); buildRecent(); buildFounder(); buildShelves(); buildNewsletter(); buildPay(); fixBlog(); arrange();
+        buildTick(); buildHero(); buildUsp(); orderCats(); buildTiles(); buildTabs(); buildReviews(); buildContact(); fixClub(); buildRecent(); buildFounder(); buildShelves(); buildNewsletter(); buildPay(); fixBlog(); skin(); arrange();
       }
     } catch (e) { if (window.console) console.warn("kbd-home", e); }
     busy = false;
