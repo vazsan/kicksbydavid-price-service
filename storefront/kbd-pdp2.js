@@ -311,6 +311,10 @@
     r.push(M + "#kbd-size-help{display:none!important}");
     r.push(MQ + M + ".artdet__price-and-countdown{margin-top:-31px!important}" + M + "#kbd-stock-line{margin-top:-23px}" + EQ);
 
+    /* vizszintes tulcsordulas elleni vedelem (David, msg 790: iOS Safarin egy kilogó elem kiszelesiti az oldalt, a ragados kosar-sav jobbra kilog). A fo ok javitva (.kbd2-rev-widget, kbd-pdp2-body.js); ez a biztonsagi halo.
+       A ragados sav a nezetablakhoz kot (left/right 0, nem 100vw), a tartalom nem szelesitheti. overflow-x:clip nem hoz letre gorgetesi kontenert, a sticky/fixed elemek nem torik. */
+    r.push("html.kbd-pdp,html.kbd-pdp body{overflow-x:clip;max-width:100%}");
+    r.push(S + "#artdet__fixed-cart{left:0;right:0;width:auto;max-width:100%;box-sizing:border-box}");
     /* modell-sáv (K5): felirat + "Összes" link, alatta oldalra görgethető 64x64-es képkártyák; az aktuális fekete 2 px kerettel. A -37 px a fejléc alatti üres sávba nyúlik (mint az ár fent). */
     var K5 = "html.kbd5.kbd-pdp.kbd-v2 #artdet__main-block ";
     r.push(M + "#kbd5-fam{position:relative;z-index:2;margin-top:-37px;width:100%;max-width:100%;min-width:0;box-sizing:border-box}");

@@ -127,7 +127,7 @@
     /* vélemények */
     r.push(S + ".kbd2-rev .kbd2-w{padding-top:72px;padding-bottom:72px}");
     r.push(S + ".kbd2-rev h2{margin-bottom:28px}");
-    r.push(S + ".kbd2-rev-widget{min-height:220px}");
+    r.push(S + ".kbd2-rev-widget{min-height:220px;max-width:100%;overflow:hidden}");   /* a Trustindex-csuszka vezerlosora (.ti-controls-line, 150 px) 430 px szelessegnel kilogott a 113 px-es tartalombol, az iOS Safari kiszelesitette az oldalt (msg 790) */
     r.push(S + ".kbd2-video{margin-top:28px;position:relative;aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:var(--kbd-cream)}");
     r.push(S + ".kbd2-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}");
     r.push(MQ + S + ".kbd2-rev .kbd2-w{padding-top:44px;padding-bottom:44px}" + S + ".kbd2-rev h2{margin-bottom:16px}" + EQ);
