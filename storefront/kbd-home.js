@@ -185,6 +185,8 @@
     + H + ".kbd-hero__rate span{color:#E7A614;letter-spacing:1px;font-size:15px}"
     + H + "#kbd-reviews{background:#fff;padding:40px 0 36px;scroll-margin-top:90px}"
     + H + ".kbd-rev__in{max-width:1320px;margin:0 auto;padding:0 24px}"
+    + H + ".kbd-rev__w{max-width:100%;overflow:hidden;min-height:480px}"
+    + "@media(min-width:768px){" + H + ".kbd-rev__w{min-height:280px}}"
     + H + ".kbd-rev__head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}"
     + H + ".kbd-rev__head h2{margin:0 0 8px;font-size:22px;font-weight:800;text-transform:uppercase;color:" + INK + "}"
     + H + ".kbd-rev__score{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:" + INK + "}"
@@ -462,19 +464,11 @@
     var r = document.createElement("section");
     r.id = "kbd-reviews";
     r.setAttribute("aria-label", T.revH);
-    r.innerHTML = '<div class="kbd-rev__in"><div class="kbd-rev__head"><div><h2>' + T.revH + '</h2><div class="kbd-rev__score"><b>4,8</b><span class="st" aria-hidden="true">★★★★★</span><small>' + T.revCnt + " · " + T.revSrc + "</small></div></div>"
-      + '<a class="kbd-rev__all" href="https://www.trustindex.io/reviews/www.kicksbydavid.sk" target="_blank" rel="noopener">' + T.revAll + ' →</a></div><div class="kbd-rev__list"></div></div>';
-    var list = r.querySelector(".kbd-rev__list");
-    for (var i = 0; i < T.reviews.length; i++) {
-      var f = document.createElement("figure"), q = document.createElement("blockquote"), c = document.createElement("figcaption"), b = document.createElement("b");
-      f.className = "kbd-rev__it";
-      q.textContent = "„" + T.reviews[i][2] + "”";
-      b.textContent = T.reviews[i][0];
-      c.appendChild(b);
-      c.appendChild(document.createTextNode(T.reviews[i][1]));
-      f.appendChild(q); f.appendChild(c); list.appendChild(f);
-    }
-    if (!T.reviews.length) list.style.display = "none";
+    r.innerHTML = '<div class="kbd-rev__in"><div class="kbd-rev__head"><div><h2>' + T.revH + '</h2></div></div><div class="kbd-rev__w"></div></div>';
+    /* az eredeti Trustindex nagy widget (David TG 1295): HU 3ba033477a0d031a5f060029c5d, SK 6b883db76988873e850692b71b0 (szlovak, csak Google); a loader a script helyere teszi a widgetet */
+    var sc = document.createElement("script");
+    sc.defer = true; sc.async = true; sc.src = "https://cdn.trustindex.io/loader.js?" + (SK ? "6b883db76988873e850692b71b0" : "3ba033477a0d031a5f060029c5d");
+    r.querySelector(".kbd-rev__w").appendChild(sc);
     after(r, ref);
   }
 
@@ -493,18 +487,7 @@
   }
 
   /* ---------- 6c) Club-sáv: konkrét ajánlat a Hűségprogram oldalról ---------- */
-  /* a régi 11–14.jpg képek helyett az Unas fájlkezelőbe feltöltött kbdc-11–14.webp (mindkét domainen elérhetők) */
-  var CLUB_IMG = { "11": [600, 900], "12": [600, 742], "13": [600, 750], "14": [600, 750] };
   function fixClub() {
-    var im = document.querySelectorAll(".kbdc-hero-img");
-    for (var i = 0; i < im.length; i++) {
-      var m = (im[i].getAttribute("src") || "").match(/\/shop_ordered\/26121\/pic\/(1[1-4])\.jpg/);
-      if (!m) continue;
-      im[i].setAttribute("width", CLUB_IMG[m[1]][0]);
-      im[i].setAttribute("height", CLUB_IMG[m[1]][1]);
-      im[i].setAttribute("decoding", "async");
-      im[i].src = location.protocol + "//" + location.host + "/shop_ordered/26121/pic/kbdc-" + m[1] + ".webp";
-    }
     var t = document.querySelector(".kbdc-hero-title");
     if (t && !t.getAttribute("data-kbd")) { t.innerHTML = T.club; t.setAttribute("data-kbd", "1"); }
   }
