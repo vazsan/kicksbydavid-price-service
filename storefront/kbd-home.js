@@ -34,7 +34,7 @@
     fMore: "Celý príbeh", fUrl: "/o-nas",
     club: "5 € za registráciu<br>a z každej objednávky 5 % späť",
     rv: "Nedávno si si pozrel", rvSub: "Pokračuj tam, kde si skončil",
-    rate: "4,8 / 5 · 18 hodnotení zákazníkov",
+    rate: "5,0 / 5 · 16 hodnotení na Google",
     revH: "Čo o nás hovoria zákazníci", revCnt: "18 hodnotení", revSrc: "Na základe hodnotení z Googlu, Árukereső a Trustindexu", revAll: "Všetky hodnotenia",
     reviews: []
   } : {
@@ -60,7 +60,7 @@
     fMore: "A teljes történet", fUrl: "/rolunk",
     club: "1800 Ft a regisztrációért,<br>és minden rendelésből 5% vissza",
     rv: "Nemrég megnézted", rvSub: "Folytasd ott, ahol abbahagytad",
-    rate: "4,8 / 5 · 18 vásárlói értékelés",
+    rate: "5,0 / 5 · 16 Google-értékelés",
     revH: "Mit mondanak rólunk", revCnt: "18 értékelés", revSrc: "Google, Árukereső és Trustindex értékelések alapján", revAll: "Összes értékelés",
     /* valós vélemények a Trustindex összesítő oldaláról (2026. október), szó szerint */
     reviews: [
