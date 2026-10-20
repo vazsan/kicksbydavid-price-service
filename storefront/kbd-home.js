@@ -1,5 +1,7 @@
 /* KicksByDavid kezdőlap v1 – infosáv, hero (szlogen + Férfi/Női gomb), előnysáv, tömör kategóriák,
    termékfülek (Akciós / Legnépszerűbb / Újdonságok). HU + SK, domain alapján.
+   2026-10-20 kör: mobil bizalmi sáv + banner-számláló nélkül, modellcsempék + "ár alatt", márkapolcok,
+   hírlevél-kártya (natív űrlapra), fizetés/szállítás sor, blog 3 kártya + könnyű képek, widget-pozíciók.
    Az infosáv és a menüjavítás minden oldalon fut, ahol a betöltő van; a többi csak a kezdőlapon (body#ud_shop_start).
    Kikapcsolás teszteléshez: ?kbdoff=1 */
 (function () {
@@ -12,7 +14,7 @@
 
   /* ---------- 0) szövegek ---------- */
   var T = SK ? {
-    bar: ["Doprava zdarma nad 120 €", "Platba aj na dobierku", "Z mnohých modelov máme len 1–2 páry"],
+    bar: ["Doprava zdarma nad 120 €", "Platba aj na dobierku", "Výmena a vrátenie zadarmo do 30 dní"],
     phone: "+421 910 252 548",
     ey: "Originálne tenisky z európskych skladov",
     h1: "Originálne tenisky za výhodnejšie ceny",
@@ -36,9 +38,31 @@
     rv: "Nedávno si si pozrel", rvSub: "Pokračuj tam, kde si skončil",
     rate: "5,0 / 5 · 16 hodnotení na Google",
     revH: "Čo o nás hovoria zákazníci", revCnt: "18 hodnotení", revSrc: "Na základe hodnotení z Googlu, Árukereső a Trustindexu", revAll: "Všetky hodnotenia",
-    reviews: []
+    reviews: [],
+    /* SK DRAFT (lektorálásra): mobil bizalmi sáv, modellcsempék, polcok, hírlevél-kártya, fizetés/szállítás sor, blog gomb */
+    tick: ["★★★★★ 5,0 · 16 hodnotení na Google", "Výmena a vrátenie zadarmo do 30 dní", "Výrobný kód pri každom produkte"],
+    tlH: "Obľúbené modely", tlPrice: "Do 130 €", tlPriceUrl: "/vsetky-produkty?filter=price:29~130",
+    tiles: [
+      ["Nike Air Force 1", "/shop_search.php?search=Air+Force+1", "CT1990-100-6-5/496x496,r,1792153111/CT1990-100-6-5"],
+      ["adidas Samba", "/shop_search.php?search=Samba", "JI2725-6/496x496,r,1792013884/JI2725-6"],
+      ["adidas Gazelle", "/shop_search.php?search=Gazelle", "BB5478-5-5/496x496,r,1790875113/BB5478-5-5"],
+      ["New Balance 530", "/shop_search.php?search=New+Balance+530", "MR530ASM-5/496x496,r,1790382295/MR530ASM-5"],
+      ["New Balance 9060", "/shop_search.php?search=New+Balance+9060", "U9060NRJ-4-5/496x496,r,1791280687/U9060NRJ-4-5"],
+      ["ASICS Gel", "/vsetky-produkty?filter=8208356:ASICS", "1203A663-101-8/496x496,r,1791056163/1203A663-101-8"],
+      ["Jordan", "/vsetky-produkty?filter=8208356:Air Jordan", "II9812-100-7/496x496,r,1791500418/II9812-100-7"],
+      ["UGG", "/vsetky-produkty?filter=8208356:UGG", "1174471-OBS-11/496x496,r,1790873524/1174471-OBS-11"]
+    ],
+    shelves: [
+      ["nb", "New Balance", "/vsetky-produkty?filter=8208356:New Balance"],
+      ["adidas", "adidas", "/vsetky-produkty?filter=8208356:Adidas"]
+    ],
+    shAll: "Zobraziť všetko",
+    /* a hírlevél-kártya szövege a lábléc meglévő (Unas) szövege, nem új ajánlat */
+    nlH: "Získaj 10 % zľavu na svoj prvý nákup!", nlP: "Zadaj svoj e-mail a okamžite ti pošleme tvoj zľavový kód!", nlB: "Prihlásiť sa na odber", nlPh: "E-mail", nlUrl: "/shop_newsletter.php", nlNote: "Žiadny spam. Odhlásiť sa môžeš kedykoľvek.",
+    payH: "Platba", pay: ["Visa", "Mastercard", "Maestro", "American Express", "Dobierka"], shipH: "Doručenie", ship: ["DPD kuriér", "DPD Pickup / AlzaBox", "Osobný odber"],
+    blogAll: "Všetky články"
   } : {
-    bar: ["Ingyenes szállítás 50 000 Ft felett", "Utánvéttel is fizethetsz", "Sok modellből csak 1–2 pár van"],
+    bar: ["Ingyenes szállítás 50 000 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere"],
     phone: "+36 20 556 4258",
     ey: "Eredeti sneakerek európai raktárakból",
     h1: "Eredeti sneakerek, kedvezőbb áron",
@@ -72,7 +96,32 @@
       ["Robert K.", "2026. április", "A legjobb sneakerek. Megbízható forrásból"],
       ["Jennifer K.", "2026. április", "Gyors szállítás, tökéletes minőség 👌"],
       ["Gergő B.", "2026. április", "Csak ajánlani tudom teljesen megvagyok elégedve a termékkel!!"]
-    ]
+    ],
+    /* mobil bizalmi sáv (valós számok: Trustindex 5,0 / 5, 16 Google-értékelés) */
+    tick: ["★★★★★ 5,0 · 16 Google-értékelés", "30 nap ingyenes csere", "Gyári cikkszám minden terméken"],
+    /* modellcsempék: élő keresés- és szűrő-listák (ellenőrizve 2026-10-20: mind 200, termékekkel); a képek a bolt saját termékképei */
+    tlH: "Népszerű modellek", tlPrice: "50 000 Ft alatt", tlPriceUrl: "/osszes-termek?filter=price:29~135",
+    tiles: [
+      ["Nike Air Force 1", "/shop_search.php?search=Air+Force+1", "CT1990-100-6-5/496x496,r,1792153111/CT1990-100-6-5"],
+      ["adidas Samba", "/shop_search.php?search=Samba", "JI2725-6/496x496,r,1792013884/JI2725-6"],
+      ["adidas Gazelle", "/shop_search.php?search=Gazelle", "BB5478-5-5/496x496,r,1790875113/BB5478-5-5"],
+      ["New Balance 530", "/shop_search.php?search=New+Balance+530", "MR530ASM-5/496x496,r,1790382295/MR530ASM-5"],
+      ["New Balance 9060", "/shop_search.php?search=New+Balance+9060", "U9060NRJ-4-5/496x496,r,1791280687/U9060NRJ-4-5"],
+      ["ASICS Gel", "/osszes-termek?filter=8208356:ASICS", "1203A663-101-8/496x496,r,1791056163/1203A663-101-8"],
+      ["Jordan", "/osszes-termek?filter=8208356:Air Jordan", "II9812-100-7/496x496,r,1791500418/II9812-100-7"],
+      ["UGG", "/osszes-termek?filter=8208356:UGG", "1174471-OBS-11/496x496,r,1790873524/1174471-OBS-11"]
+    ],
+    /* márkapolcok: az Unas saját (AJAX) terméklistájából, a márkaszűrő URL-jével */
+    shelves: [
+      ["nb", "New Balance", "/osszes-termek?filter=8208356:New Balance"],
+      ["adidas", "adidas", "/osszes-termek?filter=8208356:Adidas"]
+    ],
+    shAll: "Mutasd mindet",
+    /* a hírlevél-kártya szövege a lábléc meglévő (Unas) szövege szó szerint, nem új ajánlat; a feliratkozás a natív /shop_newsletter.php űrlapon megy */
+    nlH: "Szerezz 10% kedvezményt az első vásárlásodra!", nlP: "Add meg az e-mail címed, és azonnal elküldjük a kedvezménykódodat!", nlB: "Kérem a 10% kedvezményt!", nlPh: "E-mail címed", nlUrl: "/shop_newsletter.php", nlNote: "Nincs spam. Bármikor leiratkozhatsz.",
+    /* csak a Fizetés/Szállítás infó-oldalon ténylegesen felsorolt módok (2026-10-20) */
+    payH: "Fizetés", pay: ["Bankkártya (Stripe)", "Utánvét"], shipH: "Szállítás", ship: ["Packeta csomagautomata", "Packeta csomagpont", "Packeta házhozszállítás"],
+    blogAll: "Összes cikk"
   };
 
   var ICON = {
@@ -241,11 +290,72 @@
     + "@media(max-width:767.98px){" + H + "#kbd-founder{padding:36px 0}" + H + ".kbd-fd__in{grid-template-columns:minmax(0,1fr);gap:20px;padding:0 16px}" + H + ".kbd-fd__in p{font-size:14.5px}}"
     + "@media(prefers-reduced-motion:reduce){#kbd-bar .kbd-bar__msg span{transition:none}" + H + ".kbd-btn{transition:none}}";
 
+
+  /* ---------- 1b) CSS, 2026-10-20 kezdőlap-kör (jóváhagyott 1, 2, 3, 4, 8, 9, 12) ---------- */
+  var css2 = ""
+    /* 12: az Árukereső oldalsó fül ne takarja a logót asztalon (a widget fix, top:20px) */
+    + "@media(min-width:768px){#ak-widget{top:150px!important}}"
+    /* 12: a Fogyasztó Barát buborék mobilon jobbra, hogy ne a bal oldali szöveg fölött üljön */
+    + "@media(max-width:767.98px){" + H + "#fb_header_box{left:auto!important;right:10px!important}" + H + "#fb_content_box{left:auto!important;right:10px!important}}"
+    /* 1: mobilon nincs 1/2 számláló + nyíl sor a banner alatt (a lapozás marad), a kategóriák közvetlenül a banner alá */
+    + "@media(max-width:767.98px){" + H + ".carousel__nav--start_banner_big{display:none!important}" + H + "#start_banner_big .start_banner_big__container{padding-bottom:0!important;margin-bottom:0!important}" + H + "#start_banner_big{margin-bottom:0!important}}"
+    /* 1: vékony bizalmi futósáv a fejléc alatt, csak mobilon */
+    + "#kbd-tick{display:none;background:" + CREAM + ";color:" + INK + ";font-size:12px;font-weight:600;line-height:30px;height:30px;overflow:hidden;white-space:nowrap;border-bottom:1px solid #ebe7df}"
+    + "#kbd-tick .kbd-tick__t{display:inline-block;padding-left:100%;animation:kbd-tick 22s linear infinite}"
+    + "#kbd-tick span{display:inline-block;padding:0 14px}#kbd-tick span+span:before{content:'|';opacity:.35;margin-right:14px}"
+    + "#kbd-tick .kbd-tick__s{color:#E7A614;letter-spacing:1px;margin-right:4px}"
+    + "@keyframes kbd-tick{from{transform:translateX(0)}to{transform:translateX(-100%)}}"
+    + "@media(max-width:767.98px){#kbd-tick{display:block}}"
+    + "@media(prefers-reduced-motion:reduce){#kbd-tick .kbd-tick__t{animation:none;padding-left:0}#kbd-tick{overflow-x:auto;scrollbar-width:none}}"
+    /* 4: modellcsempék */
+    + H + "#kbd-tiles{background:#fff;padding:8px 0 30px}"
+    + H + ".kbd-tl__in{max-width:1320px;margin:0 auto;padding:0 24px}"
+    + H + ".kbd-tl__h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}"
+    + H + ".kbd-tl__h h2{margin:0;font-size:22px;font-weight:800;text-transform:uppercase;color:" + INK + "}"
+    + H + ".kbd-tl__price{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;background:" + INK + ";color:#fff!important;font-size:13px;font-weight:700;text-decoration:none!important;white-space:nowrap}"
+    + H + ".kbd-tl__price svg{width:16px;height:16px}"
+    + H + ".kbd-tl__list{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:12px}"
+    + H + ".kbd-tl__it{display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff;border-radius:10px;box-shadow:0 0 5px 0 rgba(0,0,0,.1);padding:10px 8px 12px;color:" + INK + "!important;text-decoration:none!important;transition:box-shadow .2s}"
+    + H + ".kbd-tl__it:hover{box-shadow:0 0 14px 0 rgba(0,0,0,.14)}"
+    + H + ".kbd-tl__it img{width:100%;aspect-ratio:1;object-fit:contain;background:#fafafa;border-radius:8px;transition:transform .3s}"
+    + H + ".kbd-tl__it:hover img{transform:scale(1.04)}"
+    + H + ".kbd-tl__it b{font-size:13.5px;font-weight:700;text-align:center;line-height:1.2}"
+    + "@media(max-width:991.98px){" + H + ".kbd-tl__list{grid-template-columns:repeat(4,minmax(0,1fr))}}"
+    + "@media(max-width:767.98px){" + H + "#kbd-tiles{padding:6px 0 18px}" + H + ".kbd-tl__in{padding:0}" + H + ".kbd-tl__h{padding:0 16px;margin-bottom:10px}" + H + ".kbd-tl__h h2{font-size:19px}" + H + ".kbd-tl__price{height:32px;font-size:12.5px}"
+    + H + ".kbd-tl__list{display:flex;overflow-x:auto;gap:10px;padding:4px 16px 10px;scroll-snap-type:x mandatory;scroll-padding:0 16px;scrollbar-width:none}"
+    + H + ".kbd-tl__list::-webkit-scrollbar{display:none}" + H + ".kbd-tl__it{flex:0 0 118px;scroll-snap-align:start}" + H + ".kbd-tl__it b{font-size:12.5px}}"
+    /* 4: márkapolcok (a nemrég nézett kártyastílusával) */
+    + H + ".kbd-sh{padding:36px 0 8px;background:#fff}"
+    + H + ".kbd-sh .kbd-rv__list{min-height:276px}"
+    + H + ".kbd-rv__h a{margin-left:auto;font-size:14px;font-weight:700;color:" + INK + "!important;text-decoration:underline!important;text-underline-offset:3px;white-space:nowrap}"
+    + "@media(max-width:991.98px){" + H + ".kbd-sh .kbd-rv__list{min-height:300px}}"
+    + "@media(max-width:767.98px){" + H + ".kbd-sh{padding:26px 0 4px}" + H + ".kbd-sh .kbd-rv__list{min-height:224px}}"
+    /* 3: hírlevél-kártya a lábléc előtt (a lábléc szövegével, a natív űrlapra vezet) */
+    + "#kbd-nl{background:" + INK + ";color:#fff;padding:44px 24px;text-align:center}"
+    + "#kbd-nl .kbd-nl__in{max-width:560px;margin:0 auto}"
+    + "#kbd-nl h2{margin:0 0 8px;font-size:24px;line-height:1.2;font-weight:800;text-transform:uppercase;color:#fff}"
+    + "#kbd-nl p{margin:0 0 18px;font-size:15px;line-height:1.5;color:rgba(255,255,255,.85)}"
+    + "#kbd-nl form{display:flex;gap:8px;flex-wrap:wrap;margin:0}"
+    + "#kbd-nl input{flex:1 1 220px;height:48px;padding:0 14px;border-radius:10px;border:0;font:inherit;font-size:15px;color:" + INK + ";background:#fff}"
+    + "#kbd-nl button{flex:0 0 auto;height:48px;padding:0 20px;border-radius:10px;border:0;background:" + BR + ";color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer}"
+    + "#kbd-nl button:hover{filter:brightness(1.08)}"
+    + "#kbd-nl small{display:block;margin-top:10px;font-size:12px;color:rgba(255,255,255,.6)}"
+    + "@media(max-width:767.98px){#kbd-nl{padding:32px 16px}#kbd-nl h2{font-size:20px}#kbd-nl p{font-size:14px}#kbd-nl button{flex:1 1 100%}}"
+    /* 8: fizetés + szállítás sor a láblécben */
+    + "#kbd-pay{border-top:1px solid rgba(0,0,0,.08);margin-top:28px;padding-top:22px;display:flex;gap:28px 48px;flex-wrap:wrap;justify-content:center}"
+    + "#kbd-pay > div{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center}"
+    + "#kbd-pay b{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.7;margin-right:4px}"
+    + "#kbd-pay span{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:8px;background:#fff;border:1px solid #e4e4e4;font-size:12.5px;font-weight:700;color:" + INK + ";white-space:nowrap}"
+    + "@media(max-width:767.98px){#kbd-pay{gap:16px;margin-top:20px;padding-top:18px}}"
+    /* 12: blog: 3 kártya + gomb (a 4. kártya rejtve; natív beállítás a teendőlistán) */
+    + H + "#start-blog .blog__contents .row > .page_content_item:nth-child(n+4){display:none!important}"
+    + "@media(min-width:1200px){" + H + "#start-blog .page_content--blog{flex:0 0 33.3333%!important;max-width:33.3333%!important}}";
+
   function addCss() {
     if (document.getElementById("kbd-home-v1-css")) return;
     var s = document.createElement("style");
     s.id = "kbd-home-v1-css";
-    s.textContent = css;
+    s.textContent = css + css2;
     (document.head || document.documentElement).appendChild(s);
   }
   addCss();
@@ -494,8 +604,9 @@
     for (var i = 0; i < im.length; i++) {
       var m = (im[i].getAttribute("src") || "").match(/\/shop_ordered\/26121\/pic\/(1[1-4])\.jpg/);
       if (!m) continue;
-      im[i].setAttribute("width", CLUB_IMG[m[1]][0]);
-      im[i].setAttribute("height", CLUB_IMG[m[1]][1]);
+      var k1 = m[1], ci = CLUB_IMG[k1];
+      im[i].setAttribute("width", ci[0]);
+      im[i].setAttribute("height", ci[1]);
       im[i].setAttribute("decoding", "async");
       im[i].src = location.protocol + "//" + location.host + "/shop_ordered/26121/pic/kbdc-" + m[1] + ".webp";
     }
@@ -545,7 +656,175 @@
     after(f, ref);
   }
 
-  /* ---------- 7) sorrend: [mobilon banner], hero, előnyök, kategóriák, fülek, méretek, UGG/márkák, nemrég nézett, alapító ---------- */
+
+  /* ---------- 6f) 1: bizalmi futósáv a fejléc alatt (mobil) ---------- */
+  function buildTick() {
+    var hd = $id("header");
+    if (!hd || $id("kbd-tick") || !T.tick) return;
+    var t = document.createElement("div");
+    t.id = "kbd-tick";
+    t.setAttribute("aria-label", T.uspLabel);
+    var h = "";
+    for (var i = 0; i < T.tick.length; i++) h += "<span>" + T.tick[i].replace("★★★★★", '<i class="kbd-tick__s" aria-hidden="true">★★★★★</i>') + "</span>";
+    /* kétszer, hogy a futás folytonos legyen */
+    t.innerHTML = '<div class="kbd-tick__t">' + h + h + "</div>";
+    after(t, hd);
+  }
+
+  /* ---------- 6g) 4: modellcsempék + "ár alatt" belépő ---------- */
+  function buildTiles() {
+    var cat = $id("start_category_offer");
+    if (!cat || $id("kbd-tiles") || !T.tiles) return;
+    var h = "";
+    for (var i = 0; i < T.tiles.length; i++) {
+      var it = T.tiles[i];
+      h += '<a class="kbd-tl__it" href="' + abs(it[1]) + '"><img src="/img/26121/' + it[2] + '.webp" alt="" width="496" height="496" loading="lazy" decoding="async"><b>' + it[0] + "</b></a>";
+    }
+    var s = document.createElement("section");
+    s.id = "kbd-tiles";
+    s.setAttribute("aria-label", T.tlH);
+    s.innerHTML = '<div class="kbd-tl__in"><div class="kbd-tl__h"><h2>' + T.tlH + '</h2><a class="kbd-tl__price" href="' + abs(T.tlPriceUrl) + '">' + T.tlPrice + svg("arrow") + '</a></div><div class="kbd-tl__list">' + h + "</div></div>";
+    after(s, cat);
+  }
+
+  /* ---------- 6h) 4: márkapolcok az Unas AJAX-terméklistájából (betöltés után, session-cache 30 perc) ---------- */
+  function shelfItems(html) {
+    var doc, out = [];
+    try { doc = new DOMParser().parseFromString(html, "text/html"); } catch (e) { return out; }
+    var cards = doc.querySelectorAll(".js-product");
+    /* a polcra cipő kerül: a ruhák és kiegészítők (HU/SK/EN nevek) kimaradnak */
+    var APPAREL = /jacket|hoodie|pants|shorts|t-shirt|\btee\b|\bcap\b|\bbag\b|track|sweat|crew|fleece|póló|pulóver|nadrág|sapka|táska|kabát|dzseki|zokni|mikina|tričko|nohavice|bunda|šiltovka|taška|ponožky/i;
+    for (var i = 0; i < cards.length && out.length < 6; i++) {
+      var c = cards[i], a = c.querySelector("a.product__name-link") || c.querySelector("a.product_link_normal"), im = c.querySelector("img");
+      if (!a || !a.getAttribute("href") || APPAREL.test(a.textContent || "")) continue;
+      var src = im ? (im.getAttribute("data-src") || im.getAttribute("src") || "") : "";
+      var pr = c.querySelector(".product__prices-wrap");
+      out.push({ u: a.getAttribute("href"), n: (a.textContent || "").replace(/\s+/g, " ").trim(), i: src, p: pr ? (pr.textContent || "").replace(/\s+/g, " ").trim() : "" });
+    }
+    return out;
+  }
+  function shelfRender(sec, items) {
+    var list = sec.querySelector(".kbd-rv__list");
+    if (!items.length) { sec.parentNode && sec.parentNode.removeChild(sec); return; }
+    list.innerHTML = "";
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i], a = document.createElement("a"), im = document.createElement("img"), sp = document.createElement("span"), b = document.createElement("b");
+      a.className = "kbd-rv__it"; a.href = it.u;
+      im.src = it.i; im.alt = ""; im.loading = "lazy"; im.width = 248; im.height = 248;
+      sp.textContent = it.n; b.textContent = it.p;
+      a.appendChild(im); a.appendChild(sp); a.appendChild(b); list.appendChild(a);
+    }
+  }
+  function shelfLoad(sec) {
+    if (sec.getAttribute("data-loaded")) return;
+    sec.setAttribute("data-loaded", "1");
+    var key = "kbd_sh:" + sec.getAttribute("data-k"), url = sec.getAttribute("data-url");
+    try {
+      var c = JSON.parse(sessionStorage.getItem(key) || "null");
+      if (c && c.t && Date.now() - c.t < 1800000 && c.items) return shelfRender(sec, c.items);
+    } catch (e) {}
+    if (!window.fetch) return shelfRender(sec, []);
+    fetch(url + "&ajax_filter=1&ajax_nodesign=1&filter_value_count_disabled=1", { credentials: "same-origin" })
+      .then(function (r) { return r.ok ? r.text() : ""; })
+      .then(function (html) {
+        var items = shelfItems(html);
+        try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), items: items })); } catch (e) {}
+        shelfRender(sec, items);
+      })
+      .catch(function () { shelfRender(sec, []); });
+  }
+  function buildShelves() {
+    if (!T.shelves || document.querySelector(".kbd-sh")) return;
+    var ref = document.querySelector("#main > .kbd-home-extra") || $id("kbd-ptabs");
+    if (!ref) return;
+    for (var i = 0; i < T.shelves.length; i++) {
+      var sh = T.shelves[i], s = document.createElement("section");
+      s.className = "kbd-sh";
+      s.setAttribute("data-k", sh[0]);
+      s.setAttribute("data-url", abs(sh[2]));
+      s.setAttribute("aria-label", sh[1]);
+      s.innerHTML = '<div class="kbd-rv__in"><div class="kbd-rv__h"><h2>' + sh[1] + '</h2><a href="' + abs(sh[2]) + '">' + T.shAll + ' →</a></div><div class="kbd-rv__list"></div></div>';
+      after(s, ref);
+      ref = s;
+      (function (sec) {
+        var go = function () { setTimeout(function () { shelfLoad(sec); }, 800); };
+        if (document.readyState === "complete") go(); else window.addEventListener("load", go);
+      })(s);
+    }
+  }
+
+  /* ---------- 6i) 3: hírlevél-kártya a lábléc előtt: a lábléc szövege, a feliratkozás a natív Unas-űrlapon (recaptcha + adatkezelési pipa ott van) ---------- */
+  function buildNewsletter() {
+    var ft = $id("footer");
+    if (!ft || $id("kbd-nl") || !T.nlH) return;
+    var s = document.createElement("section");
+    s.id = "kbd-nl";
+    s.setAttribute("aria-label", T.nlH);
+    s.innerHTML = '<div class="kbd-nl__in"><h2>' + T.nlH + "</h2><p>" + T.nlP + '</p><form action="' + abs(T.nlUrl) + '" method="get"><input type="email" name="kbd_email" autocomplete="email" placeholder="' + T.nlPh + '" aria-label="' + T.nlPh + '"><button type="submit">' + T.nlB + "</button></form><small>" + T.nlNote + "</small></div>";
+    s.querySelector("form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var v = (s.querySelector("input").value || "").trim();
+      try { if (v) sessionStorage.setItem("kbd_nl_email", v); } catch (er) {}
+      location.href = abs(T.nlUrl);
+    });
+    ft.parentNode.insertBefore(s, ft);
+  }
+  /* a natív hírlevél-oldalon a kártyán beírt e-mail előtöltése */
+  function prefillNewsletter() {
+    if (!/shop_newsletter\.php/.test(location.pathname)) return;
+    var inp = document.querySelector('input[name="news_emai"]');
+    if (!inp || inp.value) return;
+    try { var v = sessionStorage.getItem("kbd_nl_email"); if (v) { inp.value = v; sessionStorage.removeItem("kbd_nl_email"); } } catch (e) {}
+  }
+
+  /* ---------- 6j) 8: fizetés + szállítás a láblécben (csak a Fizetés/Szállítás oldalon felsorolt módok) ---------- */
+  function buildPay() {
+    var ft = $id("footer");
+    if (!ft || $id("kbd-pay") || !T.pay) return;
+    var box = ft.querySelector(".footer__container") || ft;
+    var d = document.createElement("div");
+    d.id = "kbd-pay";
+    function row(h, arr) { var x = "<div><b>" + h + "</b>"; for (var i = 0; i < arr.length; i++) x += "<span>" + arr[i] + "</span>"; return x + "</div>"; }
+    d.innerHTML = row(T.payH, T.pay) + row(T.shipH, T.ship);
+    box.appendChild(d);
+  }
+
+  /* ---------- 6k) 12 + 2: blog: gombfelirat, 3 kártya (CSS), képek lustán + könnyített változat, ha fel van töltve ---------- */
+  /* a nagy PNG-k (2,2 / 1,9 / 1,8 / 0,7 MB) helyett a kbd-blog-*.webp fájlok; amíg nincsenek feltöltve, az onerror visszaállítja az eredetit */
+  var BLOG_IMG = {
+    "ezust-sportcipo.png": "kbd-blog-ezust-sportcipo-800.webp",
+    "sneaker-tisztitas-otthon.png": "kbd-blog-sneaker-tisztitas-otthon-800.webp",
+    "vekonysportcipok-retro-nike-cortez-adidas-tokyo.png": "kbd-blog-vekonysportcipok-retro-nike-cortez-adidas-tokyo-800.webp",
+    "airforce1.png": "kbd-blog-airforce-370.webp",
+    "airforce2.png": "kbd-blog-airforce-740.webp"
+  };
+  function fixBlog() {
+    var bl = $id("start-blog");
+    if (!bl) return;
+    var btn = bl.querySelector(".blog__btn-more");
+    if (btn && T.blogAll && !btn.getAttribute("data-kbd")) { btn.textContent = T.blogAll; btn.setAttribute("data-kbd", "1"); }
+    var im = bl.querySelectorAll("img.blog-item__img");
+    for (var i = 0; i < im.length; i++) {
+      var img = im[i];
+      if (img.getAttribute("data-kbd")) continue;
+      img.setAttribute("data-kbd", "1");
+      img.setAttribute("loading", "lazy");
+      img.setAttribute("decoding", "async");
+      var src = img.getAttribute("src") || img.getAttribute("data-src") || "", m = src.match(/\/shop_ordered\/26121\/pic\/([^\/?#]+)$/);
+      var k1 = m ? m[1] : "", nName = k1 ? BLOG_IMG[k1] : "";
+      if (!nName) continue;
+      (function (img, oSrc, oSet) {
+        var base = location.protocol + "//" + location.host + "/shop_ordered/26121/pic/";
+        var nSrc = base + nName, set = "";
+        var ss = img.getAttribute("srcset") || "", m2 = ss.match(/\/pic\/([^\/?#\s]+)\s+2x/), k2 = m2 ? m2[1] : "", n2 = k2 ? BLOG_IMG[k2] : "";
+        if (n2) set = nSrc + " 1x, " + base + n2 + " 2x";
+        img.onerror = function () { img.onerror = null; img.srcset = oSet; img.src = oSrc; };
+        img.srcset = set; img.removeAttribute("data-srcset"); img.setAttribute("data-src", nSrc); img.src = nSrc;
+      })(img, src, img.getAttribute("srcset") || "");
+    }
+  }
+
+  /* ---------- 7) sorrend: asztalon hero, előnyök, kategóriák, csempék, fülek, ...; mobilon banner, kategóriák, hero, előnyök, csempék, fülek, ... ---------- */
   var lastMob = null;
   function arrange() {
     var main = $id("main"), cat = $id("start_category_offer");
@@ -553,11 +832,14 @@
     var hero = $id("kbd-hero"), usp = $id("kbd-usp"), tabs = $id("kbd-ptabs"), bn = $id("start_banner_big");
     var bs = $id("start_brand_slider"), ex = document.querySelector("#main > .kbd-home-extra");
     var mob = MQ.matches, seq = [];
-    /* mobilon a banner marad a lap tetején, közvetlenül alatta a szlogen és a gombok */
+    var tiles = $id("kbd-tiles"), shs = document.querySelectorAll("#main > .kbd-sh");
+    /* mobilon a banner marad a lap tetején, alatta rögtön a kategóriakörök, aztán a szlogen és a gombok */
     if (mob && bn && hero) {
-      if (bn.parentNode !== hero.parentNode || bn.nextElementSibling !== hero) hero.parentNode.insertBefore(bn, hero);
-    }
-    seq.push(hero, usp, cat, tabs, $id("kbd-reviews"), bs, ex, $id("kbd-rv"), $id("kbd-founder"));
+      if (bn.parentNode !== hero.parentNode || bn.nextElementSibling !== cat) hero.parentNode.insertBefore(bn, hero);
+      seq.push(bn, cat, hero, usp, tiles, tabs, $id("kbd-reviews"), bs, ex);
+    } else seq.push(hero, usp, cat, tiles, tabs, $id("kbd-reviews"), bs, ex);
+    for (var k = 0; k < shs.length; k++) seq.push(shs[k]);
+    seq.push($id("kbd-rv"), $id("kbd-founder"));
     seq = seq.filter(function (x) { return x && x.parentNode; });
     for (var i = 1; i < seq.length; i++) if (seq[i - 1].nextElementSibling !== seq[i]) after(seq[i], seq[i - 1]);
     var media = hero && hero.querySelector(".kbd-hero__media");
@@ -572,9 +854,9 @@
     if (busy) return;
     busy = true;
     try {
-      buildBar();
+      buildBar(); prefillNewsletter();
       if (document.body && document.body.id === "ud_shop_start") {
-        buildHero(); buildUsp(); orderCats(); buildTabs(); buildReviews(); buildContact(); fixClub(); buildRecent(); buildFounder(); arrange();
+        buildTick(); buildHero(); buildUsp(); orderCats(); buildTiles(); buildTabs(); buildReviews(); buildContact(); fixClub(); buildRecent(); buildFounder(); buildShelves(); buildNewsletter(); buildPay(); fixBlog(); arrange();
       }
     } catch (e) { if (window.console) console.warn("kbd-home", e); }
     busy = false;
@@ -604,8 +886,8 @@ if (!/[?&]kbdoff=1/.test(location.search)) {
 var SK=/\.sk$/.test(location.hostname);
 var BASE=SK?'/vsetky-produkty':'/osszes-termek';
 function bf(v){return BASE+'?filter=8208356:'+encodeURIComponent(v)}
-var T=SK?{f:'UGG',r:'sezóna',p:'Papuče Tazz a Lowmel na chladnejšie dni. Z každej veľkosti len pár kusov.',b:'Pozrieť ponuku',bl:'Značky'}
-        :{f:'UGG',r:'szezon',p:'Tazz és Lowmel papucsok hidegebb napokra. Kevés darab méretenként.',b:'Megnézem a kínálatot',bl:'Márkák'};
+var T=SK?{f:'UGG',r:'sezóna',p:'Papuče Tazz a Lowmel na chladnejšie dni.',b:'Pozrieť ponuku',bl:'Značky'}
+        :{f:'UGG',r:'szezon',p:'Tazz és Lowmel papucsok hidegebb napokra.',b:'Megnézem a kínálatot',bl:'Márkák'};
 var BR='Nike|Air Jordan|Adidas|New Balance|ASICS|UGG|ON|Puma|Converse|Vans|Salomon|Saucony|Crocs|Birkenstock|Timberland|Supreme'.split('|');
 var CARD='background:#fff;border-radius:10px;box-shadow:0 0 5px 0 rgba(0,0,0,.1);';
 var G='.carousel--start_category_offer.kbd-grid';
