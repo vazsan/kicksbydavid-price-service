@@ -337,10 +337,10 @@
     + H + ".kbd-tl__list::-webkit-scrollbar{display:none}" + H + ".kbd-tl__it{flex:0 0 118px;scroll-snap-align:start}" + H + ".kbd-tl__it b{font-size:12.5px}}"
     /* 4: márkapolcok (a nemrég nézett kártyastílusával) */
     + H + ".kbd-sh{padding:36px 0 8px;background:#fff}"
-    + H + ".kbd-sh .kbd-rv__list{min-height:276px}"
+    + H + ".kbd-sh .kbd-rv__list{min-height:340px}"
     + H + ".kbd-rv__h a{margin-left:auto;font-size:14px;font-weight:700;color:" + INK + "!important;text-decoration:underline!important;text-underline-offset:3px;white-space:nowrap}"
-    + "@media(max-width:991.98px){" + H + ".kbd-sh .kbd-rv__list{min-height:300px}}"
-    + "@media(max-width:767.98px){" + H + ".kbd-sh{padding:26px 0 4px}" + H + ".kbd-sh .kbd-rv__list{min-height:224px}}"
+    + "@media(max-width:991.98px){" + H + ".kbd-sh .kbd-rv__list{min-height:340px}}"
+    + "@media(max-width:767.98px){" + H + ".kbd-sh{padding:26px 0 4px}" + H + ".kbd-sh .kbd-rv__list{min-height:350px}}"
     /* 3: hírlevél-kártya a lábléc előtt (a lábléc szövegével, a natív űrlapra vezet) */
     + "#kbd-nl{background:" + INK + ";color:#fff;padding:44px 24px;text-align:center}"
     + "#kbd-nl .kbd-nl__in{max-width:560px;margin:0 auto}"
