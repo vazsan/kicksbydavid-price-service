@@ -313,19 +313,28 @@
 
     /* modell-sáv (K5): felirat + "Összes" link, alatta oldalra görgethető 64x64-es képkártyák; az aktuális fekete 2 px kerettel. A -37 px a fejléc alatti üres sávba nyúlik (mint az ár fent). */
     var K5 = "html.kbd5.kbd-pdp.kbd-v2 #artdet__main-block ";
-    r.push(M + "#kbd5-fam{position:relative;z-index:2;margin-top:-37px}");
+    r.push(M + "#kbd5-fam{position:relative;z-index:2;margin-top:-37px;width:100%;max-width:100%;min-width:0;box-sizing:border-box}");
     r.push(K5 + ".artdet__price-and-countdown{margin-top:-5px!important}");
     r.push(M + "#kbd5-fam .k5-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 0 8px;font-size:13px;line-height:1.3}");
     r.push(M + "#kbd5-fam .k5-m{font-weight:700;color:var(--kbd-muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}");
     r.push(M + "#kbd5-fam .k5-all{flex:0 0 auto;font-weight:500;color:var(--kbd-ink)!important;text-decoration:underline;text-underline-offset:3px;padding:4px 0}");
-    r.push(M + "#kbd5-fam .k5-r{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -1px;padding:1px}");
+    /* a sor a sajat oszlopaban marad (max-width:100%, a tulcsordulas a soron belul gorgetheto); a kartyameretet a JS igazitja (--k5), hogy csak egesz kartya latszodjon */
+    r.push(M + "#kbd5-fam .k5-w{position:relative;width:100%;max-width:100%;min-width:0;overflow:hidden}");
+    r.push(M + "#kbd5-fam .k5-r{display:flex;gap:8px;width:100%;max-width:100%;box-sizing:border-box;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding:0 3px;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;padding:3px}");
     r.push(M + "#kbd5-fam .k5-r::-webkit-scrollbar{display:none}");
-    r.push(M + "#kbd5-fam .k5-c{flex:0 0 64px;width:64px;height:64px;box-sizing:border-box;border:1px solid #e6e6e6;border-radius:10px;background:#fff;overflow:hidden;display:block;scroll-snap-align:start;padding:3px}");
+    r.push(M + "#kbd5-fam .k5-c{flex:0 0 var(--k5,64px);width:var(--k5,64px);height:var(--k5,64px);box-sizing:border-box;border:1px solid #e6e6e6;border-radius:10px;background:#fff;overflow:hidden;display:block;scroll-snap-align:start;padding:3px}");
     r.push(M + "#kbd5-fam .k5-c img{display:block;width:100%;height:100%;object-fit:contain}");
     r.push(M + "#kbd5-fam .k5-c:hover{border-color:#bdbdb6}");
-    r.push(M + "#kbd5-fam .k5-c:focus-visible,#kbd5-fam .k5-all:focus-visible{outline:2px solid var(--kbd-ink);outline-offset:2px}");
+    r.push(M + "#kbd5-fam .k5-c:focus-visible,#kbd5-fam .k5-all:focus-visible,#kbd5-fam .k5-a:focus-visible{outline:2px solid var(--kbd-ink);outline-offset:-2px}");
     r.push(M + "#kbd5-fam .k5-c.k5-cur{border:2px solid #111;padding:2px}");
-    r.push(MQ + M + "#kbd5-fam{margin-top:-33px}" + EQ);
+    /* nyilak (asztalin) es halvany atmenet a sor vegen (mobilon): csak ha van meg kartya abba az iranyba */
+    r.push(M + "#kbd5-fam .k5-a{display:none;position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;margin:0;padding:0;border:1px solid #d6d6d0;border-radius:50%;background:#fff;color:#111;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15);align-items:center;justify-content:center;z-index:3}");
+    r.push(M + "#kbd5-fam .k5-a svg{width:16px;height:16px;display:block}");
+    r.push(M + "#kbd5-fam .k5-prev{left:4px}" + M + "#kbd5-fam .k5-next{right:4px}");
+    r.push(M + "#kbd5-fam .k5-w.k5-bk .k5-prev," + M + "#kbd5-fam .k5-w.k5-fw .k5-next{display:flex}");
+    r.push(M + "#kbd5-fam .k5-w.k5-fw::after{content:'';position:absolute;top:0;right:0;bottom:0;width:28px;pointer-events:none;background:linear-gradient(to right,rgba(255,255,255,0),#fff)}");
+    r.push("@media (min-width:768px){" + M + "#kbd5-fam .k5-w.k5-fw::after{display:none}}");
+    r.push(MQ + M + "#kbd5-fam{margin-top:-33px}" + M + "#kbd5-fam .k5-a{display:none!important}" + EQ);
 
     var st = d.createElement("style");
     st.id = "kbd-pdp-v2css";
@@ -669,6 +678,21 @@
     return best;
   }
   function famImg(c) { return location.protocol + "//" + location.host + "/img/26121/" + c[1] + "/160x160/" + c[1] + ".webp"; }
+  /* csak egesz kartya latszik: n = ami kifer, a kartyameret ugy igazodik (64-76 px), hogy n kartya + koz pontosan kitoltse a sort; ha nincs tobb kartya mint n, marad 64 px */
+  function famLayout() {
+    var r = $("#kbd5-fam .k5-r"); if (!r) return;
+    var IW = r.clientWidth - 6, g = 8, cnt = r.children.length, n = Math.max(1, Math.floor((IW + g) / (64 + g)));
+    var size = cnt <= n ? 64 : Math.floor((IW - g * (n - 1)) / n * 10) / 10;
+    if (size < 64) size = 64;
+    r.style.setProperty("--k5", size + "px");
+    famState();
+  }
+  function famState() {
+    var w = $("#kbd5-fam .k5-w"), r = w && $(".k5-r", w); if (!r) return;
+    var max = r.scrollWidth - r.clientWidth;
+    w.classList.toggle("k5-bk", r.scrollLeft > 2);
+    w.classList.toggle("k5-fw", max > 2 && r.scrollLeft < max - 2);
+  }
   function famRun(inner) {
     var F = window.KBD_FAM;
     if (!F || !F.on || F.done) return;
@@ -684,13 +708,24 @@
     e.id = "kbd5-fam";
     e.setAttribute("role", "navigation");
     e.setAttribute("aria-label", FAMT.nav + ": " + famData.m);
+    var chev = function (dir) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + (dir ? "M9 5l7 7-7 7" : "M15 5l-7 7 7 7") + '"/></svg>'; };
     e.innerHTML = '<div class="k5-h"><span class="k5-m">' + esc(famData.m) + "</span>" + (all ? '<a class="k5-all" href="' + esc(all) + '">' + esc(FAMT.all) + "</a>" : "") + "</div>" +
-      '<div class="k5-r">' + famData.c.map(function (c, i) {
+      '<div class="k5-w"><div class="k5-r">' + famData.c.map(function (c, i) {
         var lab = String(c[2] || famData.m).slice(0, 60), im = '<img src="' + esc(famImg(c)) + '" width="64" height="64" alt="' + esc(lab) + '"' + (i > 5 ? ' loading="lazy"' : "") + ">";
         return i === 0 ? '<span class="k5-c k5-cur" aria-current="page" title="' + esc(lab) + '">' + im + "</span>" : '<a class="k5-c" href="/' + esc(c[0]) + '" title="' + esc(lab) + '">' + im + "</a>";
-      }).join("") + "</div>";
+      }).join("") + '</div><button type="button" class="k5-a k5-prev" aria-label="' + esc(TX.upsell.prev) + '">' + chev(0) + '</button><button type="button" class="k5-a k5-next" aria-label="' + esc(TX.upsell.next) + '">' + chev(1) + "</button></div>";
     inner.appendChild(e);
     h.classList.add("kbd5");
+    famLayout();
+    var rw = e.querySelector(".k5-r");
+    rw.addEventListener("scroll", famState, { passive: true });
+    e.addEventListener("click", function (ev) {
+      var b = ev.target.closest && ev.target.closest(".k5-a");
+      if (!b) return;
+      var st = parseFloat(rw.style.getPropertyValue("--k5")) || 64, step = Math.max(1, Math.floor((rw.clientWidth - 6 + 8) / (st + 8))) * (st + 8);
+      rw.scrollBy({ left: b.classList.contains("k5-next") ? step : -step, behavior: "smooth" });
+    });
+    if (window.ResizeObserver) new ResizeObserver(famLayout).observe(e); else window.addEventListener("resize", famLayout);
     famDone();
   }
 
