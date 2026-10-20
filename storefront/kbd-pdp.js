@@ -1,4 +1,4 @@
-/* KicksByDavid termékoldal v14 (HU+SK) */
+/* KicksByDavid termékoldal v15 (HU+SK) */
 (function(){
 var host=(location.hostname||"").split(":")[0].toLowerCase();
 var lang=(document.documentElement.getAttribute("lang")||"").toLowerCase();
@@ -77,6 +77,22 @@ var s=d.createElement("style");s.id="kbd-pdp-css2";s.textContent=("~.artdet__pag
 try{ var T=window.Tawk_API=window.Tawk_API||{};T.customStyle=T.customStyle||{ visibility:{ desktop:{ position:"br",xOffset:20,yOffset:90},mobile:{ position:"br",xOffset:10,yOffset:80}}};}catch(e){}})();
 (function(){ var d=document,h=d.documentElement;if(!h.classList.contains("kbd-pdp"))return;
 setTimeout(function(){ h.classList.add("kbd-ready");},4000);
+try{
+var FP=["1168890_CHE","CW2288_111","IF9643"],FB="https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-pdp-storefront/storefront/ms/",FN=128;
+var fon=FP.some(function(id){ return id==="*"?/(^|\s)page_shop_artdet_/.test(h.className):h.className.indexOf("page_shop_artdet_"+id)>-1;});
+if(fon&&window.fetch&&window.Promise){
+var F=window.KBD_FAM={ on:true,done:false,release:null,minCards:3,p:null};
+var fsk=/\.sk$/i.test(location.hostname)||(h.getAttribute("lang")||"").toLowerCase().indexOf("sk")===0;
+var fstart=function(){
+var c=d.querySelector('link[rel="canonical"]'),u=c&&c.getAttribute("href"),m=u&&u.match(/^https?:\/\/[^\/]+\/([^?#]+)/),k=m?m[1].replace(/\/$/,""):"";
+if(!k){ F.p=Promise.resolve(null);return;}
+var x=5381;for(var i=0;i<k.length;i++)x=((x*33)+k.charCodeAt(i))>>>0;
+F.p=window.fetch(FB+(fsk?"sk/":"hu/")+("00"+(x%FN)).slice(-3)+".json?d="+Math.floor(Date.now()/43200000),{ credentials:"omit"})
+.then(function(r){ return r.ok?r.json():null;}).then(function(j){ return (j&&j[k])||null;}).catch(function(){ return null;});
+};
+if(d.querySelector('link[rel="canonical"]'))fstart();else d.addEventListener("DOMContentLoaded",fstart);
+}
+}catch(e){}
 if(!d.getElementById("kbd-pdp-css0") && d.getElementById("artdet__main-block")){ window.KBD_late=true; return; }
 if(d.getElementById("kbd-pdp-css0"))return;
 var s=d.createElement("style");s.id="kbd-pdp-css0";
@@ -726,7 +742,9 @@ if(window.KBD_place) window.KBD_place();
 }
 if(window.KBD_run) window.KBD_run();
 if(!window.KBD_late){ try{ markSizeChart(); fixGallery(); }catch(e){} }
-h.classList.add("kbd-ready");
+var FM=window.KBD_FAM;
+if(FM && FM.on && !FM.done && !window.KBD_late){ FM.release=function(){ FM.release=null; h.classList.add("kbd-ready"); }; setTimeout(function(){ if(FM.release) FM.release(); },1200); }
+else h.classList.add("kbd-ready");
 }
 function afterLoad(){
 var vid=d.getElementById("artdet__video");

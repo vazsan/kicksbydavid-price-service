@@ -17,6 +17,8 @@
     phone: (window.KBD && window.KBD.sk) ? { tel: "+421910252548", label: "+421 910 252 548" } : { tel: "+36205564258", label: "+36 20 556 4258" },   /* nyelvenként: SK +421, HU +36 */
     /* szállítási doboz a KOSÁRBA gomb fölött + felugró ablak (minta: store/pdp-minta). Pilot: a <html> osztályában page_shop_artdet_<id>* szerepel; "*" = minden termékoldal; üres lista = ki */
     ship: { pilot: ["*"] },
+    /* modell-sáv a cím és az ár között (minta: store/pdp-minta/adonio-modellsav*.jpg). A pilot lista, az adat helye és a letöltés a kbd-pdp.js-ben van (window.KBD_FAM): ott indul a letöltés az első kirajzolás előtt. */
+    fam: { minCards: 3 },
     cod: { hu: "1 100 Ft" },                        /* utánvét felára, HU; az SK érték a v11 szótárából jön */
     /* Trustindex: kis jelvény (a hero-ban) és nagy vélemény-widget (a lap alján, a 6. lépésben) */
     trustindex: {
@@ -138,7 +140,7 @@
     /* a jobb oszlop elemeinek sorrendje: CSS order, így a v11 átrendezései nem írják felül */
     r.push(M + ".artdet__block-cart-inner{max-width:none}");
     r.push(M + ".artdet__block-cart-inner>*{order:20}");
-    var ord = ["#kbd-pdp-head", ".artdet__price-and-countdown", "#kbd-stock-line", "#kbd-size-head", "#artdet__type", "#kbd-size-help", "#kbd2-upsell", "#kbd4-ship", "#artdet__cart", "#kbd2-pay", "#kbd4-checks", "#kbd4-cards", "#kbd2-ship", "#kbd-pdp-trust", "#kbd2-meta"];
+    var ord = ["#kbd-pdp-head", "#kbd5-fam", ".artdet__price-and-countdown", "#kbd-stock-line", "#kbd-size-head", "#artdet__type", "#kbd-size-help", "#kbd2-upsell", "#kbd4-ship", "#artdet__cart", "#kbd2-pay", "#kbd4-checks", "#kbd4-cards", "#kbd2-ship", "#kbd-pdp-trust", "#kbd2-meta"];
     ord.forEach(function (s, i) { r.push(M + ".artdet__block-cart-inner>" + s + "{order:" + (i + 1) + "}"); });
     /* a v11 elemei, amiket a prototípus szerinti sorok váltanak ki */
     r.push(M + "#kbd3-benefits," + M + "#kbd-pdp-delivery," + M + "#kbd-pdp-freeship," + M + "#kbd3-shipinfo," + M + "#kbd3-contact," + M + "#kbd3-pay," + M + "#kbd3-clar," + M + ".kbd-skuline," + M + ".artdet__virtual-point-highlighted," + M + ".kbd3-more," + M + ".kbd-skuhint," + M + ".artdet__price-base .info-icon," + M + ".artdet__prices .artdet__sale{display:none!important}");
@@ -308,6 +310,22 @@
     /* a méretválasztó alatti mondat ("Nem vagy biztos a méretben?" / "Nie si si istý veľkosťou?") kikerül a körülötte lévő hellyel együtt; a Méretgarancia kártya marad */
     r.push(M + "#kbd-size-help{display:none!important}");
     r.push(MQ + M + ".artdet__price-and-countdown{margin-top:-31px!important}" + M + "#kbd-stock-line{margin-top:-23px}" + EQ);
+
+    /* modell-sáv (K5): felirat + "Összes" link, alatta oldalra görgethető 64x64-es képkártyák; az aktuális fekete 2 px kerettel. A -37 px a fejléc alatti üres sávba nyúlik (mint az ár fent). */
+    var K5 = "html.kbd5.kbd-pdp.kbd-v2 #artdet__main-block ";
+    r.push(M + "#kbd5-fam{position:relative;z-index:2;margin-top:-37px}");
+    r.push(K5 + ".artdet__price-and-countdown{margin-top:-5px!important}");
+    r.push(M + "#kbd5-fam .k5-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 0 8px;font-size:13px;line-height:1.3}");
+    r.push(M + "#kbd5-fam .k5-m{font-weight:700;color:var(--kbd-muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}");
+    r.push(M + "#kbd5-fam .k5-all{flex:0 0 auto;font-weight:500;color:var(--kbd-ink)!important;text-decoration:underline;text-underline-offset:3px;padding:4px 0}");
+    r.push(M + "#kbd5-fam .k5-r{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -1px;padding:1px}");
+    r.push(M + "#kbd5-fam .k5-r::-webkit-scrollbar{display:none}");
+    r.push(M + "#kbd5-fam .k5-c{flex:0 0 64px;width:64px;height:64px;box-sizing:border-box;border:1px solid #e6e6e6;border-radius:10px;background:#fff;overflow:hidden;display:block;scroll-snap-align:start;padding:3px}");
+    r.push(M + "#kbd5-fam .k5-c img{display:block;width:100%;height:100%;object-fit:contain}");
+    r.push(M + "#kbd5-fam .k5-c:hover{border-color:#bdbdb6}");
+    r.push(M + "#kbd5-fam .k5-c:focus-visible,#kbd5-fam .k5-all:focus-visible{outline:2px solid var(--kbd-ink);outline-offset:2px}");
+    r.push(M + "#kbd5-fam .k5-c.k5-cur{border:2px solid #111;padding:2px}");
+    r.push(MQ + M + "#kbd5-fam{margin-top:-33px}" + EQ);
 
     var st = d.createElement("style");
     st.id = "kbd-pdp-v2css";
@@ -626,9 +644,60 @@
   });
   d.addEventListener("keydown", function (ev) { if ((ev.key === "Escape" || ev.keyCode === 27) && d.getElementById("kbd4-ov") && d.getElementById("kbd4-ov").classList.contains("k4-on")) closeShip(); });
 
+  /* ========================= MODELL-SÁV ========================= */
+  var FAMT = SK ? { all: "Zobraziť všetko", nav: "Model" } : { all: "Összes", nav: "Modell" };
+  var famData, famReq = false;
+  function famDone() { var F = window.KBD_FAM; if (!F) return; F.done = true; if (F.release) F.release(); }
+  function famKey() {
+    var c = $('link[rel="canonical"]'), u = c && c.getAttribute("href"), m = u && u.match(/^https?:\/\/[^\/]+\/([^?#]+)/);
+    return m ? m[1].replace(/\/$/, "") : "";
+  }
+  /* a "Összes" link: a legutolsó nem-főoldali, nem-termék breadcrumb (a modell családi kategóriája) */
+  function famAllUrl() {
+    var best = "";
+    $$('script[type="application/ld+json"]').forEach(function (s) {
+      try {
+        var j = JSON.parse(s.textContent);
+        (Array.isArray(j) ? j : [j]).forEach(function (o) {
+          if (o && o["@type"] === "BreadcrumbList" && o.itemListElement) o.itemListElement.forEach(function (it) {
+            var u = it && it.item ? (typeof it.item === "string" ? it.item : it.item["@id"]) : "";
+            if (u && it.position > 1 && u.split("/").pop() !== famKey()) best = u;
+          });
+        });
+      } catch (e) {}
+    });
+    return best;
+  }
+  function famImg(c) { return location.protocol + "//" + location.host + "/img/26121/" + c[1] + "/160x160/" + c[1] + ".webp"; }
+  function famRun(inner) {
+    var F = window.KBD_FAM;
+    if (!F || !F.on || F.done) return;
+    if (d.getElementById("kbd5-fam")) { famDone(); return; }
+    if (famData === undefined) {
+      if (F.p && !famReq) { famReq = true; F.p.then(function (x) { famData = x || false; safe(); }); }
+      return;
+    }
+    if (!famData || !famData.c || famData.c.length < (F.minCards || CFG.fam.minCards)) { famDone(); return; }
+    var head = d.getElementById("kbd-pdp-head");
+    if (!head) return;
+    var all = famAllUrl(), e = d.createElement("div");
+    e.id = "kbd5-fam";
+    e.setAttribute("role", "navigation");
+    e.setAttribute("aria-label", FAMT.nav + ": " + famData.m);
+    e.innerHTML = '<div class="k5-h"><span class="k5-m">' + esc(famData.m) + "</span>" + (all ? '<a class="k5-all" href="' + esc(all) + '">' + esc(FAMT.all) + "</a>" : "") + "</div>" +
+      '<div class="k5-r">' + famData.c.map(function (c, i) {
+        var lab = String(c[2] || famData.m).slice(0, 60), im = '<img src="' + esc(famImg(c)) + '" width="64" height="64" alt="' + esc(lab) + '"' + (i > 5 ? ' loading="lazy"' : "") + ">";
+        return i === 0 ? '<span class="k5-c k5-cur" aria-current="page" title="' + esc(lab) + '">' + im + "</span>" : '<a class="k5-c" href="/' + esc(c[0]) + '" title="' + esc(lab) + '">' + im + "</a>";
+      }).join("") + "</div>";
+    inner.appendChild(e);
+    h.classList.add("kbd5");
+    famDone();
+  }
+
   function run() {
     var inner = $(SEL.inner);
     if (!inner) return;
+    famRun(inner);
     fixSticker();
     fixSizeBlock();
     fixBenefits();

@@ -95,6 +95,27 @@ try{var T=window.Tawk_API=window.Tawk_API||{};T.customStyle=T.customStyle||{visi
 /* ========================= 2b) Korai elrejtés a végleges elrendezésig (CLS) ========================= */
 (function(){var d=document,h=d.documentElement;if(!h.classList.contains("kbd-pdp"))return;
 setTimeout(function(){h.classList.add("kbd-ready");},4000);
+/* modell-sáv (kbd-pdp2.js, minta: store/pdp-minta/adonio-modellsav*.jpg): pilot lista és az adat letöltése a lehető legkorábban. Ahol a sáv be van kapcsolva, a jobb oszlop kirajzolása
+   addig vár, amíg a kbd-pdp2.js el nem dönti, lesz-e sáv (legfeljebb 1,2 mp): így a sáv nem tolja le az árat és a méreteket (nincs elrendezés-ugrás).
+   pilot: a <html> osztályában page_shop_artdet_<előtag> szerepel (egy előtag az adott cikkszám összes méretoldalára illik); "*" = minden termékoldal; [] = ki.
+   Adat: storefront/ms/<hu|sk>/NNN.json (128 szelet; kulcs = a termék kanonikus URL-je; szelet = djb2(kulcs) % 128), generálja: scripts/pdp/model_strip.py. */
+try{
+var FP=["1168890_CHE","CW2288_111","IF9643"],FB="https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-pdp-storefront/storefront/ms/",FN=128;
+var fon=FP.some(function(id){return id==="*"?/(^|\s)page_shop_artdet_/.test(h.className):h.className.indexOf("page_shop_artdet_"+id)>-1;});
+if(fon&&window.fetch&&window.Promise){
+var F=window.KBD_FAM={on:true,done:false,release:null,minCards:3,p:null};
+var fsk=/\.sk$/i.test(location.hostname)||(h.getAttribute("lang")||"").toLowerCase().indexOf("sk")===0;
+var fstart=function(){
+var c=d.querySelector('link[rel="canonical"]'),u=c&&c.getAttribute("href"),m=u&&u.match(/^https?:\/\/[^\/]+\/([^?#]+)/),k=m?m[1].replace(/\/$/,""):"";
+if(!k){F.p=Promise.resolve(null);return;}
+var x=5381;for(var i=0;i<k.length;i++)x=((x*33)+k.charCodeAt(i))>>>0;
+/* a jsDelivr 7 napig engedi a böngészőben tárolni a fájlt: a 12 órás időbélyeg a lekérdezésben naponta kétszer frissíti */
+F.p=window.fetch(FB+(fsk?"sk/":"hu/")+("00"+(x%FN)).slice(-3)+".json?d="+Math.floor(Date.now()/43200000),{credentials:"omit"})
+.then(function(r){return r.ok?r.json():null;}).then(function(j){return (j&&j[k])||null;}).catch(function(){return null;});
+};
+if(d.querySelector('link[rel="canonical"]'))fstart();else d.addEventListener("DOMContentLoaded",fstart);
+}
+}catch(e){}
 /* késői futás (a termékblokk már kirajzolódott, pl. régi, lap alji betöltő): a v9-cel azonos viselkedés, nincs előzetes rejtés */
 if(!d.getElementById("kbd-pdp-css0") && d.getElementById("artdet__main-block")){ window.KBD_late=true; return; }
 if(d.getElementById("kbd-pdp-css0"))return;
@@ -797,7 +818,10 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
     }
     if(window.KBD_run) window.KBD_run();
     if(!window.KBD_late){ try{ markSizeChart(); fixGallery(); }catch(e){} }
-    h.classList.add("kbd-ready");
+    /* modell-sáv: a kirajzolás addig vár, amíg a kbd-pdp2.js el nem döntötte (window.KBD_FAM.release); legfeljebb 1,2 mp, a 4 mp-es biztonsági háló mellett */
+    var FM=window.KBD_FAM;
+    if(FM && FM.on && !FM.done && !window.KBD_late){ FM.release=function(){ FM.release=null; h.classList.add("kbd-ready"); }; setTimeout(function(){ if(FM.release) FM.release(); },1200); }
+    else h.classList.add("kbd-ready");
   }
   /* biztonsági háló: ha a mérettáblázat-script mégsem vitte el az 1. lapfület, újra látszik */
   function afterLoad(){
