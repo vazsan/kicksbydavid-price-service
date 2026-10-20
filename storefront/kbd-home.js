@@ -422,11 +422,21 @@
     for (var i = 0; i < a.length; i++) if (re.test(a[i].getAttribute("href") || "")) return a[i].href;
     return abs(fb);
   }
+  /* Flickity újraméretezés. Ha a csúszka rejtett fülben jött létre, a nézetablak 0 px marad, mert a téma a cellákra
+     height:100%-ot tesz (a cella a 0 px-es nézetablakból örököl, a nézetablak a cellákból: kör). Ilyenkor a cellák
+     sormagasságát ideiglenesen levesszük, mérünk, majd visszatesszük. Mérve 2026-10-20: Legnépszerűbb fül mobilon üres volt. */
   function flkResize(scope) {
     try {
-      if (!window.jQuery || !scope) return;
-      var $f = window.jQuery(scope).find(".flickity-enabled");
-      $f.each(function () { try { window.jQuery(this).flickity("resize"); } catch (e) {} });
+      if (!scope || !scope.querySelectorAll) return;
+      var els = scope.classList && scope.classList.contains("flickity-enabled") ? [scope] : scope.querySelectorAll(".flickity-enabled");
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i], f = window.Flickity && window.Flickity.data ? window.Flickity.data(el) : null;
+        var vp = el.querySelector(".flickity-viewport"), zero = !vp || parseFloat(vp.style.height || "0") < 20;
+        var cells = zero ? el.querySelectorAll(".carousel-cell") : [], saved = [];
+        for (var j = 0; j < cells.length; j++) { saved.push(cells[j].style.height); cells[j].style.height = ""; }
+        try { if (f) f.resize(); else if (window.jQuery) window.jQuery(el).flickity("resize"); } catch (e) {}
+        for (var k = 0; k < cells.length; k++) cells[k].style.height = saved[k];
+      }
     } catch (e) {}
   }
 
@@ -537,7 +547,7 @@
     for (var j = 0; j < panes.length; j++) {
       var p = panes[j], isOn = p.getAttribute("data-k") === key;
       p.classList.toggle("on", isOn);
-      if (isOn) { all.href = p.getAttribute("data-all"); flkResize(p); }
+      if (isOn) { all.href = p.getAttribute("data-all"); flkResize(p); (function (pn) { setTimeout(function () { flkResize(pn); }, 400); })(p); }
     }
     wrap.setAttribute("data-on", key);
   }
