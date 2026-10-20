@@ -472,8 +472,16 @@
   }
 
   /* ---------- 3) hero ---------- */
+  function lcpHints() {
+    try {
+      var im = document.querySelector("#start_banner_big .carousel-cell--1 img, #start_banner_big .carousel-cell img");
+      if (im && !im.getAttribute("data-kbd")) { im.setAttribute("data-kbd", "1"); im.setAttribute("fetchpriority", "high"); im.setAttribute("loading", "eager"); im.setAttribute("decoding", "async"); }
+      if (!$id("kbd-pc-ti")) { var l = document.createElement("link"); l.id = "kbd-pc-ti"; l.rel = "preconnect"; l.href = "https://cdn.trustindex.io"; l.crossOrigin = "anonymous"; (document.head || document.documentElement).appendChild(l); }
+    } catch (e) {}
+  }
   function buildHero() {
     var bn = $id("start_banner_big"), cat = $id("start_category_offer");
+    lcpHints();
     var anchor = bn || cat;
     if (!anchor || $id("kbd-hero")) return;
     var h = document.createElement("section");
@@ -646,10 +654,19 @@
     r.setAttribute("aria-label", T.revH);
     r.innerHTML = '<div class="kbd-rev__in"><div class="kbd-rev__head"><div><h2>' + T.revH + '</h2></div></div><div class="kbd-rev__w"></div></div>';
     /* az eredeti Trustindex nagy widget (David TG 1295): HU 3ba033477a0d031a5f060029c5d, SK 6b883db76988873e850692b71b0 (szlovak, csak Google); a loader a script helyere teszi a widgetet */
-    var sc = document.createElement("script");
-    sc.defer = true; sc.async = true; sc.src = "https://cdn.trustindex.io/loader.js?" + (SK ? "6b883db76988873e850692b71b0" : "3ba033477a0d031a5f060029c5d");
-    r.querySelector(".kbd-rev__w").appendChild(sc);
+    var addLoader = function () {
+      if (r.getAttribute("data-ti")) return;
+      r.setAttribute("data-ti", "1");
+      var sc = document.createElement("script");
+      sc.defer = true; sc.async = true; sc.src = "https://cdn.trustindex.io/loader.js?" + (SK ? "6b883db76988873e850692b71b0" : "3ba033477a0d031a5f060029c5d");
+      r.querySelector(".kbd-rev__w").appendChild(sc);
+    };
     after(r, ref);
+    /* teljesítmény: a widget betöltője csak akkor jön, ha a blokk 600 px-re van a képernyőtől */
+    if (window.IntersectionObserver) {
+      var tio = new IntersectionObserver(function (en) { for (var j = 0; j < en.length; j++) if (en[j].isIntersecting) { tio.disconnect(); addLoader(); } }, { rootMargin: "600px 0px" });
+      tio.observe(r);
+    } else window.addEventListener("load", function () { setTimeout(addLoader, 1500); });
   }
 
   /* ---------- 6b) kapcsolati kártya a GYIK bal oszlopában ---------- */
@@ -748,7 +765,8 @@
     var h = "";
     for (var i = 0; i < T.tiles.length; i++) {
       var it = T.tiles[i];
-      h += '<a class="kbd-tl__it" href="' + abs(it[1]) + '"><img src="/img/26121/' + it[2] + '.webp" alt="" width="496" height="496" loading="lazy" decoding="async"><b>' + it[0] + "</b></a>";
+      var im496 = "/img/26121/" + it[2] + ".webp", im248 = im496.replace("/496x496,", "/248x248,");
+      h += '<a class="kbd-tl__it" href="' + abs(it[1]) + '"><img src="' + im248 + '" srcset="' + im248 + ' 248w, ' + im496 + ' 496w" sizes="(max-width: 767px) 118px, 160px" alt="" width="496" height="496" loading="lazy" decoding="async"><b>' + it[0] + "</b></a>";
     }
     var s = document.createElement("section");
     s.id = "kbd-tiles";
@@ -820,8 +838,11 @@
       after(s, ref);
       ref = s;
       (function (sec) {
-        var go = function () { setTimeout(function () { shelfLoad(sec); }, 800); };
-        if (document.readyState === "complete") go(); else window.addEventListener("load", go);
+        /* teljesítmény: a natív lista ~780 KB HTML, ezért csak akkor kérjük le, ha a polc 800 px-re van a képernyőtől */
+        if (window.IntersectionObserver) {
+          var io = new IntersectionObserver(function (en) { for (var j = 0; j < en.length; j++) if (en[j].isIntersecting) { io.disconnect(); shelfLoad(sec); } }, { rootMargin: "800px 0px" });
+          io.observe(sec);
+        } else window.addEventListener("load", function () { setTimeout(function () { shelfLoad(sec); }, 1500); });
       })(s);
     }
   }
@@ -1003,7 +1024,11 @@
       }
     }
     function parse(txt) { try { return new DOMParser().parseFromString(txt, "text/html"); } catch (e) { return null; } }
-    if (window.fetch && window.DOMParser) {
+    if (window.fetch && window.DOMParser) (function () {
+      var go = function () { if (window.requestIdleCallback) window.requestIdleCallback(doFetch, { timeout: 4000 }); else setTimeout(doFetch, 1500); };
+      if (document.readyState === "complete") go(); else window.addEventListener("load", go);
+    })();
+    function doFetch() {
       fetch(tiUrl(TI_BIG)).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { var d = t && parse(t); if (d) cnt = tiCount(d); fin(); }).catch(fin);
       fetch(tiUrl(TI_SMALL)).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { var d = t && parse(t); if (d) rat = tiRating(d); fin(); }).catch(fin);
     }
@@ -1085,7 +1110,7 @@
       mo.observe(main, { childList: true, subtree: true });
       setTimeout(function () { mo.disconnect(); run(); }, 20000);
     }
-    var n = 0, iv = setInterval(function () { run(); if (++n > 30) clearInterval(iv); }, 200);
+    var n = 0, iv = setInterval(function () { run(); if (++n > 20) clearInterval(iv); }, 300);
     window.addEventListener("load", function () { run(); flkResize($id("start_banner_big")); flkResize($id("kbd-ptabs")); });
     if (MQ.addEventListener) MQ.addEventListener("change", run); else if (MQ.addListener) MQ.addListener(run);
   }
