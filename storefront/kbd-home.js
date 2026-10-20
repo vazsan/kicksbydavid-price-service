@@ -14,7 +14,7 @@
 
   /* ---------- 0) szövegek ---------- */
   var T = SK ? {
-    bar: ["Doprava zdarma nad 120 €", "Platba aj na dobierku", "Výmena a vrátenie zadarmo do 30 dní"],
+    bar: ["Doprava zadarmo nad 120 €", "Platba aj na dobierku", "Výmena a vrátenie zadarmo do 30 dní"],
     phone: "+421 910 252 548",
     ey: "Originálne tenisky z európskych skladov",
     h1: "Originálne tenisky za výhodnejšie ceny",
@@ -23,7 +23,7 @@
     menUrl: "/Panske", womenUrl: "/Damske", saleUrl: "/akcie", newUrl: "/novinky", allUrl: "/vsetky-produkty",
     usp: [
       ["shield", "Dvojnásobok peňazí späť, ak je falzifikát", "Nové originálne produkty z overených zdrojov"],
-      ["swap", "Výmena a vrátenie zdarma", "Do 30 dní, poštovné platíme my"],
+      ["swap", "Výmena a vrátenie zadarmo", "Do 30 dní, poštovné platíme my"],
       ["cash", "Dobierka", "Peniaze ostávajú u teba, kým nepríde balík"],
       ["truck", "Dáme ti vedieť, kde je balík", "Informujeme ťa až do odoslania"]
     ],
@@ -62,7 +62,7 @@
     payH: "Platba", pay: ["Visa", "Mastercard", "Maestro", "American Express", "Dobierka"], shipH: "Doručenie", ship: ["DPD kuriér", "DPD Pickup / AlzaBox", "Osobný odber"],
     blogAll: "Všetky články"
   } : {
-    bar: ["Ingyenes szállítás 50 000 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere"],
+    bar: ["Ingyenes szállítás 46 250 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere"],
     phone: "+36 20 556 4258",
     ey: "Eredeti sneakerek európai raktárakból",
     h1: "Eredeti sneakerek, kedvezőbb áron",
