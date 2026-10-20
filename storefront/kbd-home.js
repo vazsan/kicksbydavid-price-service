@@ -245,7 +245,7 @@
     + H + ".kbd-hero__rate span{color:#E7A614;letter-spacing:1px;font-size:15px}"
     + H + "#kbd-reviews{background:#fff;padding:40px 0 36px;scroll-margin-top:90px}"
     + H + ".kbd-rev__in{max-width:1320px;margin:0 auto;padding:0 24px}"
-    + H + ".kbd-rev__w{max-width:100%;overflow:hidden;min-height:480px}"
+    + H + ".kbd-rev__w{max-width:100%;overflow:hidden;min-height:" + (SK ? "508px" : "456px") + "}"
     + "@media(min-width:768px){" + H + ".kbd-rev__w{min-height:280px}}"
     + H + ".kbd-rev__head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}"
     + H + ".kbd-rev__head h2{margin:0 0 8px;font-size:22px;font-weight:800;text-transform:uppercase;color:" + INK + "}"
@@ -662,11 +662,13 @@
       r.querySelector(".kbd-rev__w").appendChild(sc);
     };
     after(r, ref);
-    /* teljesítmény: a widget betöltője csak akkor jön, ha a blokk 600 px-re van a képernyőtől */
+    /* a widget betöltője: load után üresjáratban (legkésőbb 3 mp), vagy ha a blokk 2000 px-re ér, amelyik előbb */
+    var idleGo = function () { if (window.requestIdleCallback) window.requestIdleCallback(addLoader, { timeout: 3000 }); else setTimeout(addLoader, 3000); };
+    if (document.readyState === "complete") idleGo(); else window.addEventListener("load", idleGo);
     if (window.IntersectionObserver) {
-      var tio = new IntersectionObserver(function (en) { for (var j = 0; j < en.length; j++) if (en[j].isIntersecting) { tio.disconnect(); addLoader(); } }, { rootMargin: "600px 0px" });
+      var tio = new IntersectionObserver(function (en) { for (var j = 0; j < en.length; j++) if (en[j].isIntersecting) { tio.disconnect(); addLoader(); } }, { rootMargin: "2000px 0px" });
       tio.observe(r);
-    } else window.addEventListener("load", function () { setTimeout(addLoader, 1500); });
+    }
   }
 
   /* ---------- 6b) kapcsolati kártya a GYIK bal oszlopában ---------- */
