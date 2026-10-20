@@ -1,4 +1,4 @@
-/* KicksByDavid termékoldal v15 (HU+SK) */
+/* KicksByDavid termékoldal v16 (HU+SK) */
 (function(){
 var host=(location.hostname||"").split(":")[0].toLowerCase();
 var lang=(document.documentElement.getAttribute("lang")||"").toLowerCase();
@@ -78,7 +78,7 @@ try{ var T=window.Tawk_API=window.Tawk_API||{};T.customStyle=T.customStyle||{ vi
 (function(){ var d=document,h=d.documentElement;if(!h.classList.contains("kbd-pdp"))return;
 setTimeout(function(){ h.classList.add("kbd-ready");},4000);
 try{
-var FP=["1168890_CHE","CW2288_111","IF9643"],FB="https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-pdp-storefront/storefront/ms/",FN=128;
+var FP=["*"],FB="https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-pdp-storefront/storefront/ms/",FN=128;
 var fon=FP.some(function(id){ return id==="*"?/(^|\s)page_shop_artdet_/.test(h.className):h.className.indexOf("page_shop_artdet_"+id)>-1;});
 if(fon&&window.fetch&&window.Promise){
 var F=window.KBD_FAM={ on:true,done:false,release:null,minCards:3,p:null};

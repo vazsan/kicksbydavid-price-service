@@ -100,7 +100,7 @@ setTimeout(function(){h.classList.add("kbd-ready");},4000);
    pilot: a <html> osztályában page_shop_artdet_<előtag> szerepel (egy előtag az adott cikkszám összes méretoldalára illik); "*" = minden termékoldal; [] = ki.
    Adat: storefront/ms/<hu|sk>/NNN.json (128 szelet; kulcs = a termék kanonikus URL-je; szelet = djb2(kulcs) % 128), generálja: scripts/pdp/model_strip.py. */
 try{
-var FP=["1168890_CHE","CW2288_111","IF9643"],FB="https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-pdp-storefront/storefront/ms/",FN=128;
+var FP=["*"],FB="https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-pdp-storefront/storefront/ms/",FN=128;
 var fon=FP.some(function(id){return id==="*"?/(^|\s)page_shop_artdet_/.test(h.className):h.className.indexOf("page_shop_artdet_"+id)>-1;});
 if(fon&&window.fetch&&window.Promise){
 var F=window.KBD_FAM={on:true,done:false,release:null,minCards:3,p:null};
