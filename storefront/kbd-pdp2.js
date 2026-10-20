@@ -23,7 +23,7 @@
     /* Trustindex: kis jelvény (a hero-ban) és nagy vélemény-widget (a lap alján, a 6. lépésben) */
     trustindex: {
       hu: { small: "0d3908782f85181dd586d19e174", big: "3ba033477a0d031a5f060029c5d" },
-      sk: { small: "f2ddae483a2767044106f3718af", big: "3ba033477a0d031a5f060029c5d" }
+      sk: { small: "f2ddae483a2767044106f3718af", big: "6b883db76988873e850692b71b0" }
     },
     reviewsAnchor: "#velemenyek",                   /* a jelvény erre görget, ha az oldalon van ilyen szekció */
     /* pipálós kiegészítő termék: az Unas „Kiegészítő termékek” listájából (termékenként az adminban állítható) */
