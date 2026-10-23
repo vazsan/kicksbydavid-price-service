@@ -287,11 +287,6 @@
     r.push(S + ".artdet__img-inner img.artdet__alt-img{max-width:100%!important}");
     r.push(S + ".artdet__img-inner .stickers-wrap{top:16px!important;left:16px!important}");
     r.push(S + ".artdet__img-inner .sticker{background:var(--kbd-accent)!important;color:#fff!important;border-radius:3px!important;font:800 13px/1 Montserrat,Montserrat-fallback,sans-serif!important;letter-spacing:.06em!important;padding:6px 12px!important;text-transform:uppercase}");
-    /* image sticker (Unas "Matricák", e.g. Halloween -15%): top right, no pill, Unas' inline 110px cap lifted, the plain SALE badge hides beside it */
-    r.push(S + ".artdet__img-inner .stickers-wrap:has(.sticker[data-type=image]){left:auto!important;right:16px!important}");
-    r.push(S + ".artdet__img-inner .sticker[data-type=image]{background:transparent!important;padding:0!important;border-radius:0!important;width:auto!important;height:auto!important;max-width:none!important}");
-    r.push(S + ".artdet__img-inner .sticker[data-type=image] img{width:clamp(96px,24vw,150px)!important;height:auto!important;max-width:none!important;display:block}");
-    r.push(S + ".artdet__img-inner .stickers-wrap:has(.sticker[data-type=image]) .sticker:not([data-type=image]){display:none!important}");
     r.push(S + ".artdet__thumb-images{margin-top:12px}");
     r.push(S + ".artdet__thumb-img-outer{width:88px!important;margin-right:10px!important}");
     r.push(S + ".artdet__thumb-img-wrap{padding:0!important;border-radius:4px!important;border:2px solid transparent!important;background:var(--kbd-cream)!important;overflow:hidden}");
@@ -299,7 +294,6 @@
     r.push(S + ".artdet__thumb-img-outer.is-nav-selected .artdet__thumb-img-wrap{border-color:var(--kbd-ink)!important}");
     r.push("@media (min-width:992px){" + S + ".artdet__block-left-outer{position:sticky;top:24px}" + EQ);
     r.push(MQ + S + ".artdet__img-inner .stickers-wrap{top:12px!important;left:12px!important}" + S + ".artdet__img-inner .sticker{font-size:12px!important;padding:5px 10px!important}"
-      + S + ".artdet__img-inner .stickers-wrap:has(.sticker[data-type=image]){left:auto!important;right:12px!important}" + S + ".artdet__img-inner .sticker[data-type=image]{padding:0!important}"
       + S + ".artdet__img-inner img.artdet__alt-img{max-height:none!important;width:100%!important}" + S + ".artdet__img-inner .flickity-viewport{height:auto}"
       + S + ".artdet__thumb-images{padding:0 16px}" + S + ".artdet__thumb-img-outer{width:64px!important;margin-right:8px!important}" + EQ);
 
