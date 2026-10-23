@@ -79,6 +79,7 @@
         "30 nap ingyenes csere, utánvéttel is fizethetsz"
       ],
       sizeHint: "Nem vagy biztos a méretben? A csere 30 napig ingyenes, és ha megírod, mit hordasz, megmondjuk a méreted.",
+      last1: "Ebből a méretből ez az utolsó pár",
       saving: { d: "akció kezdete: ", end: "a készlet erejéig", re: /készlet/i },
       cod: "Utánvét felára:",
       upsell: { add: "Add hozzá:", sub: "Egy pipával a kosárba kerül a cipővel együtt.", prev: "Előző", next: "Következő" },
@@ -102,6 +103,7 @@
         "Platiť môžeš aj na dobierku"
       ],
       sizeHint: "Nie si si istý veľkosťou? Ak nám napíšeš, aké topánky nosíš, povieme ti tvoju veľkosť.",
+      last1: "Posledný pár v tejto veľkosti",
       saving: { d: "začiatok akcie: ", end: "kým sú zásoby", re: /zásob|vypred/i },
       cod: null,
       upsell: { add: "Pridaj k objednávke:", sub: "Jedným zaškrtnutím sa pridá do košíka spolu s topánkami.", prev: "Predchádzajúce", next: "Ďalšie" },
@@ -660,7 +662,7 @@
   /* ========================= MODELL-SÁV ========================= */
   var FAMT = SK ? { all: "Zobraziť všetko", nav: "Model" } : { all: "Összes", nav: "Modell" };
   var famData, famReq = false;
-  function famDone() { var F = window.KBD_FAM; if (!F) return; F.done = true; if (F.release) F.release(); }
+  function famDone() { var F = window.KBD_FAM; if (!F) return; if (lpSet === undefined) return; /* az utolsó pár adata még úton (max. LP.wait): a kirajzolás vár */ F.done = true; if (F.release) F.release(); }
   function famKey() {
     var c = $('link[rel="canonical"]'), u = c && c.getAttribute("href"), m = u && u.match(/^https?:\/\/[^\/]+\/([^?#]+)/);
     return m ? m[1].replace(/\/$/, "") : "";
@@ -733,9 +735,61 @@
     famDone();
   }
 
+  /* ========================= UTOLSÓ PÁR ========================= */
+  /* Óránként frissülő lista (scripts/pdp/last1_publish.py, Samu): azok az aktív lábbeli-sorok (Unas cikkszám), ahol az Unas készlete pontosan 1.
+     Fájl: /shop_ordered/26121/pic/kbd/last1.json = {"v":1,"t":<epoch mp>,"n":<db>,"s":[cikkszám,...]}, ugyanazon a HU és SK domainen.
+     Ha a fájl hiányzik, hibás, vagy 2 óránál régebbi, vagy a méret most nincs raktáron: NEM jelenik meg semmi (inkább hiányzó jelzés, mint téves "utolsó pár").
+     A méretváltás új oldalbetöltés (a méretek linkek), ezért nincs dinamikus követés. A jobb oszlop kirajzolása legfeljebb LP.wait ms-ig vár az adatra (a modell-sáv várakozásával együtt). */
+  var LP = { url: "/shop_ordered/26121/pic/kbd/last1.json", maxAge: 7200, wait: 900 };
+  var lpSet, lpReq = false;   /* undefined = az adat úton van, false = nincs jelzés, objektum = a cikkszámok halmaza */
+  function lpFail() { if (lpSet === undefined) { lpSet = false; safe(); } }
+  function lpStart() {
+    if (lpReq) return;
+    lpReq = true;
+    if (!window.fetch || !(TX && TX.last1)) { lpSet = false; return; }
+    setTimeout(lpFail, LP.wait);
+    try {
+      window.fetch(LP.url + "?c=" + Math.floor(Date.now() / 300000), { credentials: "omit" }).then(function (r) {
+        if (!r.ok) throw 0;
+        var sd = Date.parse(r.headers.get("date") || "");
+        return r.json().then(function (j) { return [j, isNaN(sd) ? Date.now() : sd]; });
+      }).then(function (a) {
+        var j = a[0], age = a[1] / 1000 - (j && j.t);
+        if (!j || j.v !== 1 || typeof j.t !== "number" || !Array.isArray(j.s) || !j.s.length || !(age >= -600 && age <= LP.maxAge)) throw 0;
+        var o = Object.create(null);
+        j.s.forEach(function (k) { o[k] = 1; });
+        if (lpSet === undefined) { lpSet = o; safe(); }
+      }).catch(lpFail);
+    } catch (e) { lpFail(); }
+  }
+  function lpSku() {
+    var e = $$(".artdet__sku-value"), i, t;
+    for (i = 0; i < e.length; i++) { t = (e[i].textContent || "").replace(/\s+/g, ""); if (t) return t; }
+    return "";
+  }
+  /* a saját stílus külön <style>: a head-tagbe beégetett v2 CSS (kbd-pdp-v2css) mellett a css() nem fut le, ezért ez nem függ tőle (így a head-tag újragenerálása nélkül is élesíthető) */
+  function lpCss() {
+    if (d.getElementById("kbd-last1-css")) return;
+    var M = "html.kbd-pdp.kbd-v2 #artdet__main-block ", st = d.createElement("style");
+    st.id = "kbd-last1-css";
+    st.textContent = M + ".artdet__block-cart-inner>#kbd-last1{order:4}" +
+      M + "#kbd-last1{display:flex;align-items:center;gap:7px;margin:-14px 0 0;font-size:14px;font-weight:700;line-height:1.3;color:var(--kbd-brown,#A3481F)}" +
+      M + "#kbd-last1::before{content:'';flex:none;width:8px;height:8px;border-radius:50%;background:currentColor}";
+    (d.head || h).appendChild(st);
+  }
+  function lastPair() {
+    var sl = d.getElementById("kbd-stock-line"), cur = d.getElementById("kbd-last1"), st = sl && sl.querySelector(".artdet__stock");
+    var sku = lpSet ? lpSku() : "";
+    if (!(sl && st && st.classList.contains("on-stock") && sku && lpSet[sku] === 1)) { if (cur && cur.parentNode) cur.parentNode.removeChild(cur); return; }
+    lpCss();
+    if (!cur) { cur = d.createElement("div"); cur.id = "kbd-last1"; cur.textContent = TX.last1; }
+    after(cur, sl);
+  }
+
   function run() {
     var inner = $(SEL.inner);
     if (!inner) return;
+    lastPair();
     famRun(inner);
     fixSticker();
     fixSizeBlock();
@@ -763,6 +817,7 @@
   }
   function safe() { try { run(); } catch (e) { if (window.console) console.warn("[kbd-pdp2]", e); } }
 
+  lpStart();
   if (d.readyState !== "loading") safe(); else d.addEventListener("DOMContentLoaded", safe);
   if (d.readyState === "complete") setTimeout(safe, 300); else window.addEventListener("load", function () { safe(); setTimeout(safe, 400); });
   if (window.jQuery) window.jQuery(d).on("ajaxComplete", function () { setTimeout(safe, 50); });
