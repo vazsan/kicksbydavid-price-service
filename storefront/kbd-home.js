@@ -341,10 +341,12 @@
     + H + ".kbd-tl__list::-webkit-scrollbar{display:none}" + H + ".kbd-tl__it{flex:0 0 118px;scroll-snap-align:start}" + H + ".kbd-tl__it b{font-size:12.5px}}"
     /* 4: márkapolcok (a nemrég nézett kártyastílusával) */
     + H + ".kbd-sh{padding:36px 0 8px;background:#fff}"
-    + H + ".kbd-sh .kbd-rv__list{min-height:340px}"
+    + H + ".kbd-sh .kbd-rv__list{min-height:515px}"
+    + H + ".kbd-sh .kbd-rv__list.kbd-sh__nat{display:block;padding:0;gap:0;overflow:visible}"
+    + H + ".kbd-sh .kbd-sh__nat .carousel-block{padding:0!important}" + H + ".kbd-sh .kbd-sh__nat .carousel__products{flex:0 0 100%;max-width:100%;width:100%}"
     + H + ".kbd-rv__h a{margin-left:auto;font-size:14px;font-weight:700;color:" + INK + "!important;text-decoration:underline!important;text-underline-offset:3px;white-space:nowrap}"
-    + "@media(max-width:991.98px){" + H + ".kbd-sh .kbd-rv__list{min-height:340px}}"
-    + "@media(max-width:767.98px){" + H + ".kbd-sh{padding:26px 0 4px}" + H + ".kbd-sh .kbd-rv__list{min-height:350px}}"
+    + "@media(max-width:991.98px){" + H + ".kbd-sh .kbd-rv__list{min-height:515px}}"
+    + "@media(max-width:767.98px){" + H + ".kbd-sh{padding:26px 0 4px}" + H + ".kbd-sh .kbd-rv__list{min-height:370px}}"
     /* 3: hírlevél-kártya a lábléc előtt (a lábléc szövegével, a natív űrlapra vezet) */
     + "#kbd-nl{background:" + INK + ";color:#fff;padding:44px 24px;text-align:center}"
     + "#kbd-nl .kbd-nl__in{max-width:560px;margin:0 auto}"
@@ -557,6 +559,7 @@
     var lists = main.querySelectorAll(".carousel-block .products.js-products");
     for (var i = 0; i < lists.length; i++) {
       var n = lists[i];
+      if (n.closest && n.closest(".kbd-sh")) continue;      /* a márkapolcok natív kártyás csúszkái NEM tabok (2026-10-25) */
       while (n && n.parentNode && n.parentNode !== main && !(n.parentNode.classList && n.parentNode.classList.contains("kbd-pt__body"))) n = n.parentNode;
       if (!n || !n.parentNode || seen[n.id] || out.indexOf(n) > -1) continue;
       if (n.id === "kbd-ptabs" || n.id === "box_page_content" || n.id === "custom-content-top" || (n.classList && n.classList.contains("kbd-home-extra"))) continue;
@@ -795,34 +798,33 @@
     var cards = doc.querySelectorAll(".js-product");
     /* a polcra cipő kerül: a ruhák és kiegészítők (HU/SK/EN nevek) kimaradnak */
     var APPAREL = /jacket|hoodie|pants|shorts|t-shirt|\btee\b|\bcap\b|\bbag\b|track|sweat|crew|fleece|póló|pulóver|nadrág|sapka|táska|kabát|dzseki|zokni|mikina|tričko|nohavice|bunda|šiltovka|taška|ponožky/i;
-    for (var i = 0; i < cards.length && out.length < 6; i++) {
-      var c = cards[i], a = c.querySelector("a.product__name-link") || c.querySelector("a.product_link_normal"), im = c.querySelector("img");
+    for (var i = 0; i < cards.length && out.length < 8; i++) {
+      var c = cards[i], a = c.querySelector("a.product__name-link") || c.querySelector("a.product_link_normal");
       if (!a || !a.getAttribute("href") || APPAREL.test(a.textContent || "")) continue;
-      var src = im ? (im.getAttribute("data-src") || im.getAttribute("src") || "") : "";
-      var pr = c.querySelector(".product__prices-wrap");
-      var st = c.querySelector(".product__stock.on-stock .stock__text");
-      out.push({ u: a.getAttribute("href"), n: (a.textContent || "").replace(/\s+/g, " ").trim(), i: src, p: pr ? (pr.textContent || "").replace(/\s+/g, " ").trim() : "", s: st ? (st.textContent || "").trim() : "" });
+      /* 2026-10-25 (Dávid TG 1877): a polc ugyanazt a NATÍV Unas kártyát kapja, mint az Akciós/Legnépszerűbb fül (kép, kedvezmény-címke, szív/összehasonlítás/gyorsnézet, Raktáron, ár, Részletek gomb):
+         a lista rács-osztályai (col-*) lemaradnak, a kártya karusszel-cella lesz */
+      c.className = c.className.replace(/\bcol-[a-z0-9-]+\b/g, "").replace(/\s+/g, " ").trim() + " carousel-cell";
+      out.push(c.outerHTML);
     }
     return out;
+  }
+  function shelfFlk(car) {
+    try {
+      if (window.Flickity && !window.Flickity.data(car)) new window.Flickity(car, { cellAlign: "left", contain: true, pageDots: false, prevNextButtons: false, wrapAround: true, freeScroll: true, groupCells: true, draggable: ">1", percentPosition: true, dragThreshold: 10, selectedAttraction: 0.025, friction: 0.28, accessibility: true });
+    } catch (e) {}
   }
   function shelfRender(sec, items) {
     var list = sec.querySelector(".kbd-rv__list");
     if (!items.length) { sec.parentNode && sec.parentNode.removeChild(sec); return; }
-    list.innerHTML = "";
-    for (var i = 0; i < items.length; i++) {
-      var it = items[i], a = document.createElement("a"), im = document.createElement("img"), sp = document.createElement("span"), b = document.createElement("b");
-      a.className = "kbd-rv__it"; a.href = it.u;
-      im.src = it.i; im.alt = ""; im.loading = "lazy"; im.width = 248; im.height = 248;
-      sp.textContent = it.n; b.textContent = it.p;
-      a.appendChild(im); a.appendChild(sp);
-      if (it.s) { var st = document.createElement("i"); st.className = "kbd-rv__stock"; st.textContent = "\u2713 " + it.s; a.appendChild(st); }
-      a.appendChild(b); list.appendChild(a);
-    }
+    list.className = "kbd-rv__list kbd-sh__nat";
+    list.innerHTML = '<div class="carousel-block"><div class="carousel__products"><div role="list" class="products js-products type--1 card--1 carousel carousel-kbd_shelf" style="--image-width:248px;--image-height:248px;">' + items.join("") + "</div></div></div>";
+    var car = list.querySelector(".carousel");
+    if (car) { shelfFlk(car); setTimeout(function () { flkResize(car); }, 400); setTimeout(function () { flkResize(car); }, 1500); }
   }
   function shelfLoad(sec) {
     if (sec.getAttribute("data-loaded")) return;
     sec.setAttribute("data-loaded", "1");
-    var key = "kbd_sh:" + sec.getAttribute("data-k"), url = sec.getAttribute("data-url");
+    var key = "kbd_sh2:" + sec.getAttribute("data-k"), url = sec.getAttribute("data-url");
     try {
       var c = JSON.parse(sessionStorage.getItem(key) || "null");
       if (c && c.t && Date.now() - c.t < 1800000 && c.items) return shelfRender(sec, c.items);
