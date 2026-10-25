@@ -669,6 +669,8 @@
   }
   /* a "Összes" link: a legutolsó nem-főoldali, nem-termék breadcrumb (a modell családi kategóriája) */
   function famAllUrl() {
+    /* 2026-10-25 (David TG 1874/1897): a family-level list when the strip data carries the Unas filter value id ("f": Modellcsalád filter 8908776); otherwise the category link below */
+    if (famData && typeof famData.f === "number") return location.protocol + "//" + location.host + (SK ? "/vsetky-produkty" : "/osszes-termek") + "?filter=8908776:" + famData.f;
     var best = "";
     $$('script[type="application/ld+json"]').forEach(function (s) {
       try {
