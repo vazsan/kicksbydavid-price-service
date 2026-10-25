@@ -468,7 +468,7 @@ title: "Doručenie a prevzatie",
 html: '<div style="font-size:15px;line-height:1.7">' +
 H3F + 'Ako dlho trvá doručenie?</h3><p><strong>3–5 pracovných dní</strong> a nemusíš sa nás na nič pýtať: e-mailom ti dáme vedieť, v akom stave je tvoj balík, a po odoslaní dostaneš číslo na sledovanie zásielky.</p>' +
 H3 + 'Prečo nie za 1–2 dni?</h3><p>Páry nakupujeme od overených európskych veľkoobchodných partnerov. Často ide o modely a veľkosti, ktoré u nás už nezoženieš. Táto cesta trvá dlhšie, zato výber aj ceny sú úplne inde.</p>' +
-H3 + 'Dá sa platiť na dobierku?</h3><p>Áno, s príplatkom <strong>3 €</strong>. Platíš pri prevzatí, v hotovosti alebo kartou, takže peniaze máš u seba, kým balík nedorazí. V DPD Pickup Boxe a AlzaBoxe sa dá platiť iba kartou. Ak chceš dobierku, vyber si výdajné miesto alebo doručenie na adresu.</p>' +
+H3 + 'Dá sa platiť na dobierku?</h3><p>Áno, pri každom spôsobe doručenia. Dobierka stojí 3 € a platíš pri prevzatí, takže peniaze máš u seba, kým balík nedorazí.</p>' +
 H3 + 'Čo ak ti veľkosť nesedí?</h3><p><strong>Výmenu aj vrátenie platíme my.</strong> Máš na to 30 dní od prevzatia, bez udania dôvodu. Celý postup nájdeš na stránke <a href="/vratenie">Vrátenie tovaru</a>.</p>' +
 '<p>Do balíka prilož krátku správu so šiestimi údajmi: číslo objednávky, meno, telefónne číslo, e-mail, či ide o vrátenie alebo výmenu, a pri výmene aj novú veľkosť. Topánky pošli nenosené a čisté, v originálnej krabici a vo vonkajšom obale.</p>' +
 H3 + 'Čo ak sa moja veľkosť vypredá?</h3><p>Ozveme sa ti a vrátime ti celú kúpnu cenu. Ku každej objednávke posielame elektronickú faktúru a zákaznícka podpora odpovedá do 1 pracovného dňa.</p></div>'
