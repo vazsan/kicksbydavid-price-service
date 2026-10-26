@@ -6,7 +6,7 @@ html:has(#kbd-pv-css) body::before{display:block;background:var(--ink);color:#ff
 html:has(#kbd-pv-css):lang(hu) body::before{content:"Ingyenes szállítás 46 250 Ft felett · 30 nap ingyenes csere"}
 html:has(#kbd-pv-css):lang(sk) body::before{content:"Doprava zadarmo nad 120 € · Výmena zadarmo do 30 dní"}
 /* preview badge: small, top-right, never over the sticky cart bar */
-html:has(#kbd-pv-css) #kbd-pv-badge{position:fixed;top:66px;right:6px;z-index:99999;background:#fff3cd;color:#8a5a00;font:700 10px/1 system-ui,sans-serif;letter-spacing:.6px;padding:4px 7px;border-radius:3px;pointer-events:none;box-shadow:0 1px 4px #0003}
+html:has(#kbd-pv-css) #kbd-pv-badge{position:fixed;top:96px;right:6px;z-index:99999;background:#fff3cd;color:#8a5a00;font:700 10px/1 system-ui,sans-serif;letter-spacing:.6px;padding:4px 7px;border-radius:3px;pointer-events:none;box-shadow:0 1px 4px #0003}
 /* layout: image, name block, buy box (mobile = one column; desktop = 2 columns, sticky buy box) */
 html:has(#kbd-pv-css) .artdet__block-left-right-container>.row{display:flex;flex-direction:column;gap:0}
 html:has(#kbd-pv-css) .artdet__block-left-col{order:1;width:100%;max-width:100%;flex:0 0 auto}
