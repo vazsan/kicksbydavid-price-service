@@ -792,7 +792,7 @@ try{
 var LIVE={ hu:true,sk:true};
 var d=document, h=d.documentElement, q=location.search, ls=null;
 try{ ls=window.localStorage; }catch(e){}
-if(ls){ if(/[?&]kbdv2=1/.test(q)) ls.setItem("kbdv2","1"); if(/[?&]kbdv2=0/.test(q)) ls.setItem("kbdv2","0"); }
+if(ls){ if(/[?&]kbdv2=1/.test(q)) ls.setItem("kbdv2","1"); if(/[?&]kbdv2=0/.test(q)) ls.setItem("kbdv2","0"); if(/[?&]kbdupsell=1/.test(q)) ls.setItem("kbdv2","1"); }
 var sk=/\.sk$/i.test(location.hostname)||(h.getAttribute("lang")||"").toLowerCase().indexOf("sk")===0;
 var v=ls?ls.getItem("kbdv2"):null;
 var on=v==="1"||(v!=="0"&&(sk?LIVE.sk:LIVE.hu));
