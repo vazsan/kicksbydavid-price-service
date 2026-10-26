@@ -1,89 +1,106 @@
-/* KBD PDP preview (Nora 2026-10-26 layout on the NATIVE Unas product page). Only loaded for browsers with the kbdpv cookie (gate in head tag 175771). Scope: html.kbd-pv */
-html.kbd-pv{--p:#A3481F;--bg:#F6F3ED;--ink:#171717;--mut:#55554f;--line:#e4dfd5;--ok:#247A52}
-html.kbd-pv body{background:var(--bg);color:var(--ink)}
+/* KBD PDP preview (Nora 2026-10-26 layout on the NATIVE Unas product page). Only loaded for browsers with the kbdpv cookie (gate in head tag 175771). Scope: html:has(#kbd-pv-css) */
+html:has(#kbd-pv-css){--p:#A3481F;--bg:#F6F3ED;--ink:#171717;--mut:#55554f;--line:#e4dfd5;--ok:#247A52}
+html:has(#kbd-pv-css) body{background:var(--bg);color:var(--ink)}
 /* top bar */
-html.kbd-pv .pv-top{background:var(--ink);color:#fff;font-size:11px;letter-spacing:.3px;text-align:center;padding:7px 12px;line-height:1.35}
+html:has(#kbd-pv-css) body::before{display:block;background:var(--ink);color:#fff;font-size:11px;letter-spacing:.3px;text-align:center;padding:7px 12px;line-height:1.35}
+html:has(#kbd-pv-css):lang(hu) body::before{content:"Ingyenes szállítás 46 250 Ft felett · 30 nap ingyenes csere"}
+html:has(#kbd-pv-css):lang(sk) body::before{content:"Doprava zadarmo nad 120 € · Výmena zadarmo do 30 dní"}
 /* preview badge: small, top-right, never over the sticky cart bar */
-html.kbd-pv #kbd-pv-badge{position:fixed;top:66px;right:6px;z-index:99999;background:#fff3cd;color:#8a5a00;font:700 10px/1 system-ui,sans-serif;letter-spacing:.6px;padding:4px 7px;border-radius:3px;pointer-events:none;box-shadow:0 1px 4px #0003}
+html:has(#kbd-pv-css) #kbd-pv-badge{position:fixed;top:66px;right:6px;z-index:99999;background:#fff3cd;color:#8a5a00;font:700 10px/1 system-ui,sans-serif;letter-spacing:.6px;padding:4px 7px;border-radius:3px;pointer-events:none;box-shadow:0 1px 4px #0003}
 /* layout: image, name block, buy box (mobile = one column; desktop = 2 columns, sticky buy box) */
-html.kbd-pv .artdet__block-left-right-container>.row{display:flex;flex-direction:column;gap:0}
-html.kbd-pv .artdet__block-left-col{order:1;width:100%;max-width:100%;flex:0 0 auto}
-html.kbd-pv .artdet__name-wrap{display:none!important}
-html.kbd-pv .artdet__block-right-col{order:3;width:100%;max-width:100%;flex:0 0 auto}
-html.kbd-pv .artdet__short-descrition,html.kbd-pv .artdet__block-name{display:none!important}
-html.kbd-pv .pv-head{order:0;padding-top:14px}
-html.kbd-pv .pv-name{font-size:20px;line-height:1.2;font-weight:600;text-transform:uppercase;letter-spacing:.2px;margin:2px 0}
-html.kbd-pv .pv-brand{font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--p)}
-html.kbd-pv .pv-sub{color:var(--mut);font-size:13px;margin:2px 0 6px}
-html.kbd-pv .pv-sku{font-size:12px;color:var(--mut)}
+html:has(#kbd-pv-css) .artdet__block-left-right-container>.row{display:flex;flex-direction:column;gap:0}
+html:has(#kbd-pv-css) .artdet__block-left-col{order:1;width:100%;max-width:100%;flex:0 0 auto}
+html:has(#kbd-pv-css) .artdet__name-wrap{display:none!important}
+html:has(#kbd-pv-css) .artdet__block-right-col{order:3;width:100%;max-width:100%;flex:0 0 auto}
+html:has(#kbd-pv-css) .artdet__short-descrition,html:has(#kbd-pv-css) .artdet__block-name{display:none!important}
+html:has(#kbd-pv-css) .pv-head{order:0;padding-top:14px}
+html:has(#kbd-pv-css) .pv-name{font-size:20px;line-height:1.2;font-weight:600;text-transform:uppercase;letter-spacing:.2px;margin:2px 0}
+html:has(#kbd-pv-css) .pv-brand{font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--p)}
+html:has(#kbd-pv-css) .pv-sub{color:var(--mut);font-size:13px;margin:2px 0 6px}
+html:has(#kbd-pv-css) .pv-sku{font-size:12px;color:var(--mut)}
 @media(min-width:900px){
- html.kbd-pv .artdet__block-left-right-container>.row{display:grid;grid-template-columns:1.1fr 1fr;column-gap:56px;align-items:start}
- html.kbd-pv .artdet__block-left-col{grid-column:1;grid-row:1}
- html.kbd-pv .artdet__block-right-col{grid-column:2;grid-row:1;position:sticky;top:90px}
- html.kbd-pv .pv-head{padding-top:0}
- html.kbd-pv .pv-name{font-size:30px}
- html.kbd-pv .pv-top{font-size:12px}
+ html:has(#kbd-pv-css) .artdet__block-left-right-container>.row{display:grid;grid-template-columns:1.1fr 1fr;column-gap:56px;align-items:start}
+ html:has(#kbd-pv-css) .artdet__block-left-col{grid-column:1;grid-row:1}
+ html:has(#kbd-pv-css) .artdet__block-right-col{grid-column:2;grid-row:1;position:sticky;top:90px}
+ html:has(#kbd-pv-css) .pv-head{padding-top:0}
+ html:has(#kbd-pv-css) .pv-name{font-size:30px}
+ html:has(#kbd-pv-css) body::before{font-size:12px}
 }
 /* buy box order */
-html.kbd-pv .artdet__block-cart-inner{display:flex;flex-direction:column}
-html.kbd-pv .pv-rating{order:1;font-size:12px;color:var(--mut);margin:2px 0 4px;min-height:22px}
-html.kbd-pv .artdet__price-and-countdown{order:2;margin:6px 0 0!important}
-html.kbd-pv .pv-delta{order:3;font-size:12px;color:var(--ok);font-weight:600;margin:2px 0 0}
-html.kbd-pv .pv-omni{order:3;font-size:12px;color:var(--mut);margin:4px 0}
-html.kbd-pv .pv-omni.pv-warn{background:#fff3cd;color:#8a5a00;font-weight:700;padding:3px 8px;border-radius:3px;display:inline-block}
-html.kbd-pv .artdet__virtual-point-highlighted{order:4;background:#fff;border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:12px;margin:12px 0!important}
-html.kbd-pv #artdet__type{order:5}
-html.kbd-pv .kbd-size-modal__open-btn{order:6}
-html.kbd-pv .variants-params-spec-wrap{order:7}
-html.kbd-pv #artdet__cart{order:8;margin-top:16px!important}
-html.kbd-pv .pv-meta{order:9}
-html.kbd-pv .pv-pays{order:10}
-html.kbd-pv .pv-proof{order:11}
-html.kbd-pv .pv-tiles{order:12}
-html.kbd-pv #artdet__functions{order:13}
-html.kbd-pv .artdet__block-cart-inner>.d-flex.align-items-center.flex-wrap{display:none!important}   /* native stock row: replaced by .pv-meta */
-html.kbd-pv #kbd-product-trust-widget,html.kbd-pv .kbd-trust-widget{display:none!important}
+html:has(#kbd-pv-css) .artdet__block-cart-inner{display:flex;flex-direction:column}
+html:has(#kbd-pv-css) .pv-rating{order:1;font-size:12px;color:var(--mut);margin:2px 0 4px;min-height:22px}
+html:has(#kbd-pv-css) .artdet__price-and-countdown{order:2;margin:6px 0 0!important}
+html:has(#kbd-pv-css) .pv-delta{order:3;font-size:12px;color:var(--ok);font-weight:600;margin:2px 0 0}
+html:has(#kbd-pv-css) .pv-omni{order:3;font-size:12px;color:var(--mut);margin:4px 0}
+html:has(#kbd-pv-css) .pv-omni.pv-warn{background:#fff3cd;color:#8a5a00;font-weight:700;padding:3px 8px;border-radius:3px;display:inline-block}
+html:has(#kbd-pv-css) .artdet__virtual-point-highlighted{order:4;background:#fff;border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:12px;margin:12px 0!important}
+html:has(#kbd-pv-css) #artdet__type{order:5}
+html:has(#kbd-pv-css) .kbd-size-modal__open-btn{order:6}
+html:has(#kbd-pv-css) .variants-params-spec-wrap{order:7}
+html:has(#kbd-pv-css) #artdet__cart{order:8;margin-top:16px!important}
+html:has(#kbd-pv-css) .pv-meta{order:9}
+html:has(#kbd-pv-css) .pv-pays{order:10}
+html:has(#kbd-pv-css) .pv-proof{order:11}
+html:has(#kbd-pv-css) .pv-tiles{order:12}
+html:has(#kbd-pv-css) #artdet__functions{order:13}
+html:has(#kbd-pv-css) .artdet__block-cart-inner>.d-flex.align-items-center.flex-wrap{display:none!important}   /* native stock row: replaced by .pv-meta */
+html:has(#kbd-pv-css) #kbd-product-trust-widget,html:has(#kbd-pv-css) .kbd-trust-widget{display:none!important}
 /* price */
-html.kbd-pv .artdet__price-discount .price-gross-format,html.kbd-pv .artdet__price-gross .price-gross-format{font-size:26px;font-weight:700}
-html.kbd-pv .artdet__price-discount{color:var(--p)}
-@media(min-width:900px){html.kbd-pv .artdet__price-discount .price-gross-format,html.kbd-pv .artdet__price-gross .price-gross-format{font-size:30px}}
+html:has(#kbd-pv-css) .artdet__price-discount .price-gross-format,html:has(#kbd-pv-css) .artdet__price-gross .price-gross-format{font-size:26px;font-weight:700}
+html:has(#kbd-pv-css) .artdet__price-discount{color:var(--p)}
+@media(min-width:900px){html:has(#kbd-pv-css) .artdet__price-discount .price-gross-format,html:has(#kbd-pv-css) .artdet__price-gross .price-gross-format{font-size:30px}}
 /* size grid */
-html.kbd-pv .product-type__values{display:grid!important;grid-template-columns:repeat(4,1fr);gap:8px}
-html.kbd-pv .product-type__value{margin:0!important;width:auto!important}
-html.kbd-pv .product-type__value-link{display:block!important;text-align:center;padding:11px 0!important;background:#fff;border:1px solid var(--line)!important;border-radius:5px;font-weight:600;font-size:14px;color:var(--ink)!important;text-decoration:none!important}
-html.kbd-pv .product-type__value.is-active .product-type__value-link{border-color:var(--p)!important;box-shadow:0 0 0 1px var(--p);color:var(--p)!important}
-html.kbd-pv .product-type__title{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin:16px 0 8px}
+html:has(#kbd-pv-css) .product-type__values{display:grid!important;grid-template-columns:repeat(4,1fr);gap:8px}
+html:has(#kbd-pv-css) .product-type__value{margin:0!important;width:auto!important}
+html:has(#kbd-pv-css) .product-type__value-link{display:block!important;text-align:center;padding:11px 0!important;background:#fff;border:1px solid var(--line)!important;border-radius:5px;font-weight:600;font-size:14px;color:var(--ink)!important;text-decoration:none!important}
+html:has(#kbd-pv-css) .product-type__value.is-active .product-type__value-link{border-color:var(--p)!important;box-shadow:0 0 0 1px var(--p);color:var(--p)!important}
+html:has(#kbd-pv-css) .product-type__title{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin:16px 0 8px}
 /* CTA */
-html.kbd-pv .artdet__cart-btn{background:var(--p)!important;border-color:var(--p)!important;color:#fff!important;border-radius:4px!important;min-height:58px;font-weight:800;letter-spacing:.75px;text-transform:uppercase}
-html.kbd-pv .artdet__quick-order-btn{background:transparent!important;border:0!important;color:var(--ink)!important;text-decoration:underline;font-size:12px;font-weight:600;box-shadow:none!important;min-height:0}
+html:has(#kbd-pv-css) .artdet__cart-btn{background:var(--p)!important;border-color:var(--p)!important;color:#fff!important;border-radius:4px!important;min-height:58px;font-weight:800;letter-spacing:.75px;text-transform:uppercase}
+html:has(#kbd-pv-css) .artdet__quick-order-btn{background:transparent!important;border:0!important;color:var(--ink)!important;text-decoration:underline;font-size:12px;font-weight:600;box-shadow:none!important;min-height:0}
 /* meta, pays, proof, tiles */
-html.kbd-pv .pv-meta{font-size:12px;margin-top:14px;display:grid;gap:4px}html.kbd-pv .pv-meta .st{color:var(--ok);font-weight:700}
-html.kbd-pv .pv-pays{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}html.kbd-pv .pv-pays i{font-style:normal;font-size:11px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:4px;padding:4px 9px}
-html.kbd-pv .pv-proof{margin-top:14px;font-size:12px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-height:44px}
-html.kbd-pv .pv-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
-html.kbd-pv .pv-tile{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px}html.kbd-pv .pv-tile b{display:block;font-size:13px}html.kbd-pv .pv-tile span{display:block;font-size:12px;color:var(--mut);margin-top:3px}
+html:has(#kbd-pv-css) .pv-meta{font-size:12px;margin-top:14px;display:grid;gap:4px}html:has(#kbd-pv-css) .pv-meta .st{color:var(--ok);font-weight:700}
+html:has(#kbd-pv-css) .pv-pays{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}html:has(#kbd-pv-css) .pv-pays i{font-style:normal;font-size:11px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:4px;padding:4px 9px}
+html:has(#kbd-pv-css) .pv-proof{margin-top:14px;font-size:12px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:10px 12px;min-height:44px}
+html:has(#kbd-pv-css) .pv-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+html:has(#kbd-pv-css) .pv-tile{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px}html:has(#kbd-pv-css) .pv-tile b{display:block;font-size:13px}html:has(#kbd-pv-css) .pv-tile span{display:block;font-size:12px;color:var(--mut);margin-top:3px}
 /* accordions (native Unas tab panes) */
-html.kbd-pv .nav-tabs-accordion .pane-header{background:#fff;border:1px solid var(--line);border-bottom:0}
-html.kbd-pv .nav-tabs-accordion .pane-header-btn{font-weight:700;font-size:14px}
-html.kbd-pv .tab-pane{background:#fff}
+html:has(#kbd-pv-css) .nav-tabs-accordion .pane-header{background:#fff;border:1px solid var(--line);border-bottom:0}
+html:has(#kbd-pv-css) .nav-tabs-accordion .pane-header-btn{font-weight:700;font-size:14px}
+html:has(#kbd-pv-css) .tab-pane{background:#fff}
 /* extra blocks */
-html.kbd-pv .pv-blk{padding:28px 16px 0;max-width:1240px;margin:0 auto}
-html.kbd-pv .pv-blk h2{font-size:20px;font-weight:600;margin:0 0 14px}
-html.kbd-pv .pv-whys{display:grid;gap:12px}
-html.kbd-pv .pv-why{background:#fff;border:1px solid var(--line);border-radius:6px;padding:16px}html.kbd-pv .pv-why b{font-size:14px}html.kbd-pv .pv-why p{margin:4px 0 0;font-size:13px;color:var(--mut)}
-html.kbd-pv #kbd-pdp-reviews{min-height:220px;max-width:100%;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:6px}
-html.kbd-pv .pv-disc{max-width:1240px;margin:28px auto 0;padding:0 16px;font-size:12px;color:var(--mut);text-align:center}
-@media(min-width:900px){html.kbd-pv .pv-blk{padding:56px 40px 0}html.kbd-pv .pv-whys{grid-template-columns:repeat(3,1fr)}html.kbd-pv .pv-disc{padding:0 40px}}
+html:has(#kbd-pv-css) .pv-blk{padding:28px 16px 0;max-width:1240px;margin:0 auto}
+html:has(#kbd-pv-css) .pv-blk h2{font-size:20px;font-weight:600;margin:0 0 14px}
+html:has(#kbd-pv-css) .pv-whys{display:grid;gap:12px}
+html:has(#kbd-pv-css) .pv-why{background:#fff;border:1px solid var(--line);border-radius:6px;padding:16px}html:has(#kbd-pv-css) .pv-why b{font-size:14px}html:has(#kbd-pv-css) .pv-why p{margin:4px 0 0;font-size:13px;color:var(--mut)}
+html:has(#kbd-pv-css) #kbd-pdp-reviews{min-height:220px;max-width:100%;overflow:hidden;background:#fff;border:1px solid var(--line);border-radius:6px}
+html:has(#kbd-pv-css) .pv-disc{max-width:1240px;margin:28px auto 0;padding:0 16px;font-size:12px;color:var(--mut);text-align:center}
+@media(min-width:900px){html:has(#kbd-pv-css) .pv-blk{padding:56px 40px 0}html:has(#kbd-pv-css) .pv-whys{grid-template-columns:repeat(3,1fr)}html:has(#kbd-pv-css) .pv-disc{padding:0 40px}}
 
 /* preview-only clean-ups of native clutter */
-html.kbd-pv .artdet__countdown-outer{display:none!important}                    /* no countdown (psychology brief: no scarcity timers) */
-html.kbd-pv .variants-params-spec-wrap{display:none!important}                   /* internal 'Részletek gomb kapcsoló' parameter shown as an input */
-html.kbd-pv .long-description__content,html.kbd-pv .long-description__content p{text-align:left!important}
-html.kbd-pv .long-description__content h2{font-size:17px!important;text-transform:none!important;margin:22px 0 8px!important;font-weight:700}
-html.kbd-pv .long-description__content h3{font-size:15px!important;text-transform:none!important}
-html.kbd-pv .long-description__content p{font-size:14px;line-height:1.55}
+html:has(#kbd-pv-css) .artdet__countdown-outer{display:none!important}                    /* no countdown (psychology brief: no scarcity timers) */
+html:has(#kbd-pv-css) .variants-params-spec-wrap{display:none!important}                   /* internal 'Részletek gomb kapcsoló' parameter shown as an input */
+html:has(#kbd-pv-css) .long-description__content,html:has(#kbd-pv-css) .long-description__content p{text-align:left!important}
+html:has(#kbd-pv-css) .long-description__content h2{font-size:17px!important;text-transform:none!important;margin:22px 0 8px!important;font-weight:700}
+html:has(#kbd-pv-css) .long-description__content h3{font-size:15px!important;text-transform:none!important}
+html:has(#kbd-pv-css) .long-description__content p{font-size:14px;line-height:1.55}
 /* image column full width, both sides of the grid */
-html.kbd-pv .artdet__block-left-col,html.kbd-pv .artdet__block-right-col{max-width:none!important;flex:none!important}
-html.kbd-pv .artdet__block-left-col .artdet__block-image{flex:0 0 100%!important;max-width:100%!important;width:100%!important}
-html.kbd-pv .product-type__value.is-active .product-type__value-link{background:#fff!important}
-html.kbd-pv .artdet__block-image .artdet__img-inner{max-width:100%}
+html:has(#kbd-pv-css) .artdet__block-left-col,html:has(#kbd-pv-css) .artdet__block-right-col{max-width:none!important;flex:none!important}
+html:has(#kbd-pv-css) .artdet__block-left-col .artdet__block-image{flex:0 0 100%!important;max-width:100%!important;width:100%!important}
+html:has(#kbd-pv-css) .product-type__value.is-active .product-type__value-link{background:#fff!important}
+html:has(#kbd-pv-css) .artdet__block-image .artdet__img-inner{max-width:100%}
+
+/* layout-shift guards: space is reserved by CSS before pv.js builds the blocks (removed as soon as the block exists) */
+html:has(#kbd-pv-css) .artdet__block-cart-inner::before{content:"";display:block;order:0;height:104px}
+html:has(#kbd-pv-css) .artdet__block-cart-inner:has(.pv-head)::before{display:none}
+html:has(#kbd-pv-css) .artdet__block-cart-inner::after{content:"";display:block;order:1;height:26px}
+html:has(#kbd-pv-css) .artdet__block-cart-inner:has(.pv-rating)::after{display:none}
+@media(min-width:900px){html:has(#kbd-pv-css) .artdet__block-cart-inner::before{height:150px}}
+/* the native image carousel is tall until its script initialises: fix the box so nothing below it moves */
+html:has(#kbd-pv-css) .artdet__block-image-inner{width:100%}
+html:has(#kbd-pv-css) .artdet__img-inner{aspect-ratio:1/1;overflow:hidden;width:100%;max-width:100%}
+html:has(#kbd-pv-css) .artdet__block-left-col{min-height:0}
+html:has(#kbd-pv-css) .artdet__block-right-col{display:block!important;visibility:visible!important;min-height:700px}
+@media(min-width:900px){html:has(#kbd-pv-css) .artdet__block-right-col{min-height:640px}}
+/* the native video / custom-section holder is ~1000 px tall until its script runs, which pushed the buy box down and back: fixed to zero height (the native tabs below still carry the content) */
+html:has(#kbd-pv-css) #artdet__video,html:has(#kbd-pv-css) #custom-section-1{height:0!important;min-height:0!important;max-height:0;overflow:hidden;margin:0!important;padding:0!important}
