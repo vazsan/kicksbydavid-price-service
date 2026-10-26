@@ -22,8 +22,12 @@ wrap([q('#artdet__cart'),q('#kbd2-pay'),q('#kbd4-checks')],'r2-buy','',9);
 const bb=q('.r2-buy');if(bb&&!bb.querySelector('.artdet__cart-btn'))bb.classList.add('r2-buy--oos');})();
       } finally { releaseHold(); }
     }
+    // non-shoe products (Terméktípus Ruházat / Kiegészítő): row 1 'Új darab, gyári címkével' (David TG 2271, Zara alternative); shoes keep 'Új pár, a saját dobozában'
+    function nonShoe() { var it = document.querySelectorAll("#pane-data .data__item"); for (var i = 0; i < it.length; i++) { var tx = (it[i].textContent || "").replace(/\s+/g, " ").trim(); if (/^Terméktípus\s*:\s*(Ruházat|Kiegészítő)/i.test(tx)) return true; } return false; }
+    function fixRow1() { try { if (!nonShoe()) return; var f = document.querySelector(".r2-li span:last-child"); if (f && /Új pár/.test(f.textContent)) f.textContent = "Új darab, gyári címkével"; } catch (e) {} }
     function runB() {
       if (doneB) return; doneB = true;
+      try {
       (()=>{if(document.querySelector('.r2-cmp'))return;const D={"cmp":{"mode":"A","title":"Miért tőlünk?","rows":["Új pár, a saját dobozában","Méret-tanács: írd meg, mit hordasz","Követési link, amint a futár átveszi","1 munkanapon belül válaszolunk","Ingyenes szállítás 46 250 Ft felett"]}};const q=s=>document.querySelector(s);const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
 // 1) the 4 function icons join the points/SKU row
 const mt=q('#kbd2-meta'),fn=q('#artdet__functions');if(mt&&fn)mt.append(fn);
@@ -33,14 +37,15 @@ const sp=q('#pane-custom-section-2');if(sp){sp.classList.remove('active','show')
 // 2) comparison + 8) photo placeholders after the 01/02/03 block
 const diff=q('#kbd2-diff');
 const cmp=el('section','r2-cmp');const w=el('div','kbd2-w');cmp.append(w);
-const C=D.cmp||{"mode":"A","title":"Miért tőlünk?","rows":["Új pár, a saját dobozában","Méret-tanács: írd meg, mit hordasz","Követési link, amint a futár átveszi","1 munkanapon belül válaszolunk","Ingyenes szállítás 46 250 Ft felett"]};if(D.draftLabels)w.append(el('span','r2-draft',C.draft||'Szöveg-vázlat'));w.append(el('h2','r2-h2',C.title));
+const SK=(D.lang||(/\.sk$/.test(location.hostname)||document.documentElement.lang==='sk'?'sk':'hu'))==='sk';
+const C=D.cmp||(SK?{"mode":"A","title":"Prečo u nás?","rows":["Nový pár, s krabicou","Pomôžeme s veľkosťou: napíš, čo nosíš","Sledovanie, keď balík prevezme kuriér","Odpovedáme do 1 pracovného dňa","Doprava zadarmo nad 120 €"]}:{"mode":"A","title":"Miért tőlünk?","rows":["Új pár, a saját dobozában","Méret-tanács: írd meg, mit hordasz","Követési link, amint a futár átveszi","1 munkanapon belül válaszolunk","Ingyenes szállítás 46 250 Ft felett"]});if(D.draftLabels)w.append(el('span','r2-draft',C.draft||'Szöveg-vázlat'));w.append(el('h2','r2-h2',C.title));
 const lg=q('#header_logo_img img');const logo=lg?'<img alt="KicksByDavid" src="'+lg.src+'">':'KicksByDavid';const card=el('div','r2-card r2-card--'+C.mode);
 if(C.mode==='B'){card.append(el('div','r2-row r2-head','<span class="r2-ql">'+C.left+'</span><span class="r2-us">'+logo+'</span>'));
  C.rows.forEach(t=>card.append(el('div','r2-row','<span>'+t+'</span><span class="r2-yes" aria-label="igen, nálunk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>')));}
 else{C.rows.forEach(t=>card.append(el('div','r2-li','<span class="r2-yes" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>'+t.replace('[MEGERŐSÍTENDŐ]','<em class="r2-tbc">megerősítendő</em>')+'</span>')));}
 w.append(card);diff.after(cmp);
 const ph=el('section','r2-ph');const pw=el('div','kbd2-w');ph.append(pw);
-if(D.draftLabels)pw.append(el('span','r2-draft','Opcionális · csak saját fotóval'));pw.append(el('h2','r2-h2','Mielőtt elindul hozzád'));
+if(D.draftLabels)pw.append(el('span','r2-draft','Opcionális · csak saját fotóval'));pw.append(el('h2','r2-h2',SK?"Skôr, než ti ho pošleme":"Mielőtt elindul hozzád"));
 const g=el('div','r2-ph-g');['Saját fotó: a pár ellenőrzése (címke, cikkszám)','Saját fotó: dobozolás','Saját fotó: csomag átadás'].forEach(t=>g.append(el('div','',t)));pw.append(g);
 pw.append(el('p','','Csak akkor kerül ki, ha Dávid lefotózza. AI-kép ide nem mehet.'));cmp.after(ph);
 // INACTIVE by default (Dávid TG 2218): shown only when the switch is on: <html class="kbd-photos-on"> or window.KBD_PHOTOS=true
@@ -58,6 +63,7 @@ if(D.cardImgs){document.querySelectorAll('#artdet__additional-products img.produ
  // PREVIEW ONLY: the snapshot froze Flickity mid-slide; reset to the first slide (live, Flickity handles it)
  document.querySelectorAll('#artdet__additional-products .flickity-slider,#artdet__similar-products .flickity-slider').forEach(sl=>{sl.style.transform='translateX(0%)';[...sl.querySelectorAll('.carousel-cell')].forEach((c,i)=>{c.style.transform='translateX('+(i*107)+'%)';});});}
 })();
+      } finally { fixRow1(); }
     }
     function go() { if (!doneA && cssReady() && readyA()) runA(); if (!doneB && readyB()) runB(); if ((!doneA || !doneB) && tries++ < 200) setTimeout(go, 100); }
     go();
