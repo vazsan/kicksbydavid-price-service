@@ -28,13 +28,6 @@
       sk: { small: "f2ddae483a2767044106f3718af", big: "6b883db76988873e850692b71b0" }
     },
     reviewsAnchor: "#velemenyek",                   /* a jelvény erre görget, ha az oldalon van ilyen szekció */
-    /* pipálós kiegészítő termék: az Unas „Kiegészítő termékek” listájából (termékenként az adminban állítható) */
-    upsell: {
-      enabled: true,                                /* be/ki */
-      count: 4,                                     /* legfeljebb ennyi kiegészítő jelenik meg, jobbra-balra lapozható sorban */
-      pick: "cheapest",                             /* "cheapest": a legolcsóbbak; "first": a lista sorrendje az Unasban */
-      maxPrice: 0                                   /* 0: nincs felső határ; különben ennél drágább kiegészítőt nem ajánl */
-    },
     /* a lap második fele (kbd-pdp2-body.js). Ahol az adat még hiányzik, az érintett szekció nem jelenik meg. */
     body: {
       enabled: true,                                /* be/ki */
@@ -84,7 +77,7 @@
       last1: "Ebből a méretből ez az utolsó pár",
       saving: { d: "akció kezdete: ", end: "a készlet erejéig", re: /készlet/i },
       cod: "Utánvét felára:",
-      upsell: { add: "Add hozzá:", sub: "Egy pipával a kosárba kerül a cipővel együtt.", prev: "Előző", next: "Következő" },
+      upsell: { prev: "Előző", next: "Következő" },
       ship: {
         eta: "Várható kézbesítés:", free: "✓ Ehhez a párhoz ingyenes a szállítás", miss: "Még <b>%X%</b> hiányzik az ingyenes szállításhoz",
         cod: "Utánvéttel is fizethetsz (+1 100 Ft)", btn: "Szállítási díjak és információk", title: "Szállítás és fizetés", close: "Bezárás",
@@ -108,7 +101,7 @@
       last1: "Posledný pár v tejto veľkosti",
       saving: { d: "začiatok akcie: ", end: "kým sú zásoby", re: /zásob|vypred/i },
       cod: null,
-      upsell: { add: "Pridaj k objednávke:", sub: "Jedným zaškrtnutím sa pridá do košíka spolu s topánkami.", prev: "Predchádzajúce", next: "Ďalšie" },
+      upsell: { prev: "Predchádzajúce", next: "Ďalšie" },
       ship: {
         eta: "Predpokladané doručenie:", free: "✓ Pri tomto páre je doprava zdarma", miss: "Do dopravy zdarma chýba ešte <b>%X%</b>",
         cod: "Dobierka +3 €", btn: "Doprava a platba", title: "Doprava a platba", close: "Zavrieť",
@@ -249,26 +242,6 @@
     r.push("html.kbd4-lock,html.kbd4-lock body{overflow:hidden!important}");
 
     /* pipálós kiegészítő termék */
-    r.push(M + "#kbd2-upsell{margin-top:18px}");
-    r.push(M + "#kbd2-upsell .kbd2-up-h{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}");
-    r.push(M + "#kbd2-upsell .kbd2-up-h b{display:block;font-size:14px;font-weight:700}");
-    r.push(M + "#kbd2-upsell .kbd2-up-h>div>span{display:block;font-size:13px;color:var(--kbd-muted);line-height:1.4}");
-    r.push(M + "#kbd2-upsell .kbd2-up-nav{display:flex;gap:6px;flex:none}");
-    r.push(M + "#kbd2-upsell .kbd2-up-nav button{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--kbd-ink);background:#fff;color:var(--kbd-ink);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}");
-    r.push(M + "#kbd2-upsell .kbd2-up-nav button[disabled]{opacity:.35;cursor:default}");
-    r.push(M + "#kbd2-upsell .kbd2-up-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}");
-    r.push(M + "#kbd2-upsell .kbd2-up-row::-webkit-scrollbar{display:none}");
-    r.push(M + "#kbd2-upsell .kbd2-up-c{flex:0 0 78%;scroll-snap-align:start;display:flex;align-items:center;gap:12px;padding:12px 14px;min-height:64px;border:1.5px solid var(--kbd-line);border-radius:6px;background:#fff;cursor:pointer;box-sizing:border-box}");
-    r.push(M + "#kbd2-upsell.kbd2-one .kbd2-up-c{flex-basis:100%}");
-    r.push(M + "#kbd2-upsell .kbd2-up-c.on{border-color:var(--kbd-ink);background:var(--kbd-cream)}");
-    r.push(M + "#kbd2-upsell input{width:22px;height:22px;flex:none;margin:0;accent-color:var(--kbd-ink)}");
-    r.push(M + "#kbd2-upsell .kbd2-up-img{width:56px;height:56px;flex:none;border-radius:4px;overflow:hidden;background:var(--kbd-cream)}");
-    r.push(M + "#kbd2-upsell .kbd2-up-img img{width:100%;height:100%;object-fit:cover;display:block}");
-    r.push(M + "#kbd2-upsell .kbd2-up-t{flex:1;min-width:0}");
-    r.push(M + "#kbd2-upsell .kbd2-up-t b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;font-weight:700;line-height:1.35}");
-    r.push(M + "#kbd2-upsell .kbd2-up-p{display:block;margin-top:2px;font-weight:800;font-size:13px;white-space:nowrap}");
-    r.push("@media (min-width:768px){" + M + "#kbd2-upsell .kbd2-up-c{flex-basis:calc(50% - 5px)}" + M + "#kbd2-upsell.kbd2-one .kbd2-up-c{flex-basis:100%}" + M + "#kbd2-upsell .kbd2-up-t b{font-size:14px}" + EQ);
-    r.push(MQ + M + "#kbd2-upsell .kbd2-up-nav{display:none}" + M + "#kbd2-upsell input{width:24px;height:24px}" + M + "#kbd2-upsell .kbd2-up-img{width:48px;height:48px}" + M + "#kbd2-upsell .kbd2-up-h>div>span{font-size:12px}" + EQ);
 
     /* garanciakártyák */
     r.push(M + "#kbd-pdp-trust{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px 20px!important;margin:22px 0 0!important;padding:0!important;border:0!important}");
@@ -475,98 +448,6 @@
     if (all && f.cells.length) all.textContent = f.cells.length;
     if (f.cells.length <= 1) { var nav = $(".carousel__nav--artdet-alt-images"); if (nav) nav.style.display = "none"; }
   }
-
-
-  /* ========================= PIPÁLÓS KIEGÉSZÍTŐ TERMÉK ========================= */
-  var UP = { items: null, busy: false, bypass: false, built: false };
-  /* a kártyakép lusta betöltésű: az Unas a betöltésig space.gif helyőrzőt tart az src-ben, ezért minden forrást végignézünk */
-  function firstUrl(ss) { return ss ? String(ss).trim().split(/\s+/)[0] : ""; }
-  function cardImage(card) {
-    var img = $(".product__img", card), c = [];
-    if (img) c.push(img.getAttribute("data-src"), img.currentSrc, img.getAttribute("src"), firstUrl(img.getAttribute("data-srcset")), firstUrl(img.getAttribute("srcset")));
-    $$("picture source", card).forEach(function (so) { c.push(firstUrl(so.getAttribute("data-srcset")), firstUrl(so.getAttribute("srcset"))); });
-    for (var i = 0; i < c.length; i++) if (c[i] && !/space\.gif/.test(c[i])) return c[i];
-    return "";
-  }
-  function cardInfo(card) {
-    var link = $(".product__name-link", card);
-    var pr = $(".product__price-discount .price-gross-format", card) || $(".product__price-base .price-gross-format", card);
-    var num = parseFloat(txt(pr).replace(/\s/g, "").replace(",", ".").replace(/[^\d.]/g, ""));
-    var stock = $(".product__stock", card);
-    return {
-      sku: card.getAttribute("data-sku"), name: txt(link), price: txt(pr), value: isNaN(num) ? 0 : num,
-      img: cardImage(card),
-      inStock: !stock || !stock.classList.contains("no-stock")
-    };
-  }
-  function pickUpsells() {
-    var list = $$(SEL.addList).map(cardInfo).filter(function (c) {
-      return c.sku && c.name && c.value > 0 && c.inStock && (!CFG.upsell.maxPrice || c.value <= CFG.upsell.maxPrice);
-    });
-    var seen = {};
-    list = list.filter(function (c) { if (seen[c.sku]) return false; seen[c.sku] = 1; return true; });
-    if (CFG.upsell.pick === "cheapest") list.sort(function (a, b) { return a.value - b.value; });
-    return list.slice(0, CFG.upsell.count || 1);
-  }
-  var ARR_L = "M15 5l-7 7 7 7", ARR_R = "M9 5l7 7-7 7";
-  function upsellBox() {
-    if (!CFG.upsell.enabled || !TX.upsell || UP.built) return;
-    var inner = $(SEL.inner);
-    if (!inner || !window.cart_add) return;
-    var items = pickUpsells();
-    if (!items.length) return;
-    UP.items = items; UP.built = true;
-    var u = TX.upsell, e = d.createElement("div");
-    e.id = "kbd2-upsell";
-    if (items.length === 1) e.className = "kbd2-one";
-    var nav = items.length > 2 ? '<span class="kbd2-up-nav"><button type="button" class="kbd2-prev" aria-label="' + esc(u.prev) + '">' + ico2(ARR_L) + '</button><button type="button" class="kbd2-next" aria-label="' + esc(u.next) + '">' + ico2(ARR_R) + "</button></span>" : "";
-    e.innerHTML = '<div class="kbd2-up-h"><div><b>' + esc(u.add.replace(/:\s*$/, "")) + "</b><span>" + esc(u.sub) + "</span></div>" + nav + '</div><div class="kbd2-up-row">' +
-      items.map(function (it, i) {
-        return '<label class="kbd2-up-c"><input type="checkbox" data-i="' + i + '" aria-label="' + esc(u.add + " " + it.name) + '">' +
-          (it.img ? '<span class="kbd2-up-img"><img src="' + esc(it.img) + '" alt="" width="56" height="56"></span>' : "") +
-          '<span class="kbd2-up-t"><b>' + esc(it.name) + '</b><span class="kbd2-up-p">+' + esc(it.price) + "</span></span></label>";
-      }).join("") + "</div>";
-    inner.appendChild(e);
-    $$(".kbd2-up-img img", e).forEach(function (im) { im.addEventListener("error", function () { im.parentNode.style.display = "none"; }); });
-    e.addEventListener("change", function (ev) { var c = ev.target.closest && ev.target.closest(".kbd2-up-c"); if (c) c.classList.toggle("on", ev.target.checked); });
-    var row = $(".kbd2-up-row", e), prev = $(".kbd2-prev", e), next = $(".kbd2-next", e);
-    if (prev && next) {
-      var step = function () { var c = $(".kbd2-up-c", row); return c ? c.getBoundingClientRect().width + 10 : 240; };
-      var sync = function () { prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4; };
-      prev.addEventListener("click", function () { row.scrollBy({ left: -step(), behavior: "smooth" }); });
-      next.addEventListener("click", function () { row.scrollBy({ left: step(), behavior: "smooth" }); });
-      row.addEventListener("scroll", sync, { passive: true });
-      sync();
-    }
-  }
-  function ico2(path) { return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + path + '"/></svg>'; }
-
-  /* A fő gomb(ok) kattintásakor, ha van bepipált kiegészítő: előbb az Unas saját cart_add függvényével egymás után a kiegészítők,
-     utána az eredeti kattintás. */
-  d.addEventListener("click", function (ev) {
-    if (UP.bypass || !UP.items) return;
-    var btn = ev.target.closest && ev.target.closest(SEL.cartBtns);
-    var cbs = $$("#kbd2-upsell input:checked");
-    if (!btn || !cbs.length || !window.cart_add) return;
-    ev.preventDefault(); ev.stopImmediatePropagation();
-    if (UP.busy) return;
-    UP.busy = true;
-    var done = false, picked = cbs.map(function (c) { return UP.items[parseInt(c.getAttribute("data-i"), 10)]; }).filter(Boolean);
-    function go() {
-      if (done) return; done = true;
-      $$("#kbd2-upsell input").forEach(function (c) { c.checked = false; c.closest(".kbd2-up-c").classList.remove("on"); });
-      UP.bypass = true;
-      try { btn.click(); } finally { UP.bypass = false; UP.busy = false; }
-    }
-    setTimeout(go, 3000 + 2500 * picked.length);
-    var chain = Promise.resolve();
-    picked.forEach(function (it) {
-      chain = chain.then(function () {
-        try { return Promise.resolve(window.cart_add(it.sku.replace(/-/g, "__unas__"), "additional_", 1, 0)).catch(function () {}); } catch (e) { return null; }
-      });
-    });
-    chain.then(go, go);
-  }, true);
 
 
   /* ========================= SZÁLLÍTÁSI DOBOZ + FELUGRÓ ABLAK (pilot) ========================= */
@@ -803,22 +684,21 @@
     trustTexts();
     reviewsWidget();
     var cart = d.getElementById("artdet__cart");
-    var pay = payRow(); if (pay && pay.parentNode !== inner) inner.appendChild(pay);
+    var pay = payRow(); if (pay && !inner.contains(pay)) inner.appendChild(pay);
     var card = shipOn() ? shipCard() : null;
     if (card) {
       h.classList.add("kbd4");
-      if (card.parentNode !== inner) inner.appendChild(card);
+      if (!inner.contains(card)) inner.appendChild(card);
       var gb = d.getElementById("kbd2-ship"); if (gb && gb.parentNode) gb.parentNode.removeChild(gb);
     } else {
-      var ship = shipBox(); if (ship.parentNode !== inner) inner.appendChild(ship);
+      var ship = shipBox(); if (!inner.contains(ship)) inner.appendChild(ship);
     }
     if (shipOn()) {
-      var chk = checksRow(); if (chk.parentNode !== inner) inner.appendChild(chk);
-      var crd = cardsGrid(); if (crd.parentNode !== inner) inner.appendChild(crd);
+      var chk = checksRow(); if (!inner.contains(chk)) inner.appendChild(chk);
+      var crd = cardsGrid(); if (!inner.contains(crd)) inner.appendChild(crd);
     }
-    var meta = metaRow(); if (meta && meta.parentNode !== inner) inner.appendChild(meta);
+    var meta = metaRow(); if (meta && !inner.contains(meta)) inner.appendChild(meta);
     limitGallery();
-    upsellBox();
   }
   function safe() { try { run(); } catch (e) { if (window.console) console.warn("[kbd-pdp2]", e); } }
 
@@ -1041,78 +921,6 @@
   }
   /* <<< kuponblokk */
 
-  /* >>> kiegészítő-sor: 6 tétel a cipő mellé (Dávid TG 2155), CSAK a ?kbdupsell=1 süti-kapu mögött (süti kbdup); teljes ár, kedvezmény nélkül.
-     A tételek a statikus storefront/up/upsell.json-ból jönnek (éjszaka az exportból), a bepipáltakat a meglévő főgomb-kezelő teszi a kosárba (cart_add), a választott méret-sor cikkszámával. */
-  (function () {
-    var G = false;
-    try { var m = location.search.match(/[?&]kbdupsell=([01])(?:&|$)/); if (m) d.cookie = m[1] === "0" ? "kbdup=;path=/;max-age=0;SameSite=Lax" : "kbdup=1;path=/;max-age=2592000;SameSite=Lax"; G = /(?:^|; )kbdup=1(?:;|$)/.test(d.cookie); } catch (e) {}
-    if (!G || !CFG.upsell || !CFG.upsell.enabled) return;
-    UP.built = true;                                   /* a natív 1 tételes blokk ne épüljön fel */
-    var items = null, tries = 0;
-    var CHK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-    var URLJ = (window.KBD_UPSELL_URL || "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-pdp-storefront/storefront/up/upsell.json") + "?d=" + Math.floor(Date.now() / 43200000);
-    function css2() {
-      if (d.getElementById("kbdu-css")) return;
-      var M2 = "html.kbd-pdp.kbd-v2 #artdet__main-block ", r = [];
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-c{flex:0 0 62%;scroll-snap-align:start;display:flex;flex-direction:column;gap:8px;padding:10px;border:1.5px solid var(--kbd-line);border-radius:10px;background:#fff;min-width:0}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-c.on{border-color:var(--kbd-brown,#A3481F);box-shadow:0 0 0 1px var(--kbd-brown,#A3481F)}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-top{position:relative;display:block;cursor:pointer}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-top input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:2}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-img{display:block;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:var(--kbd-cream)}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-img img{width:100%;height:100%;object-fit:cover;display:block}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-ck{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:6px;border:1.5px solid #C9C4B8;background:#fff;display:grid;place-items:center;color:transparent}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-c.on .kbdu-ck{background:var(--kbd-brown,#A3481F);border-color:var(--kbd-brown,#A3481F);color:#fff}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-top input:focus-visible+.kbdu-img{outline:2px solid var(--kbd-ink);outline-offset:2px}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-n{font-size:13.5px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-sz{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;align-items:center}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-sz button,#kbd2-upsell.kbdu .kbdu-sz span{opacity:1!important;min-width:44px;height:36px;padding:0 10px;border:1.5px solid #C9C4B8;border-radius:6px;background:#fff;color:var(--kbd-ink);font:700 13px/1 Montserrat,Montserrat-fallback,sans-serif;cursor:pointer;display:inline-grid;place-items:center}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-sz button[aria-pressed=true]{background:var(--kbd-brown,#A3481F);border-color:var(--kbd-brown,#A3481F);color:#fff}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-sz span{cursor:default;border-color:#E4E4DF}");
-      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-p{font-size:15px;font-weight:800;color:var(--kbd-brown,#A3481F);white-space:nowrap}");
-      r.push("@media (min-width:768px){" + M2 + "#kbd2-upsell.kbdu .kbdu-c{flex-basis:calc(34% - 7px)}}");
-      var st = d.createElement("style"); st.id = "kbdu-css"; st.textContent = r.join("\n"); (d.head || h).appendChild(st);
-    }
-    function build() {
-      var inner = $(SEL.inner), cur = d.getElementById("kbd2-upsell");
-      if (!inner || !items || !window.cart_add) return;
-      if (cur && cur.classList.contains("kbdu")) { if (cur.parentNode !== inner) inner.appendChild(cur); return; }
-      if (cur && cur.parentNode) cur.parentNode.removeChild(cur);
-      css2();
-      var u = TX.upsell, e = d.createElement("div"); e.id = "kbd2-upsell"; e.className = "kbdu";
-      var nav = '<span class="kbd2-up-nav"><button type="button" class="kbd2-prev" aria-label="' + esc(u.prev) + '">' + ico2(ARR_L) + '</button><button type="button" class="kbd2-next" aria-label="' + esc(u.next) + '">' + ico2(ARR_R) + '</button></span>';
-      e.innerHTML = '<div class="kbd2-up-h"><div><b>' + esc(u.add.replace(/:\s*$/, "")) + "</b><span>" + esc(u.sub) + "</span></div>" + nav + '</div><div class="kbd2-up-row">' +
-        items.map(function (it, i) {
-          var sz = it.sizes.length > 1 ? it.sizes.map(function (z, k) { return '<button type="button" data-k="' + k + '" aria-pressed="' + (k === 0 ? "true" : "false") + '">' + esc(z.l) + "</button>"; }).join("") : '<span>' + esc(it.sizes[0].l) + "</span>";
-          return '<div class="kbdu-c" data-i="' + i + '"><label class="kbdu-top"><input type="checkbox" data-i="' + i + '" aria-label="' + esc(u.add + " " + it.name) + '"><span class="kbdu-img"><img src="' + esc(location.origin + it.img) + '" alt="" loading="lazy" width="240" height="240"></span><span class="kbdu-ck">' + CHK + '</span></label>' +
-            '<div class="kbdu-n">' + esc(it.name) + '</div><div class="kbdu-sz" role="group">' + sz + '</div><div class="kbdu-p">' + esc(it.price) + "</div></div>";
-        }).join("") + "</div>";
-      inner.appendChild(e);
-      $$(".kbdu-img img", e).forEach(function (im) { im.addEventListener("error", function () { im.parentNode.style.display = "none"; }); });
-      e.addEventListener("change", function (ev) { var c = ev.target.closest && ev.target.closest(".kbdu-c"); if (c) c.classList.toggle("on", ev.target.checked); });
-      e.addEventListener("click", function (ev) {
-        var b = ev.target.closest && ev.target.closest(".kbdu-sz button"); if (!b) return;
-        var c = b.closest(".kbdu-c"), it = items[parseInt(c.getAttribute("data-i"), 10)];
-        it.sku = it.sizes[parseInt(b.getAttribute("data-k"), 10)].sku;
-        $$(".kbdu-sz button", c).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
-      });
-      var row = $(".kbd2-up-row", e), prev = $(".kbd2-prev", e), next = $(".kbd2-next", e);
-      var step = function () { var c = $(".kbdu-c", row); return c ? c.getBoundingClientRect().width + 10 : 220; };
-      var sync = function () { prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4; };
-      prev.addEventListener("click", function () { row.scrollBy({ left: -step(), behavior: "smooth" }); });
-      next.addEventListener("click", function () { row.scrollBy({ left: step(), behavior: "smooth" }); });
-      row.addEventListener("scroll", sync, { passive: true }); sync();
-    }
-    function ensure() { try { build(); } catch (e) { if (window.console) console.warn("[kbd-upsell]", e); } if (++tries > 40 && !items) UP.built = false; }
-    fetch(URLJ).then(function (r) { return r.json(); }).then(function (j) {
-      var list = (SK ? j.sk : j.hu) || [];
-      list = list.filter(function (it) { return it && it.sizes && it.sizes.length; });
-      if (!list.length) { UP.built = false; return; }
-      list.forEach(function (it) { it.sku = it.sizes[0].sku; });
-      items = list; UP.items = items; ensure();
-    }).catch(function () { UP.built = false; });
-    var n2 = 0, iv2 = setInterval(function () { if (items) ensure(); if (++n2 > 30) clearInterval(iv2); }, 500);
-  })();
-  /* <<< kiegészítő-sor */
   lpStart();
   if (d.readyState !== "loading") safe(); else d.addEventListener("DOMContentLoaded", safe);
   if (d.readyState === "complete") setTimeout(safe, 300); else window.addEventListener("load", function () { safe(); setTimeout(safe, 400); });

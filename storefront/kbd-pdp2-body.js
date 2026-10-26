@@ -18,7 +18,7 @@
     hu: {
       diff: [
         { ic: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z M9 12l2 2 4-4", t: "Az eredetiség ellenőrizhető", s: "A gyári cikkszám ki van írva. Másold be a keresőbe, és nézd meg, ugyanez a modell jön-e vissza." },
-        { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "A cég nevesítve van", s: "KICKSBYDAVID s.r.o., adószám 2121629928, kiírt cím, felvett telefon és e-mail. Az üzenetekre 1 munkanapon belül válaszolunk." },
+        { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "A cég nevesítve van", s: "KICKS BY DÁVID s. r. o., adószám 2121629928, kiírt cím, felvett telefon és e-mail. Az üzenetekre 1 munkanapon belül válaszolunk." },
         { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "A kockázatot mi viseljük", s: "Utánvéttel fizethetsz, a csere és a visszaküldés pedig 30 napig a mi költségünk." }
       ],
       fitTitle: "Kinek és mihez ajánljuk?",
@@ -34,14 +34,14 @@
       ],
       faqTitle: "Gyakori kérdések", faqText: "Ami a vásárlás előtt eszedbe juthat. Ha mégsem találsz választ, 1 munkanapon belül válaszolunk.",
       sellerTitle: "Ki áll a bolt mögött?",
-      sellerList: ["KICKSBYDAVID s.r.o., adószám 2121629928", "Ügyfélszolgálati válaszidő: 1 munkanap", "Minden rendelésről elektronikus számlát küldünk"],
+      sellerList: ["KICKS BY DÁVID s. r. o., adószám 2121629928", "Ügyfélszolgálati válaszidő: 1 munkanap", "Minden rendelésről elektronikus számlát küldünk"],
       sellerCall: "Hívj minket:", sellerMail: "Írj nekünk", mail: "info@kicksbydavid.com"
     },
     /* Szlovák szövegek. Gépi fordítás a meglévő szlovák kifejezések (výmena, vrátenie, dobierka, kód výrobcu, DIČ) alapján; anyanyelvi átnézés javasolt. */
     sk: {
       diff: [
         { ic: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z M9 12l2 2 4-4", t: "Originalitu si môžeš overiť", s: "Kód výrobcu je uvedený. Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model." },
-        { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "Firma vystupuje pod svojím menom", s: "KICKSBYDAVID s.r.o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail. Na správy odpovedáme do 1 pracovného dňa." },
+        { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "Firma vystupuje pod svojím menom", s: "KICKS BY DÁVID s. r. o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail. Na správy odpovedáme do 1 pracovného dňa." },
         { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "Riziko nesieme my", s: "Môžeš platiť na dobierku, výmenu aj vrátenie do 30 dní platíme my." }
       ],
       fitTitle: "Komu a k čomu ich odporúčame?",
@@ -57,7 +57,7 @@
       ],
       faqTitle: "Časté otázky", faqText: "Čo ti môže pred nákupom napadnúť. Ak odpoveď nenájdeš, odpovieme ti do 1 pracovného dňa.",
       sellerTitle: "Kto stojí za obchodom?",
-      sellerList: ["KICKSBYDAVID s.r.o., DIČ 2121629928", "Odpoveď zákazníckej podpory: do 1 pracovného dňa", "Ku každej objednávke posielame elektronickú faktúru"],
+      sellerList: ["KICKS BY DÁVID s. r. o., DIČ 2121629928", "Odpoveď zákazníckej podpory: do 1 pracovného dňa", "Ku každej objednávke posielame elektronickú faktúru"],
       sellerCall: "Zavolaj nám:", sellerMail: "Napíš nám", mail: "info@kicksbydavid.com"
     }
   };

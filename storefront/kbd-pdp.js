@@ -420,7 +420,7 @@ buildSize(type);
 }
 var cart = $("#artdet__cart", inner);
 var anchor = $("#kbd-size-help") || trust;
-if (cart && anchor && anchor.nextElementSibling !== cart) anchor.parentNode.insertBefore(cart, anchor.nextSibling);
+if (cart && anchor && anchor.nextElementSibling !== cart && !(cart.closest && cart.closest(".r2-buy"))) anchor.parentNode.insertBefore(cart, anchor.nextSibling);
 if (cart) buildCart(cart);
 var del = $("#kbd-pdp-delivery"), tr = $("#kbd-pdp-trust"), skl = $(".kbd-skuline");
 var tAnchor = $("#kbd3-contact") || $("#kbd3-shipinfo") || del;
@@ -478,7 +478,7 @@ title: "Originalita a starostlivosť",
 html: '<div style="font-size:15px;line-height:1.7">' +
 H3F + 'Ako zistím, že je to originál?</h3><p>Nápis „100 % originál“ nájdeš na každom e-shope, aj na podvodných. U nás preto dôkazom nie je on, ale tieto tri veci:</p>' +
 '<p><strong>1. Kód výrobcu je uvedený.</strong> Nájdeš ho na tejto stránke. Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model.</p>' +
-'<p><strong>2. Firma vystupuje pod svojím menom.</strong> KICKSBYDAVID s.r.o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail, na ktorý odpovedáme do 1 pracovného dňa.</p>' +
+'<p><strong>2. Firma vystupuje pod svojím menom.</strong> KICKS BY DÁVID s. r. o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail, na ktorý odpovedáme do 1 pracovného dňa.</p>' +
 '<p><strong>3. Riziko nesieme my.</strong> Môžeš platiť na dobierku, takže peniaze máš u seba až do prevzatia. Ak niečo nesedí, vrátenie aj výmenu platíme my.</p>' +
 H3 + 'Odkiaľ páry pochádzajú?</h3><p>Od overených európskych veľkoobchodných partnerov, nové a v originálnej krabici. Často ide o modely a veľkosti, ktoré u nás v obchodoch už nekúpiš.</p>' +
 H3 + 'Ako ich udržať ako nové?</h3>' +
@@ -792,7 +792,7 @@ try{
 var LIVE={ hu:true,sk:true};
 var d=document, h=d.documentElement, q=location.search, ls=null;
 try{ ls=window.localStorage; }catch(e){}
-if(ls){ if(/[?&]kbdv2=1/.test(q)) ls.setItem("kbdv2","1"); if(/[?&]kbdv2=0/.test(q)) ls.setItem("kbdv2","0"); if(/[?&]kbdupsell=1/.test(q)) ls.setItem("kbdv2","1"); }
+if(ls){ if(/[?&]kbdv2=1/.test(q)) ls.setItem("kbdv2","1"); if(/[?&]kbdv2=0/.test(q)) ls.setItem("kbdv2","0"); if(/[?&]kbdupsell=1/.test(q)) ls.setItem("kbdv2","1"); if(/[?&]kbdr2=1/.test(q)) ls.setItem("kbdv2","1"); }
 var sk=/\.sk$/i.test(location.hostname)||(h.getAttribute("lang")||"").toLowerCase().indexOf("sk")===0;
 var v=ls?ls.getItem("kbdv2"):null;
 var on=v==="1"||(v!=="0"&&(sk?LIVE.sk:LIVE.hu));
