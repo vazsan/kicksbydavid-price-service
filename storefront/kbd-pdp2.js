@@ -849,12 +849,12 @@
     ? { code: "KBD10", type: "abs", val: 10, tag: "Kupón", save: "Zľava s kódom", amt: "10 €", withCode: "", codeLbl: "Kód", copy: "Kopírovať", copied: "Skopírované", how: "", info: "Nedá sa kombinovať s vernostnými bodmi ani s iným zľavovým kódom.", infoLabel: "Informácie o kupóne" }
     : { code: "KBD5", type: "pct", val: 5, tag: "Kupon", save: "Kedvezmény kóddal", amt: "5%", withCode: "", codeLbl: "Kód", copy: "Másolás", copied: "Kimásolva", how: "", info: "Pontokkal és más kuponkóddal nem vonható össze.", infoLabel: "Tudnivaló a kuponról" };
   var N = SK
-    ? { tileA: "Chýba tvoja veľkosť?", tileB: "Dáme vedieť, keď sa vráti", title: "Napíšeme ti, keď sa vráti EU {s}", text: "Keď bude tento produkt znova dostupný v EU {s}, pošleme ti e-mail. Iba tento jeden. Potom tvoju adresu z tohto zoznamu vymažeme. Či sa veľkosť vráti a kedy, zatiaľ nevieme povedať. Na newsletter sa tým neprihlasuješ.", pick: "Ktorú veľkosť potrebuješ?", email: "E-mail", ph: "meno@email.sk",
-        consent: "Súhlasím, aby spoločnosť KICKS BY DÁVID s. r. o. použila moju e-mailovú adresu a vybraný produkt a veľkosť na to, aby mi jedným e-mailom dala vedieť, keď bude veľkosť znova dostupná. Súhlas môžem kedykoľvek odvolať. Viac o spracúvaní osobných údajov: ", priv: "{ADATVEDELMI_LINK}", btn: "Chcem upozornenie",
-        ok: "Hotovo. Keď sa EU {s} vráti, pošleme ti e-mail. Ak ho nenájdeš, pozri sa aj do ostatných priečinkov a do spamu.", errC: "Na upozornenie potrebujeme tvoj súhlas.", errE: "Toto nevyzerá ako e-mailová adresa. Skontroluj ju, prosím.", close: "Zavrieť", dev: "Náhľad: nič sa neodosiela." }
-    : { tileA: "Nincs meg a méreted?", tileB: "Szólunk, ha visszajön", title: "Írunk, ha visszajön az EU {s}", text: "Ha ebből a termékből újra lesz EU {s} méret, küldünk róla egy e-mailt. Csak ezt az egyet. Utána a címedet töröljük erről a listáról. Hogy visszajön-e, és mikor, azt most nem tudjuk megmondani. Ezzel nem iratkozol fel a hírlevélre.", pick: "Melyik méret kell?", email: "E-mail", ph: "nev@email.hu",
-        consent: "Hozzájárulok, hogy a KICKS BY DÁVID s. r. o. az e-mail címemet, valamint a kiválasztott terméket és méretet arra használja, hogy egy e-mailben értesítsen, ha a méret újra kapható. A hozzájárulásomat bármikor visszavonhatom. Az adatkezelésről bővebben: ", priv: "{ADATVEDELMI_LINK}", btn: "Kérem az értesítést",
-        ok: "Megvan. Ha az EU {s} visszajön, e-mailt kapsz tőlünk. Ha nem látod, nézd meg a Promóciók fület és a spamet is.", errC: "Az értesítéshez be kell jelölnöd a hozzájárulást.", errE: "Ez nem tűnik e-mail címnek. Nézd meg még egyszer.", close: "Bezár", dev: "Előnézet: nem küld semmit." };
+    ? { tileA: "Je tvoja veľkosť vypredaná?", tileB: "Napíšeme ti, keď sa vráti", title: "Napíšeme ti, keď sa vráti", text: "Napíšeme ti len o veľkosti, newsletter neposielame.", pick: "Akú veľkosť potrebuješ?", email: "Tvoj e-mail", ph: "meno@priklad.sk",
+        consent: "Súhlasím s upozornením e-mailom, súhlas môžem kedykoľvek odvolať.", priv: "Ochrana údajov", btn: "Chcem upozornenie",
+        ok: "Hotovo. Keď sa tvoja veľkosť vráti, napíšeme ti.", errC: "Na upozornenie potrebujeme tvoj súhlas.", errE: "Toto nevyzerá ako e-mailová adresa.", errS: "Vyber aspoň jednu veľkosť.", close: "Zavrieť", dev: "Náhľad: nič sa neodosiela." }
+    : { tileA: "Elfogyott a méreted?", tileB: "Írunk, ha visszajön", title: "Írunk, ha visszajön", text: "Csak a méretről írunk, hírlevelet nem küldünk.", pick: "Melyik méret kell?", email: "E-mail címed", ph: "nev@pelda.hu",
+        consent: "Hozzájárulok az értesítő e-mailhez, bármikor visszavonhatom.", priv: "Adatkezelés", btn: "Kérem az értesítést",
+        ok: "Megvan. Ha visszajön a méreted, írunk.", errC: "Ehhez be kell jelölnöd a hozzájárulást.", errE: "Ez nem tűnik e-mail címnek.", errS: "Válassz legalább egy méretet.", close: "Bezár", dev: "Előnézet: nem küld semmit." };
 
   /* Vera kompakt kupon modulja (agents/vera/scripts/pdp_kupon_design.mjs, KBDC_CSS), 2026-10-26 */
   var KBDC_CSS = "\n.kbdc,.kbdc *{box-sizing:border-box;font-family:Montserrat,Montserrat-fallback,sans-serif;text-transform:none}\n.kbdc{--r:7px;--page:#fff;position:relative;width:100%;margin:10px 0 14px;border-radius:6px;background:#F6F3ED;color:#171717;\n  box-shadow:inset 0 0 0 1px #E4DCCD}\n.kbdc-tag{position:absolute;left:0;top:0;padding:4px 8px 4px 9px;border-radius:6px 0 6px 0;background:#A3481F;color:#fff;font-size:9.5px;font-weight:800;line-height:1;letter-spacing:.14em;text-transform:uppercase!important}\n.kbdc-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:24px 14px 10px}\n.kbdc-off{display:flex;align-items:baseline;gap:7px;min-width:0}\n.kbdc-off b{font-size:22px;font-weight:800;line-height:1;letter-spacing:-.4px;color:#A3481F;white-space:nowrap}\n.kbdc-off .kbdc-lbl{font-size:12.5px;font-weight:600;color:#3A3A36;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.kbdc-pr{flex:0 0 auto;font-size:12px;font-weight:600;color:#55554F;white-space:nowrap}\n.kbdc-ar{vertical-align:1px}\n.kbdc-pr b{margin-left:6px;font-size:17px;font-weight:800;letter-spacing:-.3px;color:#0E0E0E}\n.kbdc-perf{position:relative;height:0;margin:0 12px;border-top:1.5px dashed #CDBFA8}\n.kbdc-perf::before,.kbdc-perf::after{content:\"\";position:absolute;top:calc(-1 * var(--r));width:calc(2 * var(--r));height:calc(2 * var(--r));border-radius:50%;background:var(--page);box-shadow:inset 0 0 0 1px #E4DCCD}\n.kbdc-perf::before{left:calc(-12px - var(--r))}.kbdc-perf::after{right:calc(-12px - var(--r))}\n.kbdc-stub{display:flex;align-items:center;gap:8px;padding:9px 14px 10px}\n.kbdc-code{flex:1 1 auto;display:flex;align-items:center;justify-content:center;height:34px;padding:0 10px;border:1.5px dashed #A3481F;border-radius:5px;background:#fff;font-size:15px;font-weight:800;letter-spacing:.16em}\n.kbdc-cp{opacity:1!important;flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:0;border-radius:4px;background:#171717;color:#fff;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase!important;cursor:pointer}\n.kbdc-cp.ok{background:#17714A}\n/* 34px visual, 46px tap target (Nora msg 1781: keep touch areas >= 44px) */\n.kbdc-cp,.kbdc-code{position:relative}.kbdc-cp::after{content:\"\";position:absolute;inset:-6px -4px}\n.kbdc-how{padding:0 14px 9px;margin-top:-3px;font-size:11px;color:#6A645A}\n/* (i) info: 16px icon, 32px hit area, tiny popover above it (Dávid TG 2129). Absolute, so the card does not grow.\n   Opens on hover and keyboard focus by CSS alone, and on tap via KBDC_JS (aria-expanded). */\n.kbdc-info{position:relative;flex:0 0 auto;align-self:center;display:inline-flex}\n.kbdc-i{opacity:1!important;position:relative;display:inline-grid;place-items:center;width:18px;height:18px;margin:0 0 0 -2px;padding:0;border:0;border-radius:50%;background:none;color:#8A8276;cursor:pointer}\n.kbdc-i::after{content:\"\";position:absolute;inset:-7px}\n.kbdc-i:hover,.kbdc-i[aria-expanded=true]{color:#A3481F}\n.kbdc-i:focus-visible{outline:2px solid #171717;outline-offset:2px}\n.kbdc-pop{position:absolute;z-index:20;left:50%;bottom:calc(100% + 9px);width:max-content;max-width:min(232px,calc(100vw - 32px));transform:translateX(-50%);\n  padding:8px 11px;border-radius:5px;background:#171717;color:#fff;font-size:12px;font-weight:600;line-height:1.35;letter-spacing:.01em;text-align:left;white-space:normal;\n  box-shadow:0 6px 16px -6px rgba(0,0,0,.45);visibility:hidden;opacity:0;transition:opacity .12s,visibility .12s}\n.kbdc-pop::after{content:\"\";position:absolute;left:50%;top:100%;margin-left:-6px;border:6px solid transparent;border-top-color:#171717}\n.kbdc-i[aria-expanded=true]+.kbdc-pop{visibility:visible;opacity:1}\n@media (hover:hover){.kbdc-info:hover .kbdc-pop,.kbdc-i:focus-visible+.kbdc-pop{visibility:visible;opacity:1}}\n";
@@ -885,6 +885,7 @@
     ".kbdv-sh input[type=email]{width:100%;height:50px;padding:0 14px;border:1.5px solid #CFC8BB;border-radius:5px;font-size:16px;color:#171717;background:#fff}.kbdv-sh input.bad{border-color:#B3261E}" +
     ".kbdv-sh .er{margin:6px 0 0;font-size:12.5px;font-weight:600;color:#B3261E}" +
     ".kbdv-sh label.c{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;font-size:12px;line-height:1.4;color:#3A3A36;cursor:pointer}.kbdv-sh label.c input{flex:0 0 20px;width:20px;height:20px;margin:1px 0 0;accent-color:#171717}" +
+    ".kbdv-sh label.c a.pl{color:#171717;font-weight:700;text-decoration:underline;white-space:nowrap}" +
     ".kbdv-sh .go{width:100%;height:56px;margin-top:14px;border:0;border-radius:4px;background:#A3481F;color:#fff;font-size:15px;font-weight:800;letter-spacing:.75px;text-transform:uppercase;cursor:pointer}" +
     ".kbdv-sh .note{margin:10px 0 0;text-align:center;font-size:12px;color:#55554F}" +
     ".kbdv-sh .okc{width:46px;height:46px;margin:4px 0 12px;display:grid;place-items:center;border-radius:50%;background:#17714A;color:#fff}.kbdv-sh .okc svg{width:24px;height:24px}.kbdv-sh p.ok{margin:0 0 6px;font-size:15px;line-height:1.45;font-weight:600}" +
@@ -956,27 +957,29 @@
     var ok = NF && inner && ty && oosSizes().length;
     if (!ok) { if (e && e.parentNode) e.parentNode.removeChild(e); return; }
     css();
-    if (!e) { e = d.createElement("button"); e.type = "button"; e.id = "kbd-notify-tile"; e.className = "kbdv-tile"; e.setAttribute("aria-haspopup", "dialog"); e.innerHTML = '<span class="ic">' + BELL_SVG + '</span><span class="tx"><b>' + esc(N.tileA) + '</b><span>' + esc(N.tileB) + '</span></span><span class="ch">' + CHEV_SVG + '</span>'; }
+    /* div role=button, nem <button>: a téma a gombokat halványítja, amíg a saját JS-e nem fut (Vera) */
+    if (!e) { e = d.createElement("div"); e.id = "kbd-notify-tile"; e.className = "kbdv-tile"; e.setAttribute("role", "button"); e.tabIndex = 0; e.setAttribute("aria-haspopup", "dialog"); e.innerHTML = '<span class="ic">' + BELL_SVG + '</span><span class="tx"><b>' + esc(N.tileA) + '</b><span>' + esc(N.tileB) + '</span></span><span class="ch">' + CHEV_SVG + '</span>'; }
     if (e.previousElementSibling !== ty || e.parentNode !== ty.parentNode) ty.parentNode.insertBefore(e, ty.nextSibling);
   }
-  var S = { size: null, state: "form", err: "", errC: false, email: "", consent: false, last: null };
+  var S = { sel: {}, state: "form", err: "", errC: false, errS: false, email: "", consent: false, last: null };
   function productInfo() {
     var im = $('meta[property="og:image"]'), nm = $("#kbd-pdp-head h1") || $("h1");
     return { img: im ? im.getAttribute("content") : "", name: nm ? txt(nm) : (d.title || "").split("|")[0].trim() };
   }
+  function chosen() { return oosSizes().filter(function (z) { return S.sel[z]; }); }
   function sheetBody() {
-    var sizes = oosSizes(), sel = S.size || sizes[0] || "", pi = productInfo(), x = '<button type="button" class="x" aria-label="' + esc(N.close) + '">×</button>';
+    var sizes = oosSizes(), pi = productInfo(), cs = chosen(), x = '<button type="button" class="x" aria-label="' + esc(N.close) + '">\u00d7</button>';
     var mob = window.innerWidth < 768, head = (mob ? '<div class="grab"></div>' : "") + x;
-    if (S.state === "ok") return head + '<div class="okc">' + CHECK_SVG + '</div><p class="ok">' + esc(N.ok.replace(/\{s\}/g, sel)) + '</p><p class="note">' + esc(N.dev) + '</p>';
-    return head + '<h3 id="kbdv-h">' + esc(N.title.replace(/\{s\}/g, sel)) + '</h3><p class="tx2">' + esc(N.text.replace(/\{s\}/g, sel)) + '</p>' +
-      '<div class="prod">' + (pi.img ? '<img src="' + esc(pi.img) + '" alt="">' : "") + '<div><span class="nm">' + esc(pi.name) + '</span><span class="sz">EU ' + esc(sel) + '</span></div></div>' +
-      '<div class="lb">' + esc(N.pick) + '</div><div class="chips">' + sizes.map(function (z) { return '<button type="button" data-s="' + esc(z) + '" class="' + (z === sel ? "on" : "") + '">' + esc(z) + '</button>'; }).join("") + '</div>' +
+    if (S.state === "ok") return head + '<div class="okc">' + CHECK_SVG + '</div><p class="ok">' + esc(N.ok) + '</p><p class="note">' + esc(N.dev) + '</p>';
+    return head + '<h3 id="kbdv-h">' + esc(N.title) + '</h3><p class="tx2">' + esc(N.text) + '</p>' +
+      '<div class="prod">' + (pi.img ? '<img src="' + esc(pi.img) + '" alt="">' : "") + '<div><span class="nm">' + esc(pi.name) + '</span><span class="sz">' + (cs.length ? "EU " + esc(cs.join(", ")) : "") + '</span></div></div>' +
+      '<div class="lb">' + esc(N.pick) + '</div><div class="chips">' + sizes.map(function (z) { return '<button type="button" data-s="' + esc(z) + '" aria-pressed="' + (S.sel[z] ? "true" : "false") + '" class="' + (S.sel[z] ? "on" : "") + '">' + esc(z) + '</button>'; }).join("") + '</div>' + (S.errS ? '<div class="er" role="alert">' + esc(N.errS) + '</div>' : "") +
       '<div class="lb">' + esc(N.email) + '</div><input type="email" autocomplete="email" inputmode="email" placeholder="' + esc(N.ph) + '" value="' + esc(S.email) + '" class="' + (S.err ? "bad" : "") + '">' + (S.err ? '<div class="er" role="alert">' + esc(S.err) + '</div>' : "") +
-      '<label class="c"><input type="checkbox"' + (S.consent ? " checked" : "") + '><span>' + esc(N.consent) + esc(N.priv) + '</span></label>' + (S.errC ? '<div class="er" role="alert">' + esc(N.errC) + '</div>' : "") +
+      '<label class="c"><input type="checkbox"' + (S.consent ? " checked" : "") + '><span>' + esc(N.consent) + ' <a href="#" class="pl">' + esc(N.priv) + '</a></span></label>' + (S.errC ? '<div class="er" role="alert">' + esc(N.errC) + '</div>' : "") +
       '<button type="button" class="go">' + esc(N.btn) + '</button><p class="note">' + esc(N.dev) + '</p>';
   }
   function openSheet(size) {
-    S.size = size || S.size; S.state = "form"; S.err = ""; S.errC = false; S.last = d.activeElement; css();
+    S.sel = {}; if (size) S.sel[size] = true; S.state = "form"; S.err = ""; S.errC = false; S.errS = false; S.last = d.activeElement; css();
     var ov = d.getElementById("kbdv-ov"), sh = d.getElementById("kbdv-sh");
     if (!ov) { ov = d.createElement("div"); ov.id = "kbdv-ov"; ov.className = "kbdv-ov"; d.body.appendChild(ov); }
     if (!sh) { sh = d.createElement("div"); sh.id = "kbdv-sh"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-modal", "true"); sh.setAttribute("aria-labelledby", "kbdv-h"); d.body.appendChild(sh); }
@@ -997,19 +1000,23 @@
     if (oos) { ev.preventDefault(); ev.stopImmediatePropagation(); openSheet(txt($(".product-type__option-name", oos))); return; }
     if (t.closest("#kbd-notify-tile")) { ev.preventDefault(); openSheet(null); return; }
     if (!sheetOpen()) return;
+    if (t.closest("#kbdv-sh a.pl")) { ev.preventDefault(); return; }       /* az adatkezelési link célja még nincs: {ADATVEDELMI_LINK} */
     if (t.id === "kbdv-ov" || t.closest("#kbdv-sh .x")) { closeSheet(); return; }
     var chip = t.closest("#kbdv-sh .chips button");
-    if (chip) { saveFields(); S.size = chip.getAttribute("data-s"); rerender(); return; }
+    if (chip) { saveFields(); var z = chip.getAttribute("data-s"); S.sel[z] = !S.sel[z]; S.errS = false; rerender(); return; }
     if (t.closest("#kbdv-sh .go")) {
-      saveFields(); S.err = ""; S.errC = false;
+      saveFields(); S.err = ""; S.errC = false; S.errS = !chosen().length;
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(S.email.trim())) S.err = N.errE;
       if (!S.consent) S.errC = true;
-      if (!S.err && !S.errC) S.state = "ok";
+      if (!S.err && !S.errC && !S.errS) S.state = "ok";
       rerender(); return;
     }
   }, true);
   function saveFields() { var sh = d.getElementById("kbdv-sh"); if (!sh) return; var i = $("input[type=email]", sh), c = $("input[type=checkbox]", sh); if (i) S.email = i.value; if (c) S.consent = c.checked; }
-  d.addEventListener("keydown", function (ev) { if ((ev.key === "Escape" || ev.keyCode === 27) && sheetOpen()) closeSheet(); });
+  d.addEventListener("keydown", function (ev) {
+    if ((ev.key === "Escape" || ev.keyCode === 27) && sheetOpen()) closeSheet();
+    var t = ev.target; if ((ev.key === "Enter" || ev.key === " ") && t && t.id === "kbd-notify-tile") { ev.preventDefault(); openSheet(null); }
+  });
 
   /* ---- futtatás ---- */
   function run() { try { coupon(); tile(); } catch (e) { if (window.console) console.warn("[kbd-pdp2-coupon]", e); } }
