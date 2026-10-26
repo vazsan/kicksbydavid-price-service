@@ -142,7 +142,7 @@
     /* a jobb oszlop elemeinek sorrendje: CSS order, így a v11 átrendezései nem írják felül */
     r.push(M + ".artdet__block-cart-inner{max-width:none}");
     r.push(M + ".artdet__block-cart-inner>*{order:20}");
-    var ord = ["#kbd-pdp-head", "#kbd5-fam", ".artdet__price-and-countdown", "#kbd-stock-line", "#kbd-size-head", "#artdet__type", "#kbd-size-help", "#kbd2-upsell", "#kbd4-ship", "#artdet__cart", "#kbd2-pay", "#kbd4-checks", "#kbd4-cards", "#kbd2-ship", "#kbd-pdp-trust", "#kbd2-meta"];
+    var ord = ["#kbd-pdp-head", "#kbd5-fam", ".artdet__price-and-countdown", "#kbd-stock-line", "#kbd-size-head", "#artdet__type", "#kbd-size-help", "#kbd2-upsell", "#artdet__cart", "#kbd4-ship", "#kbd2-pay", "#kbd4-checks", "#kbd4-cards", "#kbd2-ship", "#kbd-pdp-trust", "#kbd2-meta"];
     ord.forEach(function (s, i) { r.push(M + ".artdet__block-cart-inner>" + s + "{order:" + (i + 1) + "}"); });
     /* a v11 elemei, amiket a prototípus szerinti sorok váltanak ki */
     r.push(M + "#kbd3-benefits," + M + "#kbd-pdp-delivery," + M + "#kbd-pdp-freeship," + M + "#kbd3-shipinfo," + M + "#kbd3-contact," + M + "#kbd3-pay," + M + "#kbd3-clar," + M + ".kbd-skuline," + M + ".artdet__virtual-point-highlighted," + M + ".kbd3-more," + M + ".kbd-skuhint," + M + ".artdet__price-base .info-icon," + M + ".artdet__prices .artdet__sale{display:none!important}");
