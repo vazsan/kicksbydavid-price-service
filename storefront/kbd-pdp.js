@@ -743,8 +743,9 @@ if(window.KBD_place) window.KBD_place();
 if(window.KBD_run) window.KBD_run();
 if(!window.KBD_late){ try{ markSizeChart(); fixGallery(); }catch(e){} }
 var FM=window.KBD_FAM;
-if(FM && FM.on && !FM.done && !window.KBD_late){ FM.release=function(){ FM.release=null; h.classList.add("kbd-ready"); }; setTimeout(function(){ if(FM.release) FM.release(); },1200); }
-else h.classList.add("kbd-ready");
+function kbdReadyNow(){ if(window.__kbdR2Wait && !window.__kbdR2Done){ window.__kbdR2Rel=function(){ window.__kbdR2Rel=null; h.classList.add("kbd-ready"); }; setTimeout(function(){ if(window.__kbdR2Rel) window.__kbdR2Rel(); },2500); } else h.classList.add("kbd-ready"); }
+if(FM && FM.on && !FM.done && !window.KBD_late){ FM.release=function(){ FM.release=null; kbdReadyNow(); }; setTimeout(function(){ if(FM.release) FM.release(); },1200); }
+else kbdReadyNow();
 }
 function afterLoad(){
 var vid=d.getElementById("artdet__video");
@@ -800,6 +801,18 @@ if(!on||!h.classList.contains("kbd-pdp")) return;
 var cs=d.currentScript, ld=d.getElementById("kbd-pdp-loader"), src=(cs&&cs.src)||(ld&&ld.src)||"";
 if(!/kbd-pdp\.js/.test(src)) return;
 h.classList.add("kbd-v2");
+/* R2 kinézet (David TG 2256): alapból BE a HU termékoldalakon; ?kbdr2=0 kikapcsolja (süti kbdr2=0, 30 nap), ?kbdr2=1 visszakapcsolja; SK-n nincs (HU szöveg). A kbd-ready addig vár, amíg az r2.js lefutott (vagy 2,5 mp), hogy ne legyen elrendezés-ugrás. */
+try{
+var mr=q.match(/[?&]kbdr2=([01])(?:&|$)/);
+if(mr) d.cookie="kbdr2="+mr[1]+";path=/;max-age=2592000;SameSite=Lax";
+var ck=d.cookie.match(/(?:^|; )kbdr2=([01])(?:;|$)/);
+if(!sk && !(ck && ck[1]==="0")){
+window.__kbdR2Wait=true; h.classList.add("kbd-r2");
+var br=src.replace(/kbd-pdp\.js.*$/,"r2/");
+var lk=d.createElement("link"); lk.rel="stylesheet"; lk.id="kbd-r2-css"; lk.href=br+"r2.css"; (d.head||h).appendChild(lk);
+var sr=d.createElement("script"); sr.id="kbd-r2-js"; sr.async=true; sr.src=br+"r2.js"; sr.onerror=function(){ window.__kbdR2Done=true; if(window.__kbdR2Rel) window.__kbdR2Rel(); }; (d.head||h).appendChild(sr);
+}
+}catch(e){}
 var s=d.createElement("script"); s.async=true; s.src=src.replace(/kbd-pdp\.js/,"kbd-pdp2.js");
 (d.head||h).appendChild(s);
 }catch(e){}

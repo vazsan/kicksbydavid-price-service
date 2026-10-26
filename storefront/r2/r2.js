@@ -5,10 +5,13 @@
     if (/\.sk$/i.test(h) || (document.documentElement.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0) return;
     var tries = 0, doneA = false, doneB = false;
     var q = function (s) { return document.querySelector(s); };
-    function readyA() { return q(".artdet__block-cart-inner") && q("#artdet__type") && q("#artdet__cart") && ((q("#kbd2-pay") && q("#kbd4-checks")) || tries > 60); }
+    function readyA() { return q(".artdet__block-cart-inner") && q("#artdet__cart") && ((q("#artdet__type") && q("#kbd2-pay") && q("#kbd4-checks")) || tries > 20); }   // products without a size selector (one-size items) are wrapped after 2 s anyway
     function readyB() { return q("#kbd2-meta") && ((q("#kbd2-diff") && q(".kbd2-size")) || (tries > 80 && document.documentElement.classList.contains("kbd-ready"))); }   // pages without the data sections (e.g. sold-out size): the meta row and the closed accordion still apply
+    function releaseHold() { window.__kbdR2Done = true; if (window.__kbdR2Rel) window.__kbdR2Rel(); }   // lets the loader set kbd-ready (no layout jump)
+    function cssReady() { var l = document.getElementById("kbd-r2-css"); return !l || !!l.sheet; }
     function runA() {
       if (doneA) return; doneA = true;
+      try {
       (()=>{const q=s=>document.querySelector(s);const inner=q('.artdet__block-cart-inner');if(!inner||q('.r2-step'))return;
 const wrap=(els,cls,n,order)=>{els=els.filter(Boolean);if(!els.length)return;const d=document.createElement('div');d.className=cls;d.style.order=order;
  if(n){const b=document.createElement('span');b.className='r2-n';b.textContent=n;b.setAttribute('aria-hidden','true');d.append(b);}els[0].before(d);els.forEach(e=>d.append(e));};
@@ -17,6 +20,7 @@ wrap([q('#kbd2-upsell')],'r2-step',2,8);
 wrap([q('#artdet__cart'),q('#kbd2-pay'),q('#kbd4-checks')],'r2-buy','',9);
 // sold-out size page: no main button inside -> no heavy checkout frame around the 'Nincs raktáron' note (Nora msg 1900)
 const bb=q('.r2-buy');if(bb&&!bb.querySelector('.artdet__cart-btn'))bb.classList.add('r2-buy--oos');})();
+      } finally { releaseHold(); }
     }
     function runB() {
       if (doneB) return; doneB = true;
@@ -55,7 +59,7 @@ if(D.cardImgs){document.querySelectorAll('#artdet__additional-products img.produ
  document.querySelectorAll('#artdet__additional-products .flickity-slider,#artdet__similar-products .flickity-slider').forEach(sl=>{sl.style.transform='translateX(0%)';[...sl.querySelectorAll('.carousel-cell')].forEach((c,i)=>{c.style.transform='translateX('+(i*107)+'%)';});});}
 })();
     }
-    function go() { if (!doneA && readyA()) runA(); if (!doneB && readyB()) runB(); if ((!doneA || !doneB) && tries++ < 200) setTimeout(go, 100); }
+    function go() { if (!doneA && cssReady() && readyA()) runA(); if (!doneB && readyB()) runB(); if ((!doneA || !doneB) && tries++ < 200) setTimeout(go, 100); }
     go();
   } catch (e) {}
 })();
