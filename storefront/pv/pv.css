@@ -1,0 +1,2 @@
+/* KBD PDP preview (stub, gate test) */
+html.kbd-pv #kbd-pv-badge{position:fixed;left:8px;bottom:8px;z-index:99999;background:#171717;color:#fff;font:700 11px/1 Montserrat,sans-serif;padding:6px 9px;border-radius:4px;letter-spacing:.5px}
