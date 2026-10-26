@@ -1036,6 +1036,79 @@
 
   }
   /* <<< kuponblokk */
+
+  /* >>> kiegészítő-sor: 6 tétel a cipő mellé (Dávid TG 2155), CSAK a ?kbdupsell=1 süti-kapu mögött (süti kbdup); teljes ár, kedvezmény nélkül.
+     A tételek a statikus storefront/up/upsell.json-ból jönnek (éjszaka az exportból), a bepipáltakat a meglévő főgomb-kezelő teszi a kosárba (cart_add), a választott méret-sor cikkszámával. */
+  (function () {
+    var G = false;
+    try { var m = location.search.match(/[?&]kbdupsell=([01])(?:&|$)/); if (m) d.cookie = m[1] === "0" ? "kbdup=;path=/;max-age=0;SameSite=Lax" : "kbdup=1;path=/;max-age=2592000;SameSite=Lax"; G = /(?:^|; )kbdup=1(?:;|$)/.test(d.cookie); } catch (e) {}
+    if (!G || !CFG.upsell || !CFG.upsell.enabled) return;
+    UP.built = true;                                   /* a natív 1 tételes blokk ne épüljön fel */
+    var items = null, tries = 0;
+    var CHK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    var URLJ = (window.KBD_UPSELL_URL || "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-pdp-storefront/storefront/up/upsell.json") + "?d=" + Math.floor(Date.now() / 43200000);
+    function css2() {
+      if (d.getElementById("kbdu-css")) return;
+      var M2 = "html.kbd-pdp.kbd-v2 #artdet__main-block ", r = [];
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-c{flex:0 0 62%;scroll-snap-align:start;display:flex;flex-direction:column;gap:8px;padding:10px;border:1.5px solid var(--kbd-line);border-radius:10px;background:#fff;min-width:0}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-c.on{border-color:var(--kbd-brown,#A3481F);box-shadow:0 0 0 1px var(--kbd-brown,#A3481F)}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-top{position:relative;display:block;cursor:pointer}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-top input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer;z-index:2}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-img{display:block;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:var(--kbd-cream)}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-img img{width:100%;height:100%;object-fit:cover;display:block}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-ck{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:6px;border:1.5px solid #C9C4B8;background:#fff;display:grid;place-items:center;color:transparent}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-c.on .kbdu-ck{background:var(--kbd-brown,#A3481F);border-color:var(--kbd-brown,#A3481F);color:#fff}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-top input:focus-visible+.kbdu-img{outline:2px solid var(--kbd-ink);outline-offset:2px}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-n{font-size:13.5px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-sz{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;align-items:center}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-sz button,#kbd2-upsell.kbdu .kbdu-sz span{opacity:1!important;min-width:44px;height:36px;padding:0 10px;border:1.5px solid #C9C4B8;border-radius:6px;background:#fff;color:var(--kbd-ink);font:700 13px/1 Montserrat,Montserrat-fallback,sans-serif;cursor:pointer;display:inline-grid;place-items:center}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-sz button[aria-pressed=true]{background:var(--kbd-brown,#A3481F);border-color:var(--kbd-brown,#A3481F);color:#fff}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-sz span{cursor:default;border-color:#E4E4DF}");
+      r.push(M2 + "#kbd2-upsell.kbdu .kbdu-p{font-size:15px;font-weight:800;color:var(--kbd-brown,#A3481F);white-space:nowrap}");
+      r.push("@media (min-width:768px){" + M2 + "#kbd2-upsell.kbdu .kbdu-c{flex-basis:calc(34% - 7px)}}");
+      var st = d.createElement("style"); st.id = "kbdu-css"; st.textContent = r.join("\n"); (d.head || h).appendChild(st);
+    }
+    function build() {
+      var inner = $(SEL.inner), cur = d.getElementById("kbd2-upsell");
+      if (!inner || !items || !window.cart_add) return;
+      if (cur && cur.classList.contains("kbdu")) { if (cur.parentNode !== inner) inner.appendChild(cur); return; }
+      if (cur && cur.parentNode) cur.parentNode.removeChild(cur);
+      css2();
+      var u = TX.upsell, e = d.createElement("div"); e.id = "kbd2-upsell"; e.className = "kbdu";
+      var nav = '<span class="kbd2-up-nav"><button type="button" class="kbd2-prev" aria-label="' + esc(u.prev) + '">' + ico2(ARR_L) + '</button><button type="button" class="kbd2-next" aria-label="' + esc(u.next) + '">' + ico2(ARR_R) + '</button></span>';
+      e.innerHTML = '<div class="kbd2-up-h"><div><b>' + esc(u.add.replace(/:\s*$/, "")) + "</b><span>" + esc(u.sub) + "</span></div>" + nav + '</div><div class="kbd2-up-row">' +
+        items.map(function (it, i) {
+          var sz = it.sizes.length > 1 ? it.sizes.map(function (z, k) { return '<button type="button" data-k="' + k + '" aria-pressed="' + (k === 0 ? "true" : "false") + '">' + esc(z.l) + "</button>"; }).join("") : '<span>' + esc(it.sizes[0].l) + "</span>";
+          return '<div class="kbdu-c" data-i="' + i + '"><label class="kbdu-top"><input type="checkbox" data-i="' + i + '" aria-label="' + esc(u.add + " " + it.name) + '"><span class="kbdu-img"><img src="' + esc(location.origin + it.img) + '" alt="" loading="lazy" width="240" height="240"></span><span class="kbdu-ck">' + CHK + '</span></label>' +
+            '<div class="kbdu-n">' + esc(it.name) + '</div><div class="kbdu-sz" role="group">' + sz + '</div><div class="kbdu-p">' + esc(it.price) + "</div></div>";
+        }).join("") + "</div>";
+      inner.appendChild(e);
+      $$(".kbdu-img img", e).forEach(function (im) { im.addEventListener("error", function () { im.parentNode.style.display = "none"; }); });
+      e.addEventListener("change", function (ev) { var c = ev.target.closest && ev.target.closest(".kbdu-c"); if (c) c.classList.toggle("on", ev.target.checked); });
+      e.addEventListener("click", function (ev) {
+        var b = ev.target.closest && ev.target.closest(".kbdu-sz button"); if (!b) return;
+        var c = b.closest(".kbdu-c"), it = items[parseInt(c.getAttribute("data-i"), 10)];
+        it.sku = it.sizes[parseInt(b.getAttribute("data-k"), 10)].sku;
+        $$(".kbdu-sz button", c).forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      });
+      var row = $(".kbd2-up-row", e), prev = $(".kbd2-prev", e), next = $(".kbd2-next", e);
+      var step = function () { var c = $(".kbdu-c", row); return c ? c.getBoundingClientRect().width + 10 : 220; };
+      var sync = function () { prev.disabled = row.scrollLeft < 4; next.disabled = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4; };
+      prev.addEventListener("click", function () { row.scrollBy({ left: -step(), behavior: "smooth" }); });
+      next.addEventListener("click", function () { row.scrollBy({ left: step(), behavior: "smooth" }); });
+      row.addEventListener("scroll", sync, { passive: true }); sync();
+    }
+    function ensure() { try { build(); } catch (e) { if (window.console) console.warn("[kbd-upsell]", e); } if (++tries > 40 && !items) UP.built = false; }
+    fetch(URLJ).then(function (r) { return r.json(); }).then(function (j) {
+      var list = (SK ? j.sk : j.hu) || [];
+      list = list.filter(function (it) { return it && it.sizes && it.sizes.length; });
+      if (!list.length) { UP.built = false; return; }
+      list.forEach(function (it) { it.sku = it.sizes[0].sku; });
+      items = list; UP.items = items; ensure();
+    }).catch(function () { UP.built = false; });
+    var n2 = 0, iv2 = setInterval(function () { if (items) ensure(); if (++n2 > 30) clearInterval(iv2); }, 500);
+  })();
+  /* <<< kiegészítő-sor */
   lpStart();
   if (d.readyState !== "loading") safe(); else d.addEventListener("DOMContentLoaded", safe);
   if (d.readyState === "complete") setTimeout(safe, 300); else window.addEventListener("load", function () { safe(); setTimeout(safe, 400); });
