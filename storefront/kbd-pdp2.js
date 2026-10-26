@@ -1129,4 +1129,15 @@
       (d.head || h).appendChild(bs);
     }
   }
+  /* R2 előnézet (hajtás alatti rész, Vera R2): CSAK a ?kbdr2=1 süti-kapu mögött (süti kbdr2, ?kbdr2=0 kikapcsol); az r2/ mappa ugyanabból a commitból töltődik, mint ez a fájl; a többi látogató semmit nem kap */
+  try {
+    var qr = location.search.match(/[?&]kbdr2=([01])(?:&|$)/);
+    if (qr) d.cookie = qr[1] === "0" ? "kbdr2=;path=/;max-age=0;SameSite=Lax" : "kbdr2=1;path=/;max-age=2592000;SameSite=Lax";
+    var csr = d.currentScript, srcr = (csr && csr.src) || "";
+    if (/(?:^|; )kbdr2=1(?:;|$)/.test(d.cookie) && /kbd-pdp2\.js/.test(srcr)) {
+      var br = srcr.replace(/kbd-pdp2\.js.*$/, "r2/");
+      var lk = d.createElement("link"); lk.rel = "stylesheet"; lk.id = "kbd-r2-css"; lk.href = br + "r2.css"; (d.head || h).appendChild(lk);
+      var sr = d.createElement("script"); sr.id = "kbd-r2-js"; sr.async = true; sr.src = br + "r2.js"; (d.head || h).appendChild(sr);
+    }
+  } catch (e) {}
 })();
