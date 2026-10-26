@@ -19,6 +19,8 @@
     ship: { pilot: ["*"] },
     /* modell-sáv a cím és az ár között (minta: store/pdp-minta/adonio-modellsav*.jpg). A pilot lista, az adat helye és a letöltés a kbd-pdp.js-ben van (window.KBD_FAM): ott indul a letöltés az első kirajzolás előtt. */
     fam: { minCards: 3 },
+    /* kuponblokk az ár alatt (kbd-pdp2-coupon.js; akciós terméken nincs) + elfogyott-méret értesítő (csak a ?kbdnotify=1 süti-kapu mögött, nem küld sehova) */
+    coupon: { enabled: true },
     cod: { hu: "1 100 Ft" },                        /* utánvét felára, HU; az SK érték a v11 szótárából jön */
     /* Trustindex: kis jelvény (a hero-ban) és nagy vélemény-widget (a lap alján, a 6. lépésben) */
     trustindex: {
@@ -828,6 +830,14 @@
 
   /* a második fél (kbd-pdp2-body.js) ugyanabból a könyvtárból töltődik, ahonnan ez a fájl */
   window.KBD2 = { CFG: CFG, TX: TX, SK: SK, T1: T1, esc: esc, txt: txt, $: $, $$: $$, ico: ico };
+  if (CFG.coupon && CFG.coupon.enabled) {
+    var cs2 = d.currentScript, src2 = (cs2 && cs2.src) || "";
+    if (/kbd-pdp2\.js/.test(src2)) {
+      var cps = d.createElement("script");
+      cps.async = true; cps.src = src2.replace(/kbd-pdp2\.js/, "kbd-pdp2-coupon.js");
+      (d.head || h).appendChild(cps);
+    }
+  }
   if (CFG.body && CFG.body.enabled) {
     var cs = d.currentScript, src = (cs && cs.src) || "";
     if (/kbd-pdp2\.js/.test(src)) {
