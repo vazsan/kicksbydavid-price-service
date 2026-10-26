@@ -846,7 +846,7 @@
 
   /* ---- szövegek ---- */
   var C = SK
-    ? { code: "KBD10", type: "abs", val: 10, tag: "Kupón", save: "Zľava s kódom", amt: "10 €", withCode: "", codeLbl: "Kód", copy: "Kopírovať", copied: "Skopírované", how: "", info: "", infoLabel: "Informácie o kupóne" }
+    ? { code: "KBD10", type: "abs", val: 10, tag: "Kupón", save: "Zľava s kódom", amt: "10 €", withCode: "", codeLbl: "Kód", copy: "Kopírovať", copied: "Skopírované", how: "", info: "Nedá sa kombinovať s vernostnými bodmi ani s iným zľavovým kódom.", infoLabel: "Informácie o kupóne" }
     : { code: "KBD5", type: "pct", val: 5, tag: "Kupon", save: "Kedvezmény kóddal", amt: "5%", withCode: "", codeLbl: "Kód", copy: "Másolás", copied: "Kimásolva", how: "", info: "Pontokkal és más kuponkóddal nem vonható össze.", infoLabel: "Tudnivaló a kuponról" };
   var N = SK
     ? { tileA: "Chýba tvoja veľkosť?", tileB: "Dáme vedieť, keď sa vráti", title: "Napíšeme ti, keď sa vráti EU {s}", text: "Keď bude tento produkt znova dostupný v EU {s}, pošleme ti e-mail. Iba tento jeden. Potom tvoju adresu z tohto zoznamu vymažeme. Či sa veľkosť vráti a kedy, zatiaľ nevieme povedať. Na newsletter sa tým neprihlasuješ.", pick: "Ktorú veľkosť potrebuješ?", email: "E-mail", ph: "meno@email.sk",
