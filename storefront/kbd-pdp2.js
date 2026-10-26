@@ -45,7 +45,7 @@
       /* eladó bemutatása: a szekció csak akkor jelenik meg, ha a bemutatkozás szövege ki van töltve */
       seller: { photo: "", text: "" },              /* text: sima érték (csak HU) vagy { hu: "...", sk: "..." } */
       /* összehasonlító táblázat: a szekció csak akkor jelenik meg, ha minden versenytárs-cella ki van töltve.
-         others: a négy sor (Ár, Eredetiség ellenőrzése, Csere és visszaküldés, Fizetés) sorrendjében [resell webshopok, nagy webshopok] */
+         others: a három sor (Eredetiség ellenőrzése, Csere és visszaküldés, Fizetés) sorrendjében [resell webshopok, nagy webshopok] */
       compare: { others: [] },                      /* others: tömb (csak HU) vagy { hu: [...], sk: [...] } */
       /* videós vélemény: YouTube/Vimeo beágyazási URL; üresen a hely nem jelenik meg */
       videoReview: ""

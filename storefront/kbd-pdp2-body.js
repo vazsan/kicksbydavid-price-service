@@ -17,7 +17,6 @@
   var TXT = {
     hu: {
       diff: [
-        { ic: "M3 12l9-9h8v8l-9 9z M16 8h.01", t: "Resell ár alatt", s: "A pár ellenőrzött európai nagykereskedelmi partnertől érkezik, új állapotban, eredeti dobozban. Ezért adhatjuk resell ár alatt." },
         { ic: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z M9 12l2 2 4-4", t: "Az eredetiség ellenőrizhető", s: "A gyári cikkszám ki van írva. Másold be a keresőbe, és nézd meg, ugyanez a modell jön-e vissza." },
         { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "A cég nevesítve van", s: "KICKSBYDAVID s.r.o., adószám 2121629928, kiírt cím, felvett telefon és e-mail. Az üzenetekre 1 munkanapon belül válaszolunk." },
         { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "A kockázatot mi viseljük", s: "Utánvéttel fizethetsz, a csere és a visszaküldés pedig 30 napig a mi költségünk." }
@@ -29,7 +28,6 @@
       reviewsTitle: "Vásárlóink véleménye",
       compareTitle: "Miben más a KicksByDavid?", compareBrand: "KicksByDavid", compareCols: ["Resell webshopok", "Nagy webshopok"],
       compareRows: [
-        ["Ár", "Resell ár alatt"],
         ["Eredetiség ellenőrzése", "Gyári cikkszám kiírva, cégadatok nyilvánosak"],
         ["Csere és visszaküldés", "A mi költségünk, 30 napig"],
         ["Fizetés", "Utánvéttel is, a pénz átvételig nálad marad"]
@@ -42,7 +40,6 @@
     /* Szlovák szövegek. Gépi fordítás a meglévő szlovák kifejezések (výmena, vrátenie, dobierka, kód výrobcu, DIČ) alapján; anyanyelvi átnézés javasolt. */
     sk: {
       diff: [
-        { ic: "M3 12l9-9h8v8l-9 9z M16 8h.01", t: "Pod resellovou cenou", s: "Pár prichádza od overeného európskeho veľkoobchodného partnera, nový, v originálnej krabici. Preto ho môžeme predávať pod resellovou cenou." },
         { ic: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z M9 12l2 2 4-4", t: "Originalitu si môžeš overiť", s: "Kód výrobcu je uvedený. Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model." },
         { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "Firma vystupuje pod svojím menom", s: "KICKSBYDAVID s.r.o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail. Na správy odpovedáme do 1 pracovného dňa." },
         { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "Riziko nesieme my", s: "Môžeš platiť na dobierku, výmenu aj vrátenie do 30 dní platíme my." }
@@ -54,7 +51,6 @@
       reviewsTitle: "Názory našich zákazníkov",
       compareTitle: "Čím sa líši KicksByDavid?", compareBrand: "KicksByDavid", compareCols: ["Resellové e-shopy", "Veľké e-shopy"],
       compareRows: [
-        ["Cena", "Pod resellovou cenou"],
         ["Overenie originality", "Kód výrobcu je uvedený, údaje o firme sú verejné"],
         ["Výmena a vrátenie", "Platíme my, 30 dní"],
         ["Platba", "Aj na dobierku, peniaze máš u seba až do prevzatia"]
@@ -94,7 +90,7 @@
     r.push(MQ + S + ".kbd2-w{padding:0 16px}" + S + "h2{font-size:24px}" + EQ);
     /* fekete sáv */
     r.push(S + ".kbd2-diff{background:#0E0E0E;color:#fff}");
-    r.push(S + ".kbd2-diff .kbd2-w{padding-top:56px;padding-bottom:56px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px}");
+    r.push(S + ".kbd2-diff .kbd2-w{padding-top:56px;padding-bottom:56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px}");
     r.push(S + ".kbd2-diff h3{margin:14px 0 8px;font-size:18px;color:#fff}");
     r.push(S + ".kbd2-diff p{font-size:14px;line-height:1.6;color:#D6D6D0}");
     r.push(MQ + S + ".kbd2-diff .kbd2-w{grid-template-columns:1fr;gap:28px;padding-top:36px;padding-bottom:36px}" + S + ".kbd2-diff .kbd2-i{display:flex;gap:16px;align-items:flex-start}" + S + ".kbd2-diff .kbd2-i svg{flex:none;width:28px;height:28px}" + S + ".kbd2-diff h3{margin:0 0 6px;font-size:16px}" + S + ".kbd2-diff p{font-size:13.5px}" + EQ);
