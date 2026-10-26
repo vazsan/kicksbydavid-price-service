@@ -846,8 +846,8 @@
 
   /* ---- szövegek ---- */
   var C = SK
-    ? { code: "KBD10", type: "abs", val: 10, tag: "Kupón", save: "Zľava s kódom", amt: "10 €", withCode: "Cena s kódom", codeLbl: "Kód", copy: "Kopírovať", copied: "Skopírované", how: "Kód zadáš v košíku." }
-    : { code: "KBD5", type: "pct", val: 5, tag: "Kupon", save: "Kedvezmény kóddal", amt: "5%", withCode: "Kóddal számolt ár", codeLbl: "Kód", copy: "Másolás", copied: "Kimásolva", how: "A kosárban add meg a kódot." };
+    ? { code: "KBD10", type: "abs", val: 10, tag: "Kupón", save: "Zľava s kódom", amt: "10 €", withCode: "", codeLbl: "Kód", copy: "Kopírovať", copied: "Skopírované", how: "", info: "", infoLabel: "Informácie o kupóne" }
+    : { code: "KBD5", type: "pct", val: 5, tag: "Kupon", save: "Kedvezmény kóddal", amt: "5%", withCode: "", codeLbl: "Kód", copy: "Másolás", copied: "Kimásolva", how: "", info: "Pontokkal és más kuponkóddal nem vonható össze.", infoLabel: "Tudnivaló a kuponról" };
   var N = SK
     ? { tileA: "Chýba tvoja veľkosť?", tileB: "Dáme vedieť, keď sa vráti", title: "Napíšeme ti, keď sa vráti EU {s}", text: "Keď bude tento produkt znova dostupný v EU {s}, pošleme ti e-mail. Iba tento jeden. Potom tvoju adresu z tohto zoznamu vymažeme. Či sa veľkosť vráti a kedy, zatiaľ nevieme povedať. Na newsletter sa tým neprihlasuješ.", pick: "Ktorú veľkosť potrebuješ?", email: "E-mail", ph: "meno@email.sk",
         consent: "Súhlasím, aby spoločnosť KICKS BY DÁVID s. r. o. použila moju e-mailovú adresu a vybraný produkt a veľkosť na to, aby mi jedným e-mailom dala vedieť, keď bude veľkosť znova dostupná. Súhlas môžem kedykoľvek odvolať. Viac o spracúvaní osobných údajov: ", priv: "{ADATVEDELMI_LINK}", btn: "Chcem upozornenie",
@@ -856,6 +856,8 @@
         consent: "Hozzájárulok, hogy a KICKS BY DÁVID s. r. o. az e-mail címemet, valamint a kiválasztott terméket és méretet arra használja, hogy egy e-mailben értesítsen, ha a méret újra kapható. A hozzájárulásomat bármikor visszavonhatom. Az adatkezelésről bővebben: ", priv: "{ADATVEDELMI_LINK}", btn: "Kérem az értesítést",
         ok: "Megvan. Ha az EU {s} visszajön, e-mailt kapsz tőlünk. Ha nem látod, nézd meg a Promóciók fület és a spamet is.", errC: "Az értesítéshez be kell jelölnöd a hozzájárulást.", errE: "Ez nem tűnik e-mail címnek. Nézd meg még egyszer.", close: "Bezár", dev: "Előnézet: nem küld semmit." };
 
+  /* Vera kompakt kupon modulja (agents/vera/scripts/pdp_kupon_design.mjs, KBDC_CSS), 2026-10-26 */
+  var KBDC_CSS = "\n.kbdc,.kbdc *{box-sizing:border-box;font-family:Montserrat,Montserrat-fallback,sans-serif;text-transform:none}\n.kbdc{--r:7px;--page:#fff;position:relative;width:100%;margin:10px 0 14px;border-radius:6px;background:#F6F3ED;color:#171717;\n  box-shadow:inset 0 0 0 1px #E4DCCD}\n.kbdc-tag{position:absolute;left:0;top:0;padding:4px 8px 4px 9px;border-radius:6px 0 6px 0;background:#A3481F;color:#fff;font-size:9.5px;font-weight:800;line-height:1;letter-spacing:.14em;text-transform:uppercase!important}\n.kbdc-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:24px 14px 10px}\n.kbdc-off{display:flex;align-items:baseline;gap:7px;min-width:0}\n.kbdc-off b{font-size:22px;font-weight:800;line-height:1;letter-spacing:-.4px;color:#A3481F;white-space:nowrap}\n.kbdc-off .kbdc-lbl{font-size:12.5px;font-weight:600;color:#3A3A36;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.kbdc-pr{flex:0 0 auto;font-size:12px;font-weight:600;color:#55554F;white-space:nowrap}\n.kbdc-ar{vertical-align:1px}\n.kbdc-pr b{margin-left:6px;font-size:17px;font-weight:800;letter-spacing:-.3px;color:#0E0E0E}\n.kbdc-perf{position:relative;height:0;margin:0 12px;border-top:1.5px dashed #CDBFA8}\n.kbdc-perf::before,.kbdc-perf::after{content:\"\";position:absolute;top:calc(-1 * var(--r));width:calc(2 * var(--r));height:calc(2 * var(--r));border-radius:50%;background:var(--page);box-shadow:inset 0 0 0 1px #E4DCCD}\n.kbdc-perf::before{left:calc(-12px - var(--r))}.kbdc-perf::after{right:calc(-12px - var(--r))}\n.kbdc-stub{display:flex;align-items:center;gap:8px;padding:9px 14px 10px}\n.kbdc-code{flex:1 1 auto;display:flex;align-items:center;justify-content:center;height:34px;padding:0 10px;border:1.5px dashed #A3481F;border-radius:5px;background:#fff;font-size:15px;font-weight:800;letter-spacing:.16em}\n.kbdc-cp{opacity:1!important;flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:0;border-radius:4px;background:#171717;color:#fff;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase!important;cursor:pointer}\n.kbdc-cp.ok{background:#17714A}\n/* 34px visual, 46px tap target (Nora msg 1781: keep touch areas >= 44px) */\n.kbdc-cp,.kbdc-code{position:relative}.kbdc-cp::after{content:\"\";position:absolute;inset:-6px -4px}\n.kbdc-how{padding:0 14px 9px;margin-top:-3px;font-size:11px;color:#6A645A}\n/* (i) info: 16px icon, 32px hit area, tiny popover above it (Dávid TG 2129). Absolute, so the card does not grow.\n   Opens on hover and keyboard focus by CSS alone, and on tap via KBDC_JS (aria-expanded). */\n.kbdc-info{position:relative;flex:0 0 auto;align-self:center;display:inline-flex}\n.kbdc-i{opacity:1!important;position:relative;display:inline-grid;place-items:center;width:18px;height:18px;margin:0 0 0 -2px;padding:0;border:0;border-radius:50%;background:none;color:#8A8276;cursor:pointer}\n.kbdc-i::after{content:\"\";position:absolute;inset:-7px}\n.kbdc-i:hover,.kbdc-i[aria-expanded=true]{color:#A3481F}\n.kbdc-i:focus-visible{outline:2px solid #171717;outline-offset:2px}\n.kbdc-pop{position:absolute;z-index:20;left:50%;bottom:calc(100% + 9px);width:max-content;max-width:min(232px,calc(100vw - 32px));transform:translateX(-50%);\n  padding:8px 11px;border-radius:5px;background:#171717;color:#fff;font-size:12px;font-weight:600;line-height:1.35;letter-spacing:.01em;text-align:left;white-space:normal;\n  box-shadow:0 6px 16px -6px rgba(0,0,0,.45);visibility:hidden;opacity:0;transition:opacity .12s,visibility .12s}\n.kbdc-pop::after{content:\"\";position:absolute;left:50%;top:100%;margin-left:-6px;border:6px solid transparent;border-top-color:#171717}\n.kbdc-i[aria-expanded=true]+.kbdc-pop{visibility:visible;opacity:1}\n@media (hover:hover){.kbdc-info:hover .kbdc-pop,.kbdc-i:focus-visible+.kbdc-pop{visibility:visible;opacity:1}}\n";
   var COPY_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>';
   var CHECK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var BELL_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/></svg>';
@@ -863,20 +865,10 @@
 
   /* ---- CSS (Vera modulja, a kbdv- előtagos osztályokkal; a rendezés a kbd-pdp2 order-rendszerébe illeszkedik) ---- */
   var M = "html.kbd-pdp.kbd-v2 #artdet__main-block .artdet__block-cart-inner>";
-  var CSS = ".kbdv-tkt,.kbdv-tkt *,.kbdv-tile,.kbdv-tile *,.kbdv-sh,.kbdv-sh *{box-sizing:border-box;font-family:Montserrat,Montserrat-fallback,sans-serif;text-transform:none}" +
-    ".kbdv-tkt button,.kbdv-tile,.kbdv-sh button{opacity:1!important;filter:none!important}" +
-    M + "#kbd-coupon{order:3;margin:0 0 12px}" + M + "#kbd-notify-tile{order:6;margin:0}" +
-    ".kbdv-tkt{--r:8px;--perf:58px;position:relative;width:100%;margin:12px 0 14px;color:#171717;filter:drop-shadow(0 0 .6px #BFB4A0) drop-shadow(0 0 .6px #BFB4A0)}" +
-    ".kbdv-tkt .bd{position:relative;background:#F6F3ED;border-radius:8px;-webkit-mask:radial-gradient(circle var(--r) at 0 var(--perf),#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle var(--r) at 100% var(--perf),#0000 98%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle var(--r) at 0 var(--perf),#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle var(--r) at 100% var(--perf),#0000 98%,#000) right/51% 100% no-repeat}" +
-    ".kbdv-tkt .top{display:flex;align-items:center;gap:10px;height:57px;padding:0 14px}" +
-    ".kbdv-tkt .tag{flex:0 0 auto;padding:4px 8px;border-radius:4px;background:#A3481F;color:#fff;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}" +
-    ".kbdv-tkt .sv{display:flex;flex-direction:column;gap:1px;min-width:0}.kbdv-tkt .sv small{font-size:11px;font-weight:600;color:#55554F;white-space:nowrap}" +
-    ".kbdv-tkt .sv b{font-size:22px;line-height:1.05;font-weight:800;letter-spacing:-.4px;color:#A3481F;white-space:nowrap}" +
-    ".kbdv-tkt .pr{margin-left:auto;text-align:right}.kbdv-tkt .pr small{display:block;font-size:11px;font-weight:600;color:#55554F;margin-bottom:1px;white-space:nowrap}.kbdv-tkt .pr b{font-size:17px;line-height:1.1;font-weight:800;letter-spacing:-.2px;color:#0E0E0E;white-space:nowrap}" +
-    ".kbdv-tkt .perf{height:0;margin:0 14px;border-top:1.5px dashed #C9BFAE}" +
-    ".kbdv-tkt .stub{display:flex;align-items:center;gap:8px;padding:8px 14px 10px}.kbdv-tkt .stub .lbl{font-size:11px;font-weight:600;color:#55554F}" +
-    ".kbdv-tkt .code{flex:1 1 auto;display:flex;align-items:center;justify-content:center;height:44px;padding:0 10px;border:1.5px dashed #A3481F;border-radius:5px;background:#fff;font-size:16px;font-weight:800;letter-spacing:.16em;color:#171717}" +
-    ".kbdv-tkt .cp{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:112px;height:44px;padding:0 12px;border:0;border-radius:4px;background:#171717;color:#fff;font-size:12.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;cursor:pointer}.kbdv-tkt .cp.ok{background:#17714A}" +
+  var CSS = ".kbdv-tile,.kbdv-tile *,.kbdv-sh,.kbdv-sh *{box-sizing:border-box;font-family:Montserrat,Montserrat-fallback,sans-serif;text-transform:none}" +
+    ".kbdv-tile,.kbdv-sh button{opacity:1!important;filter:none!important}" +
+    M + "#kbd-coupon{order:3}" + M + "#kbd-coupon.kbdc{margin:0 0 12px}" +
+    "@media (max-width:370px){#kbd-coupon .kbdc-row{gap:6px;padding-left:11px;padding-right:11px}#kbd-coupon .kbdc-off{gap:5px}#kbd-coupon .kbdc-pr b{margin-left:4px}}" + M + "#kbd-notify-tile{order:6;margin:0}" +
     ".kbdv-tile{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;margin:10px 0 2px;padding:8px 14px;border:1.5px dashed #BDB6A8;border-radius:5px;background:#fff;color:#171717;text-align:left;cursor:pointer}" +
     ".kbdv-tile .ic{flex:0 0 34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#F6F3ED;color:#A3481F}.kbdv-tile .tx{flex:1 1 auto;display:flex;flex-direction:column;gap:3px}.kbdv-tile .tx b{font-size:14px;font-weight:800}.kbdv-tile .tx span{font-size:12.5px;color:#55554F}.kbdv-tile .ch{color:#171717}" +
     ".kbdv-ov{position:fixed;inset:0;z-index:99998;background:rgba(14,14,14,.48)}.kbdv-sh{position:fixed;z-index:99999;background:#fff;color:#171717}" +
@@ -899,7 +891,7 @@
     "html.kbdv-lock,html.kbdv-lock body{overflow:hidden!important}";
   function css() {
     if (d.getElementById("kbdv-css")) return;
-    var s = d.createElement("style"); s.id = "kbdv-css"; s.textContent = CSS; (d.head || h).appendChild(s);
+    var s = d.createElement("style"); s.id = "kbdv-css"; s.textContent = KBDC_CSS + CSS; (d.head || h).appendChild(s);
   }
 
   /* ---- kuponblokk ---- */
@@ -918,23 +910,34 @@
     return t + o + " Ft";
   }
   function withCode(p) { return C.type === "pct" ? Math.round(p * (100 - C.val) / 100) : Math.round((p - C.val) * 100) / 100; }
+  var INFO_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg>';
+  var ARROW = '<svg class="kbdc-ar" width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="#A3481F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h13M9.5 1.5L14 6l-4.5 4.5"/></svg>';
   function couponHtml(calc, copied) {
-    return '<div class="bd"><div class="top"><span class="tag">' + esc(C.tag) + '</span><div class="sv"><small>' + esc(C.save) + '</small><b>\u2212' + esc(C.amt) + '</b></div><div class="pr"><small>' + esc(C.withCode) + '</small><b>' + esc(calc) + '</b></div></div>' +
-      '<div class="perf"></div><div class="stub"><span class="lbl">' + esc(C.codeLbl) + '</span><span class="code">' + esc(C.code) + '</span><button type="button" class="cp' + (copied ? " ok" : "") + '">' + (copied ? CHECK_SVG + esc(C.copied) : COPY_SVG + esc(C.copy)) + '</button></div></div>';
+    var icon = copied ? '<path d="M5 12.5l4.5 4.5L19 7.5"/>' : '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>';
+    var info = C.info ? '<span class="kbdc-info"><button type="button" class="kbdc-i" aria-label="' + esc(C.infoLabel) + '" aria-expanded="false" aria-controls="kbdc-pop-1" aria-describedby="kbdc-pop-1">' + INFO_SVG + '</button><span class="kbdc-pop" id="kbdc-pop-1" role="tooltip">' + esc(C.info) + '</span></span>' : "";
+    return '<span class="kbdc-tag">' + esc(C.tag) + '</span><div class="kbdc-row"><div class="kbdc-off"><b>\u2212' + esc(C.amt) + '</b><span class="kbdc-lbl">' + esc(C.save) + '</span>' + info + '</div><div class="kbdc-pr">' + (C.withCode ? esc(C.withCode) : ARROW) + '<b>' + esc(calc) + '</b></div></div>' +
+      '<div class="kbdc-perf"></div><div class="kbdc-stub"><span class="kbdc-code">' + esc(C.code) + '</span><button type="button" class="kbdc-cp' + (copied ? " ok" : "") + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + icon + '</svg>' + esc(copied ? C.copied : C.copy) + '</button></div>';
   }
+  /* (i) felugró: koppintásra nyit/zár, kívülre koppintva és Esc-re zár (Vera KBDC_JS) */
+  d.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".kbdc-i");
+    $$(".kbdc-i[aria-expanded=true]").forEach(function (x) { if (x !== b) x.setAttribute("aria-expanded", "false"); });
+    if (b) b.setAttribute("aria-expanded", b.getAttribute("aria-expanded") === "true" ? "false" : "true");
+  });
+  d.addEventListener("keydown", function (e) { if (e.key === "Escape") $$(".kbdc-i[aria-expanded=true]").forEach(function (x) { x.setAttribute("aria-expanded", "false"); x.focus(); }); });
   var copiedUntil = 0;
   function coupon() {
     var inner = $("#artdet__main-block .artdet__block-cart-inner"), pb = priceBlock(), e = d.getElementById("kbd-coupon");
     var p = pb ? priceNow() : 0, ok = !!(inner && pb) && !isSale() && p > 0 && withCode(p) > 0;
     if (!ok) { if (e && e.parentNode) e.parentNode.removeChild(e); return; }
     css();
-    if (!e) { e = d.createElement("div"); e.id = "kbd-coupon"; e.className = "kbdv-tkt"; }
+    if (!e) { e = d.createElement("div"); e.id = "kbd-coupon"; e.className = "kbdc"; }
     var html = couponHtml(money(withCode(p)), Date.now() < copiedUntil);
     if (e.getAttribute("data-k") !== html) { e.innerHTML = html; e.setAttribute("data-k", html); }
     if (e.previousElementSibling !== pb || e.parentNode !== pb.parentNode) pb.parentNode.insertBefore(e, pb.nextSibling);
   }
   d.addEventListener("click", function (ev) {
-    var b = ev.target.closest && ev.target.closest("#kbd-coupon .cp");
+    var b = ev.target.closest && ev.target.closest("#kbd-coupon .kbdc-cp");
     if (!b) return;
     var done = function () { copiedUntil = Date.now() + 2200; coupon(); setTimeout(coupon, 2300); try { (window.dataLayer = window.dataLayer || []).push({ event: "kbd_coupon_copy", coupon_code: C.code }); } catch (e) {} };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(C.code).then(done, function () { fallbackCopy(); done(); });
