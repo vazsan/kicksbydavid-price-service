@@ -846,8 +846,8 @@
 
   /* ---- szövegek ---- */
   var C = SK
-    ? { code: "KBD10", type: "abs", val: 10, tag: "Kupón", save: "Extra", amt: "10 €", withCode: "Cena s kódom", codeLbl: "Kód", copy: "Kopírovať", copied: "Skopírované", how: "Kód zadáš v košíku." }
-    : { code: "KBD5", type: "pct", val: 5, tag: "Kupon", save: "Extra", amt: "5%", withCode: "Kóddal számolt ár", codeLbl: "Kód", copy: "Másolás", copied: "Kimásolva", how: "A kosárban add meg a kódot." };
+    ? { code: "KBD10", type: "abs", val: 10, tag: "Kupón", save: "Zľava s kódom", amt: "10 €", withCode: "Cena s kódom", codeLbl: "Kód", copy: "Kopírovať", copied: "Skopírované", how: "Kód zadáš v košíku." }
+    : { code: "KBD5", type: "pct", val: 5, tag: "Kupon", save: "Kedvezmény kóddal", amt: "5%", withCode: "Kóddal számolt ár", codeLbl: "Kód", copy: "Másolás", copied: "Kimásolva", how: "A kosárban add meg a kódot." };
   var N = SK
     ? { tileA: "Chýba tvoja veľkosť?", tileB: "Dáme vedieť, keď sa vráti", title: "Napíšeme ti, keď sa vráti EU {s}", text: "Keď bude tento produkt znova dostupný v EU {s}, pošleme ti e-mail. Iba tento jeden. Potom tvoju adresu z tohto zoznamu vymažeme. Či sa veľkosť vráti a kedy, zatiaľ nevieme povedať. Na newsletter sa tým neprihlasuješ.", pick: "Ktorú veľkosť potrebuješ?", email: "E-mail", ph: "meno@email.sk",
         consent: "Súhlasím, aby spoločnosť KICKS BY DÁVID s. r. o. použila moju e-mailovú adresu a vybraný produkt a veľkosť na to, aby mi jedným e-mailom dala vedieť, keď bude veľkosť znova dostupná. Súhlas môžem kedykoľvek odvolať. Viac o spracúvaní osobných údajov: ", priv: "{ADATVEDELMI_LINK}", btn: "Chcem upozornenie",
@@ -866,18 +866,17 @@
   var CSS = ".kbdv-tkt,.kbdv-tkt *,.kbdv-tile,.kbdv-tile *,.kbdv-sh,.kbdv-sh *{box-sizing:border-box;font-family:Montserrat,Montserrat-fallback,sans-serif;text-transform:none}" +
     ".kbdv-tkt button,.kbdv-tile,.kbdv-sh button{opacity:1!important;filter:none!important}" +
     M + "#kbd-coupon{order:3;margin:0 0 12px}" + M + "#kbd-notify-tile{order:6;margin:0}" +
-    ".kbdv-tkt{--r:9px;--perf:62%;position:relative;width:100%;margin:14px 0 16px;color:#171717;filter:drop-shadow(0 0 .6px #BFB4A0) drop-shadow(0 0 .6px #BFB4A0)}" +
+    ".kbdv-tkt{--r:8px;--perf:58px;position:relative;width:100%;margin:12px 0 14px;color:#171717;filter:drop-shadow(0 0 .6px #BFB4A0) drop-shadow(0 0 .6px #BFB4A0)}" +
     ".kbdv-tkt .bd{position:relative;background:#F6F3ED;border-radius:8px;-webkit-mask:radial-gradient(circle var(--r) at 0 var(--perf),#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle var(--r) at 100% var(--perf),#0000 98%,#000) right/51% 100% no-repeat;mask:radial-gradient(circle var(--r) at 0 var(--perf),#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle var(--r) at 100% var(--perf),#0000 98%,#000) right/51% 100% no-repeat}" +
-    ".kbdv-tkt .top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:30px 16px 14px}" +
-    ".kbdv-tkt .tag{position:absolute;left:0;top:0;padding:5px 10px 5px 12px;border-radius:8px 0 8px 0;background:#A3481F;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}" +
-    ".kbdv-tkt .sv{display:flex;flex-direction:column;gap:2px}.kbdv-tkt .sv small{font-size:12px;font-weight:600;color:#55554F;letter-spacing:.02em}" +
-    ".kbdv-tkt .sv b{font-size:30px;line-height:1;font-weight:800;letter-spacing:-.6px;color:#A3481F;white-space:nowrap}" +
-    ".kbdv-tkt .pr{text-align:right}.kbdv-tkt .pr small{display:block;font-size:12px;font-weight:600;color:#55554F;margin-bottom:3px}.kbdv-tkt .pr b{font-size:20px;line-height:1;font-weight:800;letter-spacing:-.3px;color:#0E0E0E;white-space:nowrap}" +
+    ".kbdv-tkt .top{display:flex;align-items:center;gap:10px;height:57px;padding:0 14px}" +
+    ".kbdv-tkt .tag{flex:0 0 auto;padding:4px 8px;border-radius:4px;background:#A3481F;color:#fff;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}" +
+    ".kbdv-tkt .sv{display:flex;flex-direction:column;gap:1px;min-width:0}.kbdv-tkt .sv small{font-size:11px;font-weight:600;color:#55554F;white-space:nowrap}" +
+    ".kbdv-tkt .sv b{font-size:22px;line-height:1.05;font-weight:800;letter-spacing:-.4px;color:#A3481F;white-space:nowrap}" +
+    ".kbdv-tkt .pr{margin-left:auto;text-align:right}.kbdv-tkt .pr small{display:block;font-size:11px;font-weight:600;color:#55554F;margin-bottom:1px;white-space:nowrap}.kbdv-tkt .pr b{font-size:17px;line-height:1.1;font-weight:800;letter-spacing:-.2px;color:#0E0E0E;white-space:nowrap}" +
     ".kbdv-tkt .perf{height:0;margin:0 14px;border-top:1.5px dashed #C9BFAE}" +
-    ".kbdv-tkt .stub{display:flex;align-items:center;gap:10px;padding:12px 16px 14px}.kbdv-tkt .stub .lbl{font-size:12px;font-weight:600;color:#55554F}" +
-    ".kbdv-tkt .code{flex:1 1 auto;display:flex;align-items:center;justify-content:center;height:40px;padding:0 12px;border:1.5px dashed #A3481F;border-radius:5px;background:#fff;font-size:17px;font-weight:800;letter-spacing:.16em;color:#171717}" +
-    ".kbdv-tkt .cp{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 14px;border:0;border-radius:4px;background:#171717;color:#fff;font-size:13px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;cursor:pointer}.kbdv-tkt .cp.ok{background:#17714A}" +
-    ".kbdv-tkt .how{padding:0 16px 14px;margin-top:-4px;font-size:12px;color:#55554F}" +
+    ".kbdv-tkt .stub{display:flex;align-items:center;gap:8px;padding:8px 14px 10px}.kbdv-tkt .stub .lbl{font-size:11px;font-weight:600;color:#55554F}" +
+    ".kbdv-tkt .code{flex:1 1 auto;display:flex;align-items:center;justify-content:center;height:44px;padding:0 10px;border:1.5px dashed #A3481F;border-radius:5px;background:#fff;font-size:16px;font-weight:800;letter-spacing:.16em;color:#171717}" +
+    ".kbdv-tkt .cp{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:112px;height:44px;padding:0 12px;border:0;border-radius:4px;background:#171717;color:#fff;font-size:12.5px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;cursor:pointer}.kbdv-tkt .cp.ok{background:#17714A}" +
     ".kbdv-tile{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;margin:10px 0 2px;padding:8px 14px;border:1.5px dashed #BDB6A8;border-radius:5px;background:#fff;color:#171717;text-align:left;cursor:pointer}" +
     ".kbdv-tile .ic{flex:0 0 34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#F6F3ED;color:#A3481F}.kbdv-tile .tx{flex:1 1 auto;display:flex;flex-direction:column;gap:3px}.kbdv-tile .tx b{font-size:14px;font-weight:800}.kbdv-tile .tx span{font-size:12.5px;color:#55554F}.kbdv-tile .ch{color:#171717}" +
     ".kbdv-ov{position:fixed;inset:0;z-index:99998;background:rgba(14,14,14,.48)}.kbdv-sh{position:fixed;z-index:99999;background:#fff;color:#171717}" +
@@ -920,8 +919,8 @@
   }
   function withCode(p) { return C.type === "pct" ? Math.round(p * (100 - C.val) / 100) : Math.round((p - C.val) * 100) / 100; }
   function couponHtml(calc, copied) {
-    return '<div class="bd"><span class="tag">' + esc(C.tag) + '</span><div class="top"><div class="sv"><small>' + esc(C.save) + '</small><b>−' + esc(C.amt) + '</b></div><div class="pr"><small>' + esc(C.withCode) + '</small><b>' + esc(calc) + '</b></div></div>' +
-      '<div class="perf"></div><div class="stub"><span class="lbl">' + esc(C.codeLbl) + '</span><span class="code">' + esc(C.code) + '</span><button type="button" class="cp' + (copied ? " ok" : "") + '">' + (copied ? CHECK_SVG + esc(C.copied) : COPY_SVG + esc(C.copy)) + '</button></div><div class="how">' + esc(C.how) + '</div></div>';
+    return '<div class="bd"><div class="top"><span class="tag">' + esc(C.tag) + '</span><div class="sv"><small>' + esc(C.save) + '</small><b>\u2212' + esc(C.amt) + '</b></div><div class="pr"><small>' + esc(C.withCode) + '</small><b>' + esc(calc) + '</b></div></div>' +
+      '<div class="perf"></div><div class="stub"><span class="lbl">' + esc(C.codeLbl) + '</span><span class="code">' + esc(C.code) + '</span><button type="button" class="cp' + (copied ? " ok" : "") + '">' + (copied ? CHECK_SVG + esc(C.copied) : COPY_SVG + esc(C.copy)) + '</button></div></div>';
   }
   var copiedUntil = 0;
   function coupon() {
