@@ -477,7 +477,7 @@ H3 + 'Čo ak sa moja veľkosť vypredá?</h3><p>Ozveme sa ti a vrátime ti celú
 title: "Originalita a starostlivosť",
 html: '<div style="font-size:15px;line-height:1.7">' +
 H3F + 'Ako zistím, že je to originál?</h3><p>Nápis „100 % originál“ nájdeš na každom e-shope, aj na podvodných. U nás preto dôkazom nie je on, ale tieto tri veci:</p>' +
-'<p><strong>1. Kód výrobcu je uvedený.</strong> Nájdeš ho na tejto stránke. Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model.</p>' +
+'<p><strong>1. Výrobný kód je uvedený pri produkte.</strong> Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model.</p>' +
 '<p><strong>2. Firma vystupuje pod svojím menom.</strong> KICKS BY DÁVID s. r. o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail, na ktorý odpovedáme do 1 pracovného dňa.</p>' +
 '<p><strong>3. Riziko nesieme my.</strong> Môžeš platiť na dobierku, takže peniaze máš u seba až do prevzatia. Ak niečo nesedí, vrátenie aj výmenu platíme my.</p>' +
 H3 + 'Odkiaľ páry pochádzajú?</h3><p>Od overených európskych veľkoobchodných partnerov, nové a v originálnej krabici. Často ide o modely a veľkosti, ktoré u nás v obchodoch už nekúpiš.</p>' +
@@ -512,7 +512,17 @@ var box = pane && pane.querySelector(".tab-pane__container");
 if (box && !box.getAttribute("data-kbd-sk")) { box.innerHTML = m.html; box.setAttribute("data-kbd-sk", "1"); }
 });
 }
-function both() { try { run(); labels(); } catch (e) {} }
+/* Dávid TG 2301/2261 (main msg 2022): the FAQ sentence stored in the Unas SK product tab (AdditionalData 3) is replaced in the DOM with the approved 01-block wording; the stored text stays untouched */
+function faq() {
+Array.prototype.forEach.call(document.querySelectorAll("p > strong"), function (s) {
+if (norm(s.textContent) !== "1. Kód výrobcu je uvedený.") return;
+var p = s.parentNode;
+if (p.getAttribute("data-kbd-faq")) return;
+p.innerHTML = "<strong>1. Výrobný kód je uvedený pri produkte.</strong> Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model.";
+p.setAttribute("data-kbd-faq", "1");
+});
+}
+function both() { try { run(); labels(); faq(); } catch (e) {} }
 window.KBD_sk = both;
 both();
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", both); else setTimeout(both, 0);
