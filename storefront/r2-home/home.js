@@ -104,7 +104,7 @@
     + "#khr .khr-w{max-width:1272px;margin:0 auto;padding:0 16px}"
     + "#khr .khr-sec{padding:56px 0 0}"
     + "#khr .khr-sh{margin-bottom:20px}#khr .khr-sh h2{font-size:40px;letter-spacing:-1.5px}"
-    + "#khr .khr-hero{height:clamp(560px,59.8vw,900px)}"
+    + "#khr .khr-hero{height:861px}"
     + "#khr .khr-hero::after{background:linear-gradient(90deg,rgba(246,243,237,0) 42%,rgba(246,243,237,.38) 58%,rgba(246,243,237,.5) 100%)}"
     + "#khr .khr-ht{left:auto;right:max(16px,calc((100vw - 1240px)/2));top:50%;transform:translateY(-50%);width:520px;padding:0;text-align:left}"
     + "#khr .khr-hero h1{font-size:64px;letter-spacing:-2.6px}"
@@ -151,8 +151,8 @@
     for (var k = 0; k < tk.length; k++) t += "<span>" + CHECK + tk[k] + "</span>";
     var ph = '<div class="khr-ph" style="width:100%"></div>';
     return ''
-      + '<a class="khr-hero" href="/osszes-termek"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_d.webp" width="1284" height="768">'
-      + '<img src="' + IMG + 'hero_klassz_m.webp" width="746" height="1536" fetchpriority="high" decoding="async" alt="ASICS Gel-NYC Oyster Grey sneaker utcai kövön"></picture>'
+      + '<a class="khr-hero" href="/osszes-termek?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="861">'
+      + '<img src="' + IMG + 'hero_klassz_mob_780.webp" srcset="' + IMG + 'hero_klassz_mob_780.webp 780w, ' + IMG + 'hero_klassz_mob_1170.webp 1170w" sizes="100vw" width="780" height="1606" fetchpriority="high" decoding="async" alt="ASICS Gel-NYC Oyster Grey sneaker utcai kövön"></picture>'
       + '<div class="khr-ht"><h1>Klasszikusok,<br>sok méretben</h1><p>Gyári cikkszám minden terméklapon</p><span class="khr-btn">Mutasd az összeset ' + ARROW + "</span></div>"
       + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>'
       + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
