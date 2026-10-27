@@ -73,6 +73,15 @@
     + "#khr .khr-hero p{margin:12px 0 0;font-size:15px;font-weight:800;color:#111}"
     + "#khr .khr-hero .khr-btn{margin-top:16px;color:#fff}"
     + "#khr .khr-cap{position:absolute;z-index:1;right:16px;bottom:16px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;text-align:right;line-height:1.35;text-shadow:0 1px 6px rgba(0,0,0,.35)}"
+    /* slider-mód: H1-sor a slider alatt + pöttyök a natív slideren */
+    + "#khr .khr-intro{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:26px 0 0}"
+    + "#khr .khr-intro h1{margin:0;padding:0;font:800 28px/1.02 Montserrat,sans-serif;letter-spacing:-1px;text-transform:none;color:var(--ink)}"
+    + "#khr .khr-intro>a{flex:none;display:inline-flex;align-items:center;gap:4px;height:44px;font-size:13px;font-weight:800}#khr .khr-intro>a span{border-bottom:2px solid var(--ink)}"
+    + "html.khr-slider #start_banner_big{position:relative}"
+    + ".khr-dots{position:absolute;left:0;right:0;bottom:6px;display:flex;justify-content:center;gap:2px;z-index:6;pointer-events:none}"
+    + ".khr-dots button{pointer-events:auto;width:24px;height:24px;border:0;background:transparent;padding:0;cursor:pointer;display:grid;place-items:center}"
+    + ".khr-dots button::before{content:'';width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 0 0 1.5px rgba(23,23,23,.55)}"
+    + ".khr-dots button[aria-current=true]::before{background:#171717;box-shadow:0 0 0 1.5px #fff}"
     /* bizalmi sáv */
     + "#khr .khr-tk{display:flex;gap:18px;overflow:hidden;white-space:nowrap;height:38px;align-items:center;margin:0 -16px;padding:0 16px;border-bottom:1px solid var(--line);font-size:11px;font-weight:800;letter-spacing:.08em}"
     + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}#khr .khr-tk i{font-style:normal}"
@@ -127,7 +136,7 @@
     + "@media (min-width:992px){"
     + "#khr .khr-w{max-width:1272px;margin:0 auto;padding:0 16px 72px}#khr .khr-two [data-k=\"rev\"]{margin-top:0}"
     + "#khr .khr-sec{padding:56px 0 0}"
-    + "#khr .khr-sh{margin-bottom:20px}#khr .khr-sh h2{font-size:40px;letter-spacing:-1.5px}"
+    + "#khr .khr-sh{margin-bottom:20px}#khr .khr-sh h2{font-size:40px;letter-spacing:-1.5px}#khr .khr-intro{padding-top:44px}#khr .khr-intro h1{font-size:40px;letter-spacing:-1.5px}"
     + "#khr .khr-hero{height:600px}"
     + "#khr .khr-hero img{object-position:30% 50%}"
     + "#khr .khr-hero::after{background:linear-gradient(90deg,rgba(246,243,237,0) 40%,rgba(246,243,237,.5) 58%,rgba(246,243,237,.62) 100%)}"
@@ -167,6 +176,7 @@
   }
 
   /* ---------- 1) a váz ---------- */
+  function SLIDER() { return /(^|\s)khr-slider(\s|$)/.test(document.documentElement.className); }
   function skeleton(noHero) {
     var sz = "";
     for (var i = 0; i < SIZES.length; i++) sz += '<a data-s="' + SIZES[i] + '" href="' + L.base + '?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
@@ -176,12 +186,13 @@
     var tk = L.ticker.map(function (x) { return x === "RATE" ? '<i class="khr-rate">5,0 ' + L.rate + "</i>" : x; }), t = "";
     for (var k = 0; k < tk.length; k++) t += "<span>" + CHECK + tk[k] + "</span>";
     var ph = '<div class="khr-ph" style="width:100%"></div>';
-    return (noHero ? '' : ''
+    return (noHero || SLIDER() ? '' : ''
       + '<a class="khr-hero" href="' + L.base + '?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="600">'
       + '<img src="' + IMG + 'hero_klassz_mob_780.webp" width="780" height="1040" fetchpriority="high" decoding="async" alt="' + L.alt + '"></picture>'
       + '<div class="khr-ht"><h1>' + L.h1 + '</h1><p>' + L.sub + '</p><span class="khr-btn">' + L.btn + ' ' + ARROW + "</span></div>"
       + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>')
       + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
+      + (SLIDER() ? '<div class="khr-intro"><h1>' + L.h1.replace(/<br>/g, " ") + '</h1><a href="' + L.base + '"><span>' + L.btn + "</span>" + ARROW + "</a></div>" : "")
       + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
       + '<section class="khr-sec" aria-label="' + L.brandsT + '"><div class="khr-sh"><h2>' + L.brandsT + '</h2></div><div class="khr-bl">' + br + "</div></section>"
@@ -392,11 +403,45 @@
     if (!im || im.complete) return go();
     im.addEventListener("load", go); im.addEventListener("error", go); setTimeout(go, 3500);
   }
+  /* slider-mód: a natív #start_banner_big marad a helyén (az Unas képei, linkjei, sorrendje; az 1. kép előtöltve, a 2-n lusta, a helye az első kirajzolástól foglalt), a #khr a slider ALATT épül */
+  function mountSlider(main) {
+    if (!document.getElementById("khr-css")) { var st = mk("style"); st.id = "khr-css"; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); }
+    var banner = document.getElementById("start_banner_big");
+    var r = mk("section", "", skeleton(true)); r.id = "khr"; r.setAttribute("aria-label", L.aria);
+    if (banner && banner.parentNode === main) main.insertBefore(r, banner.nextSibling); else main.insertBefore(r, main.firstChild);
+    document.documentElement.className += " khr-ready";
+    var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
+    afterHero(r, function () { tiles(r); lazy(sNew, loadNew, "1200px 0px"); });
+    lazy(sRev, loadReviews, "600px 0px");
+    sliderDots(banner);
+    return true;
+  }
+  /* pöttyök a natív Flickity-n (nem ad hozzá méretet: a slider fölé fektetve) */
+  function sliderDots(banner) {
+    if (!banner) return;
+    var n = 0;
+    (function wait() {
+      var car = $(".carousel", banner), f = null;
+      try { f = window.Flickity && car && window.Flickity.data(car); } catch (e) {}
+      if (!f || !f.cells || f.cells.length < 2) { if (++n < 60) return setTimeout(wait, 250); return; }
+      if ($(".khr-dots", banner)) return;
+      var box = mk("div", "khr-dots"), total = f.cells.length, bs = [];
+      for (var i = 0; i < total; i++) (function (k) {
+        var b = mk("button"); b.type = "button"; b.setAttribute("aria-label", (k + 1) + "/" + total);
+        b.addEventListener("click", function () { try { f.select(k); } catch (e) {} });
+        box.appendChild(b); bs.push(b);
+      })(i);
+      function upd() { for (var j = 0; j < bs.length; j++) bs[j].setAttribute("aria-current", j === f.selectedIndex ? "true" : "false"); }
+      f.on("select", upd); upd();
+      banner.appendChild(box);
+    })();
+  }
   function mount() {
     var main = document.getElementById("main");
     if (!main) return false;
     var shell = document.getElementById("khr");
     if (shell && shell.getAttribute("data-shell") !== "1") return true;   /* már felépült */
+    if (SLIDER() && !shell) return mountSlider(main);
     var simg = slideImg();
     if (!shell) {
       /* a slide még nem érkezett meg a feldolgozásból: legfeljebb 1,2 mp-ig várunk rá (a helyet a fej-tag tartja) */

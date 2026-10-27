@@ -1,4 +1,4 @@
-/* KBD kezdőlap R2 kapu (Unas head-tag, csak a kezdőoldalon; a sablon tokenjeit a scripts/pdp/home_head_tag.py tölti ki: __R2_COMMIT__, __DEF_HU__, __DEF_SK__, __OWN_PRELOAD__).
+/* KBD kezdőlap R2 kapu (Unas head-tag, csak a kezdőoldalon; a sablon tokenjeit a scripts/pdp/home_head_tag.py tölti ki: __R2_COMMIT__, __DEF_HU__, __DEF_SK__, __OWN_PRELOAD__, __DEF_SLIDER__).
    Feladata: (1) a kapcsoló (süti kbdhome, ?kbdhome=1 be / ?kbdhome=0 ki, ?kbdoff=1 minden ki), (2) KORAI CSS: a régi kezdőlap-felső elrejtése, a hős helye és stílusa az első kirajzolás előtt,
    (3) a HŐS (kép + cím + gomb) azonnal a fejből épül be, amint a #main megjelenik: nem vár a modulra és a kbd-home.js-re (Nora msg 2102, Főnök msg 2103), (4) az R2 modul (home.js) a többit építi,
    (5) 7 mp-es biztonsági időzítő: ha az R2 nem épült fel, a régi kezdőlap visszajön (fail-open).
@@ -9,21 +9,27 @@
     var L = location, d = document, de = d.documentElement;
     if (window.KBD_R2H_HEAD || /[?&]kbdoff=1/.test(L.search)) return;
     window.KBD_R2H_HEAD = 1;
-    var SK = /\.sk$/i.test(L.hostname), DEF_HU = __DEF_HU__, DEF_SK = __DEF_SK__, OWN = __OWN_PRELOAD__, C = "__R2_COMMIT__";
+    var SK = /\.sk$/i.test(L.hostname), DEF_HU = __DEF_HU__, DEF_SK = __DEF_SK__, OWN = __OWN_PRELOAD__, DEF_SL = __DEF_SLIDER__, C = "__R2_COMMIT__";
     var q = /[?&]kbdhome=([01])(?:&|$)/.exec(L.search), ck = /(?:^|;\s*)kbdhome=([01])/.exec(d.cookie || "");
     if (q) { try { d.cookie = "kbdhome=" + q[1] + ";path=/;max-age=7776000;SameSite=Lax"; } catch (e) {} ck = { 1: q[1] }; }
     var on = ck ? ck[1] === "1" : (SK ? DEF_SK : DEF_HU);
     if (!on || L.pathname !== "/") return;
-    de.className += " khr-on";
+    /* slider-mód (Dávid TG 2446): a hős helyén az Unas start_banner_big ÖSSZES slide-ja (az élő natív slider), a H1 alatta; süti kbdslider, ?kbdslider=1/0, alap: DEF_SL */
+    var qs = /[?&]kbdslider=([01])(?:&|$)/.exec(L.search), cs = /(?:^|;\s*)kbdslider=([01])/.exec(d.cookie || "");
+    if (qs) { try { d.cookie = "kbdslider=" + qs[1] + ";path=/;max-age=7776000;SameSite=Lax"; } catch (e) {} cs = { 1: qs[1] }; }
+    var SL = cs ? cs[1] === "1" : DEF_SL;
+    de.className += SL ? " khr-on khr-slider" : " khr-on";
     var B = "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@" + C + "/storefront/r2-home/";
     window.KBD_R2H_BASE = B;
     var T = SK ? { h1: "Tenisky, ktoré<br>práve letia", sub: "Výrobný kód pri každom produkte", btn: "Zobraziť všetko", alt: "ASICS Gel-NYC Oyster Grey", base: "/vsetky-produkty", aria: "KicksByDavid" }
       : { h1: "Felkapott<br>sneakerek", sub: "Gyári cikkszám minden terméklapon", btn: "Mutasd az összeset", alt: "ASICS Gel-NYC Oyster Grey sneaker utcai kövön", base: "/osszes-termek", aria: "Kezdőlap" };
     var s = d.createElement("style"); s.id = "khr-early";
-    s.textContent = "html.khr-on #start_banner_big,html.khr-on #start_category_offer,html.khr-on #page_artref_inner,html.khr-on #box_top_content,html.khr-on #start_brand_slider,html.khr-on #kbd-home-trust-marquee{display:none!important}"
-      + "html.khr-on:not(.khr-ready):not(.khr-shell) #main::before{content:'';display:block;height:520px;background:#CFC6B8}"
-      + "@media (min-width:992px){html.khr-on:not(.khr-ready):not(.khr-shell) #main::before{height:600px}}"
-      + "html.khr-on:not(.khr-ready) #main>*:not(#khr){visibility:hidden}"
+    s.textContent = "html.khr-on #start_category_offer,html.khr-on #page_artref_inner,html.khr-on #box_top_content,html.khr-on #start_brand_slider,html.khr-on #kbd-home-trust-marquee{display:none!important}"
+      + "html.khr-on:not(.khr-slider) #start_banner_big{display:none!important}"
+      + "@media(max-width:767.98px){html.khr-slider .carousel__nav--start_banner_big{display:none!important}html.khr-slider #start_banner_big .start_banner_big__container{padding-bottom:0!important;margin-bottom:0!important}html.khr-slider #start_banner_big{margin-bottom:0!important}}"
+      + "html.khr-on:not(.khr-slider):not(.khr-ready):not(.khr-shell) #main::before{content:'';display:block;height:520px;background:#CFC6B8}"
+      + "@media (min-width:992px){html.khr-on:not(.khr-slider):not(.khr-ready):not(.khr-shell) #main::before{height:600px}}"
+      + "html.khr-on:not(.khr-ready) #main>*:not(#khr):not(#start_banner_big){visibility:hidden}"
       + "#khr{--ink:#171717;--soft:#5E5A53;--line:#E6E3DD;color:var(--ink);font:500 15px/1.5 Montserrat,sans-serif;-webkit-font-smoothing:antialiased;background:#fff;overflow-x:clip;position:relative;z-index:0}"
       + "#khr *,#khr *::before,#khr *::after{box-sizing:border-box}#khr a{color:inherit;text-decoration:none}#khr a:hover{color:inherit;text-decoration:none}#khr img{max-width:100%}"
       + "#khr .khr-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 22px;border-radius:12px;background:var(--ink);color:#fff;font-size:14px;font-weight:800}"
@@ -43,12 +49,13 @@
     function pl(href, srcset, media) {
       var l = d.createElement("link"); l.rel = "preload"; l.as = "image"; l.href = href; l.setAttribute("imagesrcset", srcset); l.setAttribute("imagesizes", "100vw"); l.setAttribute("fetchpriority", "high"); l.media = media; d.head.appendChild(l);
     }
-    if (OWN) pl(B + "img/hero_klassz_mob_780.webp", B + "img/hero_klassz_mob_780.webp 780w", "(max-width:991.98px)");
-    if (OWN) pl(B + "img/hero_klassz_desk_1440.webp", B + "img/hero_klassz_desk_1440.webp 1440w, " + B + "img/hero_klassz_desk_1920.webp 1920w, " + B + "img/hero_klassz_desk_2560.webp 2560w", "(min-width:992px)");
+    if (OWN && !SL) pl(B + "img/hero_klassz_mob_780.webp", B + "img/hero_klassz_mob_780.webp 780w", "(max-width:991.98px)");
+    if (OWN && !SL) pl(B + "img/hero_klassz_desk_1440.webp", B + "img/hero_klassz_desk_1440.webp 1440w, " + B + "img/hero_klassz_desk_1920.webp 1920w, " + B + "img/hero_klassz_desk_2560.webp 2560w", "(min-width:992px)");
     var j = d.createElement("script"); j.async = true; j.id = "khr-js"; j.src = B + "home.js"; d.head.appendChild(j);
     /* a hős-héj: amint a #main megjelenik (és a slide képe is, hogy az "r2:" jelölést lássuk), azonnal beszúrjuk; a modul ezt a héjat egészíti ki */
     var t0 = Date.now();
     function shell() {
+      if (SL) return true;   /* slider-módban nincs saját hős-héj: a natív slider látszik, a modul a többit építi alá */
       var m = d.getElementById("main");
       if (!m) return false;
       if (d.getElementById("khr")) return true;
