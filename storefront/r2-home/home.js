@@ -143,10 +143,10 @@
   /* ---------- 1) a váz ---------- */
   function skeleton() {
     var sz = "";
-    for (var i = 0; i < SIZES.length; i++) sz += '<a href="/osszes-termek?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
+    for (var i = 0; i < SIZES.length; i++) sz += '<a data-s="' + SIZES[i] + '" href="/osszes-termek?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
     sz += '<a href="/osszes-termek"><small>ÖSSZES</small><b>' + ARROW + "</b></a>";
     var br = "";
-    for (var j = 0; j < BRANDS.length; j++) br += '<a href="/osszes-termek?filter=8208356:' + encodeURIComponent(BRANDS[j][0]) + '"><img src="' + IMG + "brandlogo_" + BRANDS[j][1] + '.webp" alt="' + BRANDS[j][0] + '" loading="lazy" decoding="async"></a>';
+    for (var j = 0; j < BRANDS.length; j++) br += '<a data-b="' + BRANDS[j][0] + '" href="/osszes-termek?filter=8208356:' + encodeURIComponent(BRANDS[j][0]) + '"><img src="' + IMG + "brandlogo_" + BRANDS[j][1] + '.webp" alt="' + BRANDS[j][0] + '" loading="lazy" decoding="async"></a>';
     var tk = ["30 NAP INGYENES CSERE", "UTÁNVÉT", "GYÁRI CIKKSZÁM", '<i class="khr-rate">5,0 GOOGLE</i>', "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], t = "";
     for (var k = 0; k < tk.length; k++) t += "<span>" + CHECK + tk[k] + "</span>";
     var ph = '<div class="khr-ph" style="width:100%"></div>';
@@ -325,6 +325,17 @@
     });
   }
 
+  /* ---------- 3b) üres méret- és márkaszűrők elrejtése: a napi 2f ellenőrzés (home_tiles_gen.py) írja a tiles.json-t; nincs fájl vagy furcsa a tartalma = minden csempe látszik ---------- */
+  function tiles(root) {
+    if (!window.fetch) return;
+    var u = "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-home-r2/storefront/r2-home/tiles.json?v=" + Math.floor(Date.now() / 3600000);
+    fetch(u).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (!d || !d.sizes || !d.brands || d.sizes.length < 12 || d.brands.length < 10) return;
+      $$("a[data-s]", root).forEach(function (a) { if (d.sizes.indexOf(a.getAttribute("data-s")) < 0) a.style.display = "none"; });
+      $$("a[data-b]", root).forEach(function (a) { if (d.brands.indexOf(a.getAttribute("data-b")) < 0) a.style.display = "none"; });
+    }).catch(function () {});
+  }
+
   /* ---------- 4) indítás ---------- */
   function mount() {
     var main = document.getElementById("main");
@@ -333,6 +344,7 @@
     var r = mk("section", "", skeleton()); r.id = "khr"; r.setAttribute("aria-label", "Kezdőlap");
     main.insertBefore(r, main.firstChild);
     var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
+    tiles(r);
     lazy(sNew, loadNew, "1200px 0px");
     lazy(sRev, loadReviews, "600px 0px");
     return true;
