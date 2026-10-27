@@ -13,17 +13,18 @@
 
   var SK = /\.sk$/i.test(location.hostname);
 
-  /* ---------- R2 kezdőlap (Dávid TG 2386, Főnök msg 2060): csak HU, csak a kezdőlap ("/"). Kapcsoló: süti kbdhome; ?kbdhome=1 bekapcsolja, ?kbdhome=0 kikapcsolja (vészkapcsoló,
+  /* ---------- R2 kezdőlap (Dávid TG 2386, Főnök msg 2060): HU és SK, csak a kezdőlap ("/"). Kapcsoló: süti kbdhome; ?kbdhome=1 bekapcsolja, ?kbdhome=0 kikapcsolja (vészkapcsoló,
      mellette a ?kbdoff=1 az egész szkriptet). R2_LIVE = az alapértelmezés süti nélkül (előnézeti szakaszban false). Az R2 modul külön fájl (storefront/r2-home/home.js), csak akkor töltődik, ha be van kapcsolva.
      Bekapcsolva a régi kezdőlap-felső (hős, előnysáv, kategóriák, csempék, fülek, értékelések, polcok) nem épül; a GYIK, blog, hírlevél, lábléc, alapító-blokk és a nemrég megnézett marad. ---------- */
-  var R2_LIVE = false;
-  var R2_COMMIT = "c4b3371b61cef69f679a65a803ffbde0d91720fd";
+  var R2_LIVE = false;      /* HU */
+  var R2_LIVE_SK = false;   /* SK (Dávid TG 2390: a szlovák szövegek OK; élesítés a HU után) */
+  var R2_COMMIT = "4b3bc7d6c1bb8a543af3b7de7bfe175a8caa0968";
   var R2 = false;
   (function () {
     var q = /[?&]kbdhome=([01])(?:&|$)/.exec(location.search), ck = /(?:^|;\s*)kbdhome=([01])/.exec(document.cookie || "");
     if (q) { try { document.cookie = "kbdhome=" + q[1] + ";path=/;max-age=7776000;SameSite=Lax"; } catch (e) {} ck = { 1: q[1] }; }
-    var on = ck ? ck[1] === "1" : R2_LIVE;
-    if (SK || !on || location.pathname !== "/") return;
+    var on = ck ? ck[1] === "1" : (SK ? R2_LIVE_SK : R2_LIVE);
+    if (!on || location.pathname !== "/") return;
     R2 = true; window.KBD_R2H_ON = 1;
     var de = document.documentElement; de.className += " khr-on";
     var st = document.createElement("style"); st.id = "khr-early";
