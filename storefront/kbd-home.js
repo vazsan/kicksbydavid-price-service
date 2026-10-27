@@ -18,9 +18,11 @@
      Bekapcsolva a régi kezdőlap-felső (hős, előnysáv, kategóriák, csempék, fülek, értékelések, polcok) nem épül; a GYIK, blog, hírlevél, lábléc, alapító-blokk és a nemrég megnézett marad. ---------- */
   var R2_LIVE = false;      /* HU */
   var R2_LIVE_SK = false;   /* SK (Dávid TG 2390: a szlovák szövegek OK; élesítés a HU után) */
-  var R2_COMMIT = "4b3bc7d6c1bb8a543af3b7de7bfe175a8caa0968";
+  var R2_COMMIT = "e2190f5732ee14dbafec6a2e109df56d505ecd7e";
   var R2 = false;
   (function () {
+    /* a kapu elsődleges helye a FEJ-tag (kbd-home-head.js: korai CSS + előbetöltés, nincs villanás); az állapotát a <html> khr-on osztálya mutatja. Ha a fej-tag lefutott (window.KBD_R2H_HEAD), a döntés az övé. */
+    if (window.KBD_R2H_HEAD) { R2 = /(^|\s)khr-on(\s|$)/.test(document.documentElement.className); if (R2) window.KBD_R2H_ON = 1; return; }
     var q = /[?&]kbdhome=([01])(?:&|$)/.exec(location.search), ck = /(?:^|;\s*)kbdhome=([01])/.exec(document.cookie || "");
     if (q) { try { document.cookie = "kbdhome=" + q[1] + ";path=/;max-age=7776000;SameSite=Lax"; } catch (e) {} ck = { 1: q[1] }; }
     var on = ck ? ck[1] === "1" : (SK ? R2_LIVE_SK : R2_LIVE);
@@ -1127,6 +1129,8 @@
   var busy = false;
   function run() {
     if (busy) return;
+    /* a fej-tag biztonsági időzítője (7 mp) leveszi a khr-on osztályt, ha az R2 nem épült fel: ekkor a régi kezdőlap épül tovább */
+    if (R2 && window.KBD_R2H_HEAD && !/(^|\s)khr-on(\s|$)/.test(document.documentElement.className)) R2 = false;
     busy = true;
     try {
       buildBar(); prefillNewsletter();
@@ -1158,6 +1162,7 @@
     window.addEventListener("load", function () { run(); flkResize($id("start_banner_big")); flkResize($id("kbd-ptabs")); });
     if (MQ.addEventListener) MQ.addEventListener("change", run); else if (MQ.addListener) MQ.addListener(run);
   }
+  window.KBD_HOME_RERUN = function () { try { run(); } catch (e) {} };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
   else start();
 })();
