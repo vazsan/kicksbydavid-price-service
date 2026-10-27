@@ -57,7 +57,7 @@
     + "#khr .khr-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 22px;border-radius:12px;background:var(--ink);color:#fff;font-size:14px;font-weight:800}"
     + "#khr .khr-pill{display:inline-block;height:24px;padding:0 9px;border-radius:12px;background:var(--rust);color:#fff;font-size:12px;font-weight:800;line-height:24px;letter-spacing:0;vertical-align:middle}"
     + "#khr .khr-stars{display:inline-flex;gap:1px}"
-    + "#khr .khr-sec{padding:32px 0 0}"
+    + "#khr .khr-sec{padding:32px 0 0}#khr .khr-w{padding-bottom:40px}#khr .khr-two [data-k=\"rev\"]{margin-top:32px}"
     + "#khr .khr-sh{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}"
     + "#khr .khr-sh h2{margin:0;padding:0;font:800 28px/1.02 Montserrat,sans-serif;letter-spacing:-1px;text-transform:none;color:var(--ink)}"
     + "#khr .khr-sh h2::before,#khr .khr-sh h2::after{display:none}"
@@ -67,10 +67,10 @@
     + "#khr .khr-hero{position:relative;display:block;height:min(206vw,860px);overflow:hidden;background:#CFC6B8}"
     + "#khr .khr-hero picture,#khr .khr-hero img{display:block;width:100%;height:100%}"
     + "#khr .khr-hero img{object-fit:cover;object-position:50% 50%}"
-    + "#khr .khr-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(246,243,237,.62) 0,rgba(246,243,237,.25) 32%,rgba(246,243,237,0) 48%);pointer-events:none}"
+    + "#khr .khr-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(246,243,237,.78) 0,rgba(246,243,237,.42) 34%,rgba(246,243,237,0) 52%);pointer-events:none}"
     + "#khr .khr-ht{position:absolute;z-index:1;left:0;right:0;top:0;padding:30px 20px 0;text-align:center}"
     + "#khr .khr-hero h1{margin:0;padding:0;font:800 38px/1.02 Montserrat,sans-serif;letter-spacing:-1.6px;text-transform:uppercase;color:var(--ink)}"
-    + "#khr .khr-hero p{margin:12px 0 0;font-size:14px;font-weight:700;color:var(--ink)}"
+    + "#khr .khr-hero p{margin:12px 0 0;font-size:15px;font-weight:800;color:#111}"
     + "#khr .khr-hero .khr-btn{margin-top:16px;color:#fff}"
     + "#khr .khr-cap{position:absolute;z-index:1;right:16px;bottom:16px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;text-align:right;line-height:1.35;text-shadow:0 1px 6px rgba(0,0,0,.35)}"
     /* bizalmi sáv */
@@ -123,12 +123,13 @@
     + "#khr .khr-rvph{height:230px;margin-top:8px;border-radius:18px;background:var(--grey);animation:khrp 1.4s ease-in-out infinite}"
     /* a kártya a téma saját kártyája: alap betű (a #khr 15 px-es alapja ne öröklődjön) */
     + "#khr .product{font-size:14px;font-weight:400;line-height:1.5}"
+    + "#khr .product__func-btn{min-width:44px;min-height:44px}#khr .product__details-btn{min-height:44px}"
     + "@media (min-width:992px){"
-    + "#khr .khr-w{max-width:1272px;margin:0 auto;padding:0 16px}"
+    + "#khr .khr-w{max-width:1272px;margin:0 auto;padding:0 16px 72px}#khr .khr-two [data-k=\"rev\"]{margin-top:0}"
     + "#khr .khr-sec{padding:56px 0 0}"
     + "#khr .khr-sh{margin-bottom:20px}#khr .khr-sh h2{font-size:40px;letter-spacing:-1.5px}"
     + "#khr .khr-hero{height:861px}"
-    + "#khr .khr-hero::after{background:linear-gradient(90deg,rgba(246,243,237,0) 42%,rgba(246,243,237,.38) 58%,rgba(246,243,237,.5) 100%)}"
+    + "#khr .khr-hero::after{background:linear-gradient(90deg,rgba(246,243,237,0) 40%,rgba(246,243,237,.5) 58%,rgba(246,243,237,.62) 100%)}"
     + "#khr .khr-ht{left:auto;right:max(16px,calc((100vw - 1240px)/2));top:50%;transform:translateY(-50%);width:520px;padding:0;text-align:left}"
     + "#khr .khr-hero h1{font-size:64px;letter-spacing:-2.6px}"
     + "#khr .khr-hero p{margin-top:16px;font-size:16px}"
@@ -176,7 +177,7 @@
     var ph = '<div class="khr-ph" style="width:100%"></div>';
     return ''
       + '<a class="khr-hero" href="' + L.base + '?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="861">'
-      + '<img src="' + IMG + 'hero_klassz_mob_780.webp" srcset="' + IMG + 'hero_klassz_mob_780.webp 780w, ' + IMG + 'hero_klassz_mob_1170.webp 1170w" sizes="100vw" width="780" height="1606" fetchpriority="high" decoding="async" alt="' + L.alt + '"></picture>'
+      + '<img src="' + IMG + 'hero_klassz_mob_780.webp" width="780" height="1606" fetchpriority="high" decoding="async" alt="' + L.alt + '"></picture>'
       + '<div class="khr-ht"><h1>' + L.h1 + '</h1><p>' + L.sub + '</p><span class="khr-btn">' + L.btn + ' ' + ARROW + "</span></div>"
       + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>'
       + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
@@ -331,7 +332,7 @@
       setRate(rating, n);
       var cards = "";
       for (var i = 0; i < items.length && i < 4; i++) {
-        var it = items[i], name = ($(".ti-name", it) || {}).textContent || "", txt = ($(".ti-review-content", it) || {}).textContent || "";
+        var it = items[i], name = ($(".ti-name", it) || {}).textContent || "", tc = $(".ti-review-content", it), txt = ""; if (tc) { var cl = tc.cloneNode(true); $$(".ti-more-image-count,.ti-review-image,.ti-read-more,script,style", cl).forEach(function (x) { x.parentNode.removeChild(x); }); txt = cl.textContent || ""; }
         name = name.replace(/\s+/g, " ").trim(); txt = txt.replace(/\s+/g, " ").trim();
         if (txt.length > 190) txt = txt.slice(0, 187).replace(/\s+\S*$/, "") + "…";
         var pic = $(".ti-profile-img img", it), src = pic ? pic.getAttribute("src") : "";
@@ -368,6 +369,7 @@
     if (!document.getElementById("khr-css")) { var st = mk("style"); st.id = "khr-css"; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); }
     var r = mk("section", "", skeleton()); r.id = "khr"; r.setAttribute("aria-label", L.aria);
     main.insertBefore(r, main.firstChild);
+    document.documentElement.className += " khr-ready";
     var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
     tiles(r);
     lazy(sNew, loadNew, "1200px 0px");
@@ -380,8 +382,7 @@
     if (!done.sale) { e = $('[data-k="sale"]'); if (e && e.parentNode) e.parentNode.removeChild(e); }
     if (!done.top) { e = $('[data-k="top"]'); if (e && e.parentNode) e.parentNode.removeChild(e); }
   }
-  function start() {
-    if (!document.body || document.body.id !== "ud_shop_start") return;
+  function startMain() {
     var tries = 0;
     (function tick() {
       mount(); pulls();
@@ -389,5 +390,16 @@
       else giveUp();
     })();
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+  /* a modul a fejből töltődik: amint a #main megjelenik a feldolgozás közben, a hős már beszúrásra kerül (nincs régi tartalom villanás, a helyét a fej-tag korai CSS-e tartja) */
+  function pageReady() { return !!(document.body && document.body.id === "ud_shop_start" && document.getElementById("main")); }
+  function boot() {
+    if (pageReady()) return startMain();
+    if (document.readyState !== "loading") return;
+    var started = false;
+    function go() { if (started) return; started = true; if (mo) mo.disconnect(); if (document.body && document.body.id === "ud_shop_start") startMain(); }
+    var mo = null;
+    if (window.MutationObserver) { mo = new MutationObserver(function () { if (pageReady()) go(); }); mo.observe(document.documentElement, { childList: true, subtree: true }); }
+    document.addEventListener("DOMContentLoaded", go);
+  }
+  boot();
 })();
