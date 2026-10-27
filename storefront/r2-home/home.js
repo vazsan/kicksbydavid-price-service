@@ -372,11 +372,29 @@
   }
 
   /* ---------- 4) indítás ---------- */
+  /* Hős a slide 1 képéből (Főnök msg 2099): CSAK ha az Unas adminban a start_banner_big 1. slide-képének alt-szövege "r2:" előtaggal kezdődik (a kép felirat nélküli, Dávid döntése).
+     Jelölés nélkül marad a saját hős-kép, tehát feliratos kép véletlenül sem kerül ki. A slide <picture>-je az élő markup másolata (az Unas a fejből már előtölti, a time= szám a képcserével magától változik). */
+  var T0 = Date.now();
+  function slideImg() { return document.querySelector("#start_banner_big .carousel-cell--1 picture img") || document.querySelector("#start_banner_big picture img"); }
+  function wantSlide(img) { return !!img && /^\s*r2:/i.test(img.getAttribute("alt") || ""); }
+  function useSlide(r, img) {
+    var pic = img.parentNode, tgt = $(".khr-hero picture", r);
+    if (!pic || pic.tagName !== "PICTURE" || !tgt) return;
+    var np = pic.cloneNode(true), ni = $("img", np); if (!ni) return;
+    ni.removeAttribute("class"); ni.removeAttribute("loading"); ni.removeAttribute("style"); ni.setAttribute("fetchpriority", "high"); ni.setAttribute("decoding", "async");
+    ni.setAttribute("alt", (img.getAttribute("alt") || "").replace(/^\s*r2:\s*/i, ""));
+    $$("source", np).forEach(function (so) { so.removeAttribute("class"); so.removeAttribute("style"); });
+    tgt.parentNode.replaceChild(np, tgt);
+  }
   function mount() {
     var main = document.getElementById("main");
     if (!main || document.getElementById("khr")) return !!document.getElementById("khr");
+    var simg = slideImg();
+    /* a slide még nem érkezett meg a feldolgozásból: legfeljebb 1,2 mp-ig várunk rá (a helyet a fej-tag tartja) */
+    if (!simg && document.readyState === "loading" && Date.now() - T0 < 1200) return false;
     if (!document.getElementById("khr-css")) { var st = mk("style"); st.id = "khr-css"; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); }
     var r = mk("section", "", skeleton()); r.id = "khr"; r.setAttribute("aria-label", L.aria);
+    if (wantSlide(simg)) useSlide(r, simg);
     main.insertBefore(r, main.firstChild);
     document.documentElement.className += " khr-ready";
     var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
@@ -395,7 +413,7 @@
     var tries = 0;
     (function tick() {
       mount(); pulls();
-      if (++tries < 80 && !(done.sale && done.top)) setTimeout(tick, 250);
+      if (++tries < 80 && !(done.sale && done.top)) setTimeout(tick, tries < 20 ? 60 : 250);
       else giveUp();
     })();
   }
