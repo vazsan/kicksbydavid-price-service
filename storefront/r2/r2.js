@@ -19,7 +19,10 @@ wrap([q('#kbd-size-head'),q('#artdet__type')],'r2-step',1,5);
 wrap([q('#kbd2-upsell')],'r2-step',2,8);
 wrap([q('#artdet__cart'),q('#kbd2-pay'),q('#kbd4-checks')],'r2-buy','',9);
 // sold-out size page: no main button inside -> no heavy checkout frame around the 'Nincs raktáron' note (Nora msg 1900)
-const bb=q('.r2-buy');if(bb&&!bb.querySelector('.artdet__cart-btn'))bb.classList.add('r2-buy--oos');})();
+const bb=q('.r2-buy');if(bb&&!bb.querySelector('.artdet__cart-btn'))bb.classList.add('r2-buy--oos');
+// SK only (David TG 2549, main msg 2227/2228, Vera's mockup v2, Zara's approved line): one static line above the cart button, first child of the buy box; not on sold-out sizes (no cart button)
+if(SKL&&bb&&bb.querySelector('.artdet__cart-btn')&&!bb.querySelector('.kbd-sameday')){const s=document.createElement('div');s.className='kbd-sameday';
+ s.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M13.2 2.5 5.6 13.1c-.3.4 0 .9.5.9h4.6l-1.4 7.3c-.1.6.6.9 1 .4l7.6-10.6c.3-.4 0-.9-.5-.9h-4.6l1.4-7.3c.1-.6-.7-.9-1-.4z" fill="currentColor"/></svg><span>Objednávky do 12:00 odosielame v\u00a0ten istý deň</span>';bb.prepend(s);}})();
       } finally { releaseHold(); }
     }
     // non-shoe products (Terméktípus Ruházat / Kiegészítő): row 1 'Új darab, gyári címkével' (David TG 2271, Zara alternative); shoes keep 'Új pár, a saját dobozában'
