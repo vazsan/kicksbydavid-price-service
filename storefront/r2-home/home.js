@@ -53,7 +53,7 @@
     + "#khr .khr-cap{position:absolute;z-index:1;right:16px;bottom:16px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;text-align:right;line-height:1.35;text-shadow:0 1px 6px rgba(0,0,0,.35)}"
     /* bizalmi sáv */
     + "#khr .khr-tk{display:flex;gap:18px;overflow:hidden;white-space:nowrap;height:38px;align-items:center;margin:0 -16px;padding:0 16px;border-bottom:1px solid var(--line);font-size:11px;font-weight:800;letter-spacing:.08em}"
-    + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}"
+    + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}#khr .khr-tk i{font-style:normal}"
     + "#khr .khr-first{padding-top:18px}"
     /* kártyasín és rács: a kártya a natív Unas kártya */
     + "#khr .khr-rail{display:grid;grid-auto-flow:column;grid-auto-columns:184px;gap:10px;overflow-x:auto;margin:0 -16px 0 -5px;padding:6px 16px 8px 5px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}"
@@ -224,9 +224,18 @@
       var doc; try { doc = new DOMParser().parseFromString(htmlTxt, "text/html"); } catch (e) { return false; }
       var cards = $$(".js-product", doc).filter(isShoe).slice(0, N_NEW).map(function (c) { return document.importNode(c, true); });
       if (cards.length < 4) return false;
+      try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), h: cards.map(function (c) { return c.outerHTML; }).join("") })); } catch (e) {}
       done["new"] = fill(sec, cards, ".khr-rail", N_NEW); navFor(sec);
       return done["new"];
     }
+    try {
+      var c0 = JSON.parse(sessionStorage.getItem(key) || "null");
+      if (c0 && c0.t && Date.now() - c0.t < 600000 && c0.h) {
+        var d0 = new DOMParser().parseFromString("<div>" + c0.h + "</div>", "text/html");
+        var k0 = $$(".js-product", d0).map(function (c) { return document.importNode(c, true); });
+        if (k0.length >= 4) { done["new"] = fill(sec, k0, ".khr-rail", N_NEW); navFor(sec); return; }
+      }
+    } catch (e) {}
     if (!window.fetch) return fail();
     function fail() { var m = $(".khr-railbox", sec); if (m && !done["new"]) m.parentNode.removeChild(m), sec.parentNode.removeChild(sec); }
     fetch(url, { credentials: "same-origin" }).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { if (!t || !render(t)) fail(); }).catch(fail);
