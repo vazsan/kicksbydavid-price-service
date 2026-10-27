@@ -33,13 +33,13 @@ payments:["VISA","Mastercard","Utánvét"],
 clarity:"Biztonságos fizetés, utánvéttel is"
 };
 var sk={
-skuLabel:"Kód výrobcu", copy:"Kopírovať", copied:"Skopírované",
-skuHint:"Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model.",
+skuLabel:"Výrobný kód", copy:"Kopírovať", copied:"Skopírované",
+skuHint:"Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model.",
 trust:[
-{ ic:"shield",b:"100 % originálny produkt",s:"Z overených európskych zdrojov"},
+{ ic:"shield",b:"Originalitu si môžeš overiť",s:"Podľa výrobného kódu pri produkte."},
 { ic:"swap",b:"Výmena a vrátenie zdarma",s:"Do 30 dní od prevzatia, platíme my"},
 { ic:"lock",b:"Bezpečná platba",s:"Chránená platba kartou"},
-{ ic:"chat",b:"Rýchla zákaznícka podpora",s:"Radi vám pomôžeme"},
+{ ic:"chat",b:"Rýchla zákaznícka podpora",s:"Odpovedáme do 1 pracovného dňa"},
 { ic:"box",b:"Originálna krabica",s:"Príde v novom stave."},
 { ic:"cash",b:"Dobierka",s:"Nemusíš platiť vopred."}
 ],
