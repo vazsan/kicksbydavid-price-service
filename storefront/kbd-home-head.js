@@ -27,6 +27,7 @@
     s.textContent = "html.khr-on #start_category_offer,html.khr-on #page_artref_inner,html.khr-on #box_top_content,html.khr-on #start_brand_slider,html.khr-on #kbd-home-trust-marquee{display:none!important}"
       + "html.khr-on:not(.khr-slider) #start_banner_big{display:none!important}"
       + "@media(max-width:767.98px){html.khr-slider .carousel__nav--start_banner_big{display:none!important}html.khr-slider #start_banner_big .start_banner_big__container{padding-bottom:0!important;margin-bottom:0!important}html.khr-slider #start_banner_big{margin-bottom:0!important}}"
+      + "html.khr-slider .carousel__nav--start_banner_big{display:none!important}"
       + "html.khr-on:not(.khr-slider):not(.khr-ready):not(.khr-shell) #main::before{content:'';display:block;height:520px;background:#CFC6B8}"
       + "@media (min-width:992px){html.khr-on:not(.khr-slider):not(.khr-ready):not(.khr-shell) #main::before{height:600px}}"
       + "html.khr-on:not(.khr-ready) #main>*:not(#khr):not(#start_banner_big){visibility:hidden}"

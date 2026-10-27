@@ -82,6 +82,7 @@
     + ".khr-dots button{pointer-events:auto;width:24px;height:24px;border:0;background:transparent;padding:0;cursor:pointer;display:grid;place-items:center}"
     + ".khr-dots button::before{content:'';width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 0 0 1.5px rgba(23,23,23,.55)}"
     + ".khr-dots button[aria-current=true]::before{background:#171717;box-shadow:0 0 0 1.5px #fff}"
+    + ".khr-sn{display:none}"
     /* bizalmi sáv */
     + "#khr .khr-tk{display:flex;gap:18px;overflow:hidden;white-space:nowrap;height:38px;align-items:center;margin:0 -16px;padding:0 16px;border-bottom:1px solid var(--line);font-size:11px;font-weight:800;letter-spacing:.08em}"
     + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}#khr .khr-tk i{font-style:normal}"
@@ -160,6 +161,8 @@
     + "#khr .khr-nav{display:grid;place-items:center;position:absolute;z-index:3;top:42%;width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:#fff;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.14);cursor:pointer;padding:0}"
     + "#khr .khr-nav[hidden]{display:none}"
     + "#khr .khr-nav.p{left:-14px}#khr .khr-nav.n{right:-14px}"
+    + ".khr-sn{display:grid;place-items:center;position:absolute;z-index:6;top:50%;margin-top:-22px;width:44px;height:44px;border-radius:22px;border:1px solid var(--line,#E6E3DD);background:#fff;color:#171717;box-shadow:0 2px 10px rgba(0,0,0,.18);cursor:pointer;padding:0}"
+    + ".khr-sn.p{left:20px}.khr-sn.n{right:20px}"
     + "}"
     + "@media (min-width:1500px){#khr .khr-rail{grid-auto-columns:calc((1240px - 48px)/4.35)}}";
 
@@ -434,6 +437,11 @@
       function upd() { for (var j = 0; j < bs.length; j++) bs[j].setAttribute("aria-current", j === f.selectedIndex ? "true" : "false"); }
       f.on("select", upd); upd();
       banner.appendChild(box);
+      /* gépen oldalsó nyilak (a natív számláló + nyíl sor rejtve van, telefonon húzás) */
+      var pb = mk("button", "khr-sn p", CHEV.l), nb = mk("button", "khr-sn n", CHEV.r);
+      pb.type = nb.type = "button"; pb.setAttribute("aria-label", L.prev); nb.setAttribute("aria-label", L.next);
+      pb.addEventListener("click", function () { try { f.previous(); } catch (e) {} }); nb.addEventListener("click", function () { try { f.next(); } catch (e) {} });
+      banner.appendChild(pb); banner.appendChild(nb);
     })();
   }
   function mount() {
