@@ -1,0 +1,339 @@
+/* KicksByDavid kezdőlap R2 (HU) – hős, bizalmi sáv, Most érkezett, méretcsempék, márkalogók, Legnépszerűbb + értékelések, Akciós.
+   Dávid TG 2386, Főnök msg 2060. A kártyák az Unas SAJÁT, szerver által renderelt termékkártyái (az Akciós és a Legnépszerűbb a kezdőlap natív moduljából,
+   a Most érkezett a natív /ujdonsagok AJAX-listából): a csomópontok ÁT vannak helyezve (nem másolva), a bolt saját JS-e (kedvenc, összehasonlítás, gyorsnézet) ugyanúgy kezeli őket.
+   A kapcsolót a kbd-home.js adja (süti kbdhome, ?kbdhome=1 / 0). Ez a fájl csak akkor töltődik be, ha az R2 be van kapcsolva, csak a HU kezdőlapon. */
+(function () {
+  "use strict";
+  if (window.KBD_R2_HOME) return;
+  window.KBD_R2_HOME = 1;
+
+  var BASE = window.KBD_R2H_BASE || "";
+  var IMG = BASE + "img/";
+  var ORIGIN = location.protocol + "//" + location.host;
+  var TI_BIG = "3ba033477a0d031a5f060029c5d", TI_SMALL = "0d3908782f85181dd586d19e174";
+
+  var SIZES = ["36", "36.5", "37.5", "38", "38.5", "39", "40", "40.5", "41", "42", "42.5", "43", "44", "44.5", "45", "45.5", "46", "47", "47.5"];
+  var BRANDS = [["Nike", "nike"], ["Air Jordan", "air-jordan"], ["Adidas", "adidas"], ["New Balance", "new-balance"], ["ASICS", "asics"], ["UGG", "ugg"], ["ON", "on"], ["Puma", "puma"],
+    ["Converse", "converse"], ["Vans", "vans"], ["Salomon", "salomon"], ["Saucony", "saucony"], ["Crocs", "crocs"], ["Birkenstock", "birkenstock"], ["Timberland", "timberland"], ["Supreme", "supreme"]];
+  var N_NEW = 8, N_TOP = 6, N_SALE = 10;
+
+  var ARROW = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  var CHECK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+  var STAR = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="m12 2.8 2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></svg>';
+  var CHEV = {
+    l: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>',
+    r: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>'
+  };
+
+  /* ---------- CSS: minden szabály a #khr alatt (nincs ütközés a témával) ---------- */
+  var CSS = ""
+    + "#khr{--ink:#171717;--rust:#A3481F;--soft:#5E5A53;--line:#E6E3DD;--grey:#F4F3F0;color:var(--ink);font:500 15px/1.5 Montserrat,sans-serif;-webkit-font-smoothing:antialiased;background:#fff;overflow-x:clip;position:relative;z-index:0}"
+    + "#khr *,#khr *::before,#khr *::after{box-sizing:border-box}"
+    + "#khr a{color:inherit;text-decoration:none}#khr a:hover{color:inherit;text-decoration:none}"
+    + "#khr img{max-width:100%}"
+    + "#khr .khr-w{padding:0 16px}"
+    + "#khr .khr-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 22px;border-radius:12px;background:var(--ink);color:#fff;font-size:14px;font-weight:800}"
+    + "#khr .khr-pill{display:inline-block;height:24px;padding:0 9px;border-radius:12px;background:var(--rust);color:#fff;font-size:12px;font-weight:800;line-height:24px;letter-spacing:0;vertical-align:middle}"
+    + "#khr .khr-stars{display:inline-flex;gap:1px}"
+    + "#khr .khr-sec{padding:32px 0 0}"
+    + "#khr .khr-sh{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}"
+    + "#khr .khr-sh h2{margin:0;padding:0;font:800 28px/1.02 Montserrat,sans-serif;letter-spacing:-1px;text-transform:none;color:var(--ink)}"
+    + "#khr .khr-sh h2::before,#khr .khr-sh h2::after{display:none}"
+    + "#khr .khr-sh>a{flex:none;display:inline-flex;align-items:center;gap:4px;height:44px;font-size:13px;font-weight:800}"
+    + "#khr .khr-sh>a span{border-bottom:2px solid var(--ink)}"
+    /* hős */
+    + "#khr .khr-hero{position:relative;display:block;height:min(206vw,860px);overflow:hidden;background:#CFC6B8}"
+    + "#khr .khr-hero picture,#khr .khr-hero img{display:block;width:100%;height:100%}"
+    + "#khr .khr-hero img{object-fit:cover;object-position:50% 50%}"
+    + "#khr .khr-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(246,243,237,.62) 0,rgba(246,243,237,.25) 32%,rgba(246,243,237,0) 48%);pointer-events:none}"
+    + "#khr .khr-ht{position:absolute;z-index:1;left:0;right:0;top:0;padding:30px 20px 0;text-align:center}"
+    + "#khr .khr-hero h1{margin:0;padding:0;font:800 38px/1.02 Montserrat,sans-serif;letter-spacing:-1.6px;text-transform:uppercase;color:var(--ink)}"
+    + "#khr .khr-hero p{margin:12px 0 0;font-size:14px;font-weight:700;color:var(--ink)}"
+    + "#khr .khr-hero .khr-btn{margin-top:16px;color:#fff}"
+    + "#khr .khr-cap{position:absolute;z-index:1;right:16px;bottom:16px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;text-align:right;line-height:1.35;text-shadow:0 1px 6px rgba(0,0,0,.35)}"
+    /* bizalmi sáv */
+    + "#khr .khr-tk{display:flex;gap:18px;overflow:hidden;white-space:nowrap;height:38px;align-items:center;margin:0 -16px;padding:0 16px;border-bottom:1px solid var(--line);font-size:11px;font-weight:800;letter-spacing:.08em}"
+    + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}"
+    + "#khr .khr-first{padding-top:18px}"
+    /* kártyasín és rács: a kártya a natív Unas kártya */
+    + "#khr .khr-rail{display:grid;grid-auto-flow:column;grid-auto-columns:184px;gap:10px;overflow-x:auto;margin:0 -16px 0 -5px;padding:6px 16px 8px 5px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}"
+    + "#khr .khr-rail::-webkit-scrollbar{display:none}"
+    + "#khr .khr-rail,#khr .khr-grid{--image-width:248px;--image-height:248px}"
+    + "#khr .khr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:5px;margin:0 -5px}"
+    + "#khr .khr-rail>.product,#khr .khr-grid>.product{flex:none;max-width:none;width:auto;min-width:0;padding:0;margin:0;position:static;transform:none;float:none;left:auto}"
+    + "#khr .khr-rail>.product:nth-child(n+1){height:auto}"
+    + "#khr .khr-grid>.product:nth-child(n+5){display:none}"
+    + "#khr .khr-railbox{position:relative}"
+    + "#khr .khr-nav{display:none}"
+    + "#khr .khr-ph{background:var(--grey);border-radius:10px;min-height:380px;grid-column:1/-1;animation:khrp 1.4s ease-in-out infinite}"
+    + "#khr .khr-rail{min-height:392px}#khr .khr-grid{min-height:760px}"
+    + "@keyframes khrp{0%,100%{opacity:1}50%{opacity:.55}}"
+    /* méretcsempék */
+    + "#khr .khr-szr{display:grid;grid-auto-flow:column;grid-auto-columns:62px;gap:6px;overflow-x:auto;margin:0 -16px 0 0;padding-right:16px;scrollbar-width:none}"
+    + "#khr .khr-szr::-webkit-scrollbar{display:none}"
+    + "#khr .khr-szr a{height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid var(--line);border-radius:12px;background:#fff}"
+    + "#khr .khr-szr small{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.06em;line-height:1}"
+    + "#khr .khr-szr b{font-size:16px;font-weight:800;line-height:1.2}"
+    + "#khr .khr-szn{margin:10px 0 0;font-size:13px;font-weight:600;color:var(--soft)}"
+    /* márkák */
+    + "#khr .khr-bl{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}"
+    + "#khr .khr-bl a{height:72px;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:14px;background:#fff}"
+    + "#khr .khr-bl img{width:96%;height:auto;max-height:60px;object-fit:contain;display:block}"
+    /* értékelések */
+    + "#khr .khr-rs{display:flex;align-items:center;gap:16px;padding:18px;border:2.5px solid var(--ink);border-radius:20px}"
+    + "#khr .khr-rs .n{font-size:56px;font-weight:800;letter-spacing:-2.4px;line-height:.85}"
+    + "#khr .khr-rs b{display:block;margin-top:4px;font-size:15px;font-weight:800;line-height:1.25}"
+    + "#khr .khr-rs .khr-glogo{display:block;width:74px;height:auto;margin-top:6px}"
+    + "#khr .khr-rv{display:grid;grid-auto-flow:column;grid-auto-columns:262px;gap:8px;overflow-x:auto;margin:8px -16px 0 0;padding-right:16px;scrollbar-width:none}"
+    + "#khr .khr-rv::-webkit-scrollbar{display:none}"
+    + "#khr .khr-rc{padding:16px;border:1px solid var(--line);border-radius:18px;background:#fff}"
+    + "#khr .khr-rc .hd2{display:flex;align-items:center;gap:10px}"
+    + "#khr .khr-rc .av{flex:none;width:36px;height:36px;border-radius:18px;background:var(--grey);border:1px solid var(--line);display:grid;place-items:center;font-size:15px;font-weight:800;overflow:hidden}"
+    + "#khr .khr-rc .av img{width:100%;height:100%;object-fit:cover}"
+    + "#khr .khr-rc .nm2{flex:1;min-width:0}"
+    + "#khr .khr-rc .nm2 b{display:block;font-size:14px;font-weight:800;line-height:1.2}"
+    + "#khr .khr-rc .nm2 small{font-size:12px;font-weight:600;color:var(--soft)}"
+    + "#khr .khr-rc .gi{width:18px;height:18px}"
+    + "#khr .khr-rc .khr-stars{margin-top:10px}"
+    + "#khr .khr-rc p{margin:6px 0 0;font-size:15px;font-weight:600;line-height:1.4}"
+    + "#khr .khr-gl{display:flex;align-items:center;justify-content:center;height:48px;margin-top:8px;border:1.5px solid var(--ink);border-radius:14px;font-size:14px;font-weight:800}"
+    + "#khr .khr-rvph{height:230px;margin-top:8px;border-radius:18px;background:var(--grey);animation:khrp 1.4s ease-in-out infinite}"
+    /* a kártya a téma saját kártyája: alap betű (a #khr 15 px-es alapja ne öröklődjön) */
+    + "#khr .product{font-size:14px;font-weight:400;line-height:1.5}"
+    + "@media (min-width:992px){"
+    + "#khr .khr-w{max-width:1272px;margin:0 auto;padding:0 16px}"
+    + "#khr .khr-sec{padding:56px 0 0}"
+    + "#khr .khr-sh{margin-bottom:20px}#khr .khr-sh h2{font-size:40px;letter-spacing:-1.5px}"
+    + "#khr .khr-hero{height:clamp(560px,59.8vw,900px)}"
+    + "#khr .khr-hero::after{background:linear-gradient(90deg,rgba(246,243,237,0) 42%,rgba(246,243,237,.38) 58%,rgba(246,243,237,.5) 100%)}"
+    + "#khr .khr-ht{left:auto;right:max(16px,calc((100vw - 1240px)/2));top:50%;transform:translateY(-50%);width:520px;padding:0;text-align:left}"
+    + "#khr .khr-hero h1{font-size:64px;letter-spacing:-2.6px}"
+    + "#khr .khr-hero p{margin-top:16px;font-size:16px}"
+    + "#khr .khr-hero .khr-btn{margin-top:24px;height:52px;padding:0 26px;font-size:15px}"
+    + "#khr .khr-cap{right:auto;left:max(16px,calc((100vw - 1240px)/2));bottom:24px;text-align:left}"
+    + "#khr .khr-tk{margin:0;padding:0;justify-content:space-between}"
+    + "#khr .khr-first{padding-top:32px}"
+    + "#khr .khr-rail{grid-auto-columns:calc((1240px - 48px)/4.35);gap:16px;margin:0 -6px;padding:6px}"
+    + "#khr .khr-rail{min-height:520px}#khr .khr-grid{min-height:900px}#khr .khr-ph{min-height:500px}"
+    + "#khr .khr-szr{grid-auto-flow:row;grid-template-columns:repeat(10,1fr);gap:8px;margin-right:0;padding-right:0}"
+    + "#khr .khr-szr a{height:64px}"
+    + "#khr .khr-bl{grid-template-columns:repeat(8,1fr);gap:10px}#khr .khr-bl a{height:84px}#khr .khr-bl img{max-height:56px}"
+    + "#khr .khr-two{display:grid;grid-template-columns:7fr 5fr;gap:40px;align-items:start}"
+    + "#khr .khr-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}"
+    + "#khr .khr-grid>.product:nth-child(n+5){display:block}"
+    + "#khr .khr-rv{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:1fr 1fr;margin-right:0;padding-right:0;overflow:visible}"
+    + "#khr .khr-nav{display:grid;place-items:center;position:absolute;z-index:3;top:42%;width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:#fff;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.14);cursor:pointer;padding:0}"
+    + "#khr .khr-nav[hidden]{display:none}"
+    + "#khr .khr-nav.p{left:-14px}#khr .khr-nav.n{right:-14px}"
+    + "}"
+    + "@media (min-width:1500px){#khr .khr-rail{grid-auto-columns:calc((1240px - 48px)/4.35)}}";
+
+  /* ---------- segédek ---------- */
+  function $(s, c) { return (c || document).querySelector(s); }
+  function $$(s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); }
+  function mk(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function abs(u) { return /^https?:/.test(u) ? u : ORIGIN + u; }
+  function stars(n) { var s = ""; for (var i = 0; i < n; i++) s += STAR; return '<span class="khr-stars" role="img" aria-label="' + n + ' csillag az 5-ből">' + s + "</span>"; }
+  function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function head(title, href, pill) {
+    return '<div class="khr-sh"><h2>' + title + (pill ? ' <span class="khr-pill">' + pill + "</span>" : "") + "</h2>"
+      + (href ? '<a href="' + href + '"><span>Mind</span>' + ARROW + "</a>" : "") + "</div>";
+  }
+
+  /* ---------- 1) a váz ---------- */
+  function skeleton() {
+    var sz = "";
+    for (var i = 0; i < SIZES.length; i++) sz += '<a href="/osszes-termek?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
+    sz += '<a href="/osszes-termek"><small>ÖSSZES</small><b>' + ARROW + "</b></a>";
+    var br = "";
+    for (var j = 0; j < BRANDS.length; j++) br += '<a href="/osszes-termek?filter=8208356:' + encodeURIComponent(BRANDS[j][0]) + '"><img src="' + IMG + "brandlogo_" + BRANDS[j][1] + '.webp" alt="' + BRANDS[j][0] + '" loading="lazy" decoding="async"></a>';
+    var tk = ["30 NAP INGYENES CSERE", "UTÁNVÉT", "GYÁRI CIKKSZÁM", '<i class="khr-rate">5,0 GOOGLE</i>', "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], t = "";
+    for (var k = 0; k < tk.length; k++) t += "<span>" + CHECK + tk[k] + "</span>";
+    var ph = '<div class="khr-ph" style="width:100%"></div>';
+    return ''
+      + '<a class="khr-hero" href="/osszes-termek"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_d.webp" width="1284" height="768">'
+      + '<img src="' + IMG + 'hero_klassz_m.webp" width="746" height="1536" fetchpriority="high" decoding="async" alt="ASICS Gel-NYC Oyster Grey sneaker utcai kövön"></picture>'
+      + '<div class="khr-ht"><h1>Klasszikusok,<br>sok méretben</h1><p>Gyári cikkszám minden terméklapon</p><span class="khr-btn">Mutasd az összeset ' + ARROW + "</span></div>"
+      + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>'
+      + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
+      + '<section class="khr-sec khr-first" data-k="new" aria-label="Most érkezett">' + head("Most érkezett", "/ujdonsagok") + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
+      + '<section class="khr-sec" aria-label="Vásárolj a méretedben"><div class="khr-sh"><h2>Vásárolj a méretedben</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">30 nap ingyenes csere, ha nem jó a méret.</p></section>'
+      + '<section class="khr-sec" aria-label="Népszerű márkák"><div class="khr-sh"><h2>Népszerű márkák</h2></div><div class="khr-bl">' + br + "</div></section>"
+      + '<section class="khr-sec khr-two"><div data-k="top">' + head("Legnépszerűbb", "/osszes-termek") + '<div class="khr-grid type--1 list-type--1">' + ph + "</div></div>"
+      + '<div data-k="rev"><div class="khr-sh"><h2>Rólunk mondták</h2></div><div class="khr-revbox"><div class="khr-rvph"></div></div></div></section>'
+      + '<section class="khr-sec" data-k="sale" aria-label="Akciós">' + head('Akciós', "/akcios-termekek") + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
+      + "</div>";
+  }
+
+  /* ---------- 2) kártyák: a natív csomópontok áthelyezése ---------- */
+  function clean(card) {
+    card.className = card.className.replace(/\bcol-[a-z0-9-]+\b/g, "").replace(/\b(carousel-cell|is-selected|is-draggable)\b/g, "").replace(/\s+/g, " ").trim();
+    card.removeAttribute("aria-hidden"); card.removeAttribute("tabindex");
+    card.style.position = ""; card.style.left = ""; card.style.top = ""; card.style.transform = ""; card.style.width = "";
+    if (card.getAttribute("style") === "") card.removeAttribute("style");
+    return card;
+  }
+  var APPAREL = /jacket|hoodie|pants|shorts|t-shirt|\btee\b|\bcap\b|\bbag\b|track|sweat|crew|fleece|póló|pulóver|nadrág|sapka|táska|kabát|dzseki|zokni|kapucnis|mellény|felső/i;
+  function isShoe(c) {
+    var a = c.querySelector("a.product__name-link") || c.querySelector("a.product_link_normal");
+    return !!a && !!a.getAttribute("href") && !APPAREL.test(a.textContent || "");
+  }
+  function fill(sec, cards, cls, max) {
+    var box = $(cls, sec); if (!box || !cards.length) return false;
+    box.innerHTML = "";
+    for (var i = 0; i < cards.length && i < max; i++) box.appendChild(clean(cards[i]));
+    box.setAttribute("data-full", "1");
+    return true;
+  }
+  /* natív kezdőlapi modulok (AJAX-szal érkeznek): a kártyák kinyerése, ha már vannak */
+  function nativeCards(boxId) {
+    var b = document.getElementById(boxId); if (!b) return [];
+    return $$(".js-product", b);
+  }
+  var done = { sale: false, top: false, "new": false };
+  function pulls() {
+    var secSale = $('[data-k="sale"]'), secTop = $('[data-k="top"]');
+    if (!done.sale) {
+      var c1 = nativeCards("page_artref_inner").filter(isShoe);
+      if (c1.length >= 4) {
+        done.sale = fill(secSale, c1.slice(0, N_SALE), ".khr-rail", N_SALE);
+        if (done.sale) salePill(secSale);
+        navFor(secSale);
+      }
+    }
+    if (!done.top) {
+      var c2 = nativeCards("box_top_content").filter(isShoe);
+      if (c2.length >= 4) { done.top = fill(secTop, c2.slice(0, N_TOP), ".khr-grid", N_TOP); }
+    }
+  }
+  /* „Akciós -N%”: csak akkor, ha a megjelenített kártyák kedvezménye azonos (nem írunk ki számot, amit nem a kártya mutat) */
+  function salePill(sec) {
+    var v = $$(".badge--sale", sec).map(function (b) { return parseInt((b.textContent || "").replace(/[^\d]/g, ""), 10); }).filter(function (n) { return n > 0; });
+    if (!v.length) return;
+    var lo = Math.min.apply(null, v), hi = Math.max.apply(null, v);
+    var h = $(".khr-sh h2", sec);
+    if (h && lo === hi && !$(".khr-pill", h)) h.insertAdjacentHTML("beforeend", ' <span class="khr-pill">-' + lo + "%</span>");
+  }
+
+  /* Most érkezett: a natív /ujdonsagok AJAX-lista (a márkapolcok is így töltenek), csak ha a sor közel van a képernyőhöz */
+  function loadNew(sec) {
+    if (done["new"] || sec.getAttribute("data-loading")) return;
+    sec.setAttribute("data-loading", "1");
+    var key = "khr_new1", url = ORIGIN + "/ujdonsagok?ajax_filter=1&ajax_nodesign=1&filter_value_count_disabled=1";
+    function render(htmlTxt) {
+      var doc; try { doc = new DOMParser().parseFromString(htmlTxt, "text/html"); } catch (e) { return false; }
+      var cards = $$(".js-product", doc).filter(isShoe).slice(0, N_NEW).map(function (c) { return document.importNode(c, true); });
+      if (cards.length < 4) return false;
+      done["new"] = fill(sec, cards, ".khr-rail", N_NEW); navFor(sec);
+      return done["new"];
+    }
+    if (!window.fetch) return fail();
+    function fail() { var m = $(".khr-railbox", sec); if (m && !done["new"]) m.parentNode.removeChild(m), sec.parentNode.removeChild(sec); }
+    fetch(url, { credentials: "same-origin" }).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { if (!t || !render(t)) fail(); }).catch(fail);
+  }
+  function lazy(sec, fn, margin) {
+    if (window.IntersectionObserver) {
+      var io = new IntersectionObserver(function (en) { for (var i = 0; i < en.length; i++) if (en[i].isIntersecting) { io.disconnect(); fn(sec); } }, { rootMargin: margin });
+      io.observe(sec);
+    } else window.addEventListener("load", function () { setTimeout(function () { fn(sec); }, 1200); });
+  }
+
+  /* nyilak (asztalon): a sín görgetése */
+  function navFor(sec) {
+    var box = $(".khr-railbox", sec), rail = box && $(".khr-rail", box);
+    if (!rail || $(".khr-nav", box)) return;
+    var p = mk("button", "khr-nav p", CHEV.l), n = mk("button", "khr-nav n", CHEV.r);
+    p.type = n.type = "button"; p.setAttribute("aria-label", "Előző"); n.setAttribute("aria-label", "Következő");
+    function upd() { p.hidden = rail.scrollLeft < 8; n.hidden = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 8; }
+    function go(d) { rail.scrollBy({ left: d * Math.max(200, rail.clientWidth * 0.8), behavior: "smooth" }); }
+    p.addEventListener("click", function () { go(-1); }); n.addEventListener("click", function () { go(1); });
+    rail.addEventListener("scroll", upd, { passive: true }); window.addEventListener("resize", upd);
+    box.appendChild(p); box.appendChild(n); upd(); setTimeout(upd, 600);
+  }
+
+  /* ---------- 3) értékelések: a Trustindex élő adatából (content.html), R2 kártyákkal ---------- */
+  function tiUrl(pid) { return "https://cdn.trustindex.io/widgets/" + pid.slice(0, 2) + "/" + pid + "/content.html"; }
+  function ago(ts) {
+    var d = Math.max(0, Math.floor((Date.now() / 1000 - ts) / 86400));
+    if (d < 1) return "ma";
+    if (d < 7) return d + " napja";
+    if (d < 30) return Math.floor(d / 7) + " hete";
+    if (d < 365) return Math.floor(d / 30) + " hónapja";
+    return Math.floor(d / 365) + " éve";
+  }
+  function tiCount(root) {
+    var a = root.querySelector(".ti-footer .ti-rating-text a") || root.querySelector(".ti-footer .ti-rating-text"), m;
+    return a && (m = (a.textContent || "").match(/\d+/)) ? parseInt(m[0], 10) : 0;
+  }
+  function tiRating(root) {
+    var e = root.querySelector(".ti-header .nowrap strong") || root.querySelector(".ti-header strong"), v;
+    if (e) { v = parseFloat((e.textContent || "").replace(",", ".")); if (v > 0 && v <= 5) return v; }
+    return 0;
+  }
+  function parse(t) { try { return new DOMParser().parseFromString(t, "text/html"); } catch (e) { return null; } }
+  function getTi(pid) { return fetch(tiUrl(pid)).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { return t ? parse(t) : null; }); }
+  function setRate(r, n) {
+    var e = $(".khr-rate"); if (e && r > 0 && n > 0) e.textContent = r.toFixed(1).replace(".", ",") + " GOOGLE";
+    else if (e) e.parentNode.style.display = "none";
+  }
+  function loadReviews(sec) {
+    var box = $(".khr-revbox", sec); if (!box || box.getAttribute("data-done")) return;
+    box.setAttribute("data-done", "1");
+    if (!window.fetch || !window.DOMParser) return setRate(0, 0);
+    var rating = 0, n = 0, gUrl = "";
+    try { var c = JSON.parse(sessionStorage.getItem("kbd_ti") || "null"); if (c && c.t && Date.now() - c.t < 3600000) { rating = c.r; n = c.n; } } catch (e) {}
+    Promise.all([getTi(TI_BIG), rating ? Promise.resolve(null) : getTi(TI_SMALL)]).then(function (res) {
+      var big = res[0], small = res[1];
+      if (!big) throw new Error("ti");
+      if (!n) n = tiCount(big);
+      if (!rating && small) rating = tiRating(small);
+      if (n && rating) { try { sessionStorage.setItem("kbd_ti", JSON.stringify({ t: Date.now(), r: rating, n: n })); } catch (e) {} }
+      var items = $$(".ti-review-item", big).filter(function (it) {
+        return (it.getAttribute("data-language") || "hu") === "hu" && parseFloat(it.getAttribute("data-rating")) >= 4 && ($(".ti-review-content", it) || {}).textContent;
+      });
+      if (!items.length || !(rating > 0) || !(n > 0)) throw new Error("ti-empty");
+      gUrl = items[0].getAttribute("data-platform-page-url") || "";
+      setRate(rating, n);
+      var cards = "";
+      for (var i = 0; i < items.length && i < 4; i++) {
+        var it = items[i], name = ($(".ti-name", it) || {}).textContent || "", txt = ($(".ti-review-content", it) || {}).textContent || "";
+        name = name.replace(/\s+/g, " ").trim(); txt = txt.replace(/\s+/g, " ").trim();
+        if (txt.length > 190) txt = txt.slice(0, 187).replace(/\s+\S*$/, "") + "…";
+        var pic = $(".ti-profile-img img", it), src = pic ? pic.getAttribute("src") : "";
+        cards += '<div class="khr-rc"><div class="hd2"><span class="av">' + (/^https:\/\/lh3\.googleusercontent\.com\//.test(src || "") ? '<img src="' + esc(src) + '" alt="" width="36" height="36" loading="lazy" referrerpolicy="no-referrer">' : esc(name.charAt(0).toUpperCase()))
+          + '</span><span class="nm2"><b>' + esc(name) + "</b><small>" + ago(parseInt(it.getAttribute("data-time"), 10) || 0) + '</small></span><img class="gi" src="https://cdn.trustindex.io/assets/platform/Google/icon.svg" alt="Google" width="18" height="18" loading="lazy"></div>'
+          + stars(Math.round(parseFloat(it.getAttribute("data-rating")) || 5)) + "<p>" + esc(txt) + "</p></div>";
+      }
+      var link = /^https:\/\/www\.google\.com\/maps\//.test(gUrl) ? gUrl : "";
+      box.innerHTML = '<div class="khr-rs"><span class="n">' + rating.toFixed(1).replace(".", ",") + "</span><span>" + stars(5) + "<b>" + n + ' vélemény alapján</b><img class="khr-glogo" src="' + IMG + 'ti_Google_logo.svg" alt="Google" width="74" height="23"></span></div>'
+        + '<div class="khr-rv">' + cards + "</div>"
+        + (link ? '<a class="khr-gl" href="' + esc(link) + '" target="_blank" rel="noopener">Vélemények a Google-on ' + ARROW + "</a>" : "");
+    }).catch(function () {
+      /* tartalék: az eredeti Trustindex nagy widget (a loader a script helyére teszi) */
+      var sc = document.createElement("script"); sc.defer = true; sc.async = true; sc.src = "https://cdn.trustindex.io/loader.js?" + TI_BIG;
+      box.innerHTML = ""; box.appendChild(sc); setRate(0, 0);
+    });
+  }
+
+  /* ---------- 4) indítás ---------- */
+  function mount() {
+    var main = document.getElementById("main");
+    if (!main || document.getElementById("khr")) return !!document.getElementById("khr");
+    if (!document.getElementById("khr-css")) { var st = mk("style"); st.id = "khr-css"; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); }
+    var r = mk("section", "", skeleton()); r.id = "khr"; r.setAttribute("aria-label", "Kezdőlap");
+    main.insertBefore(r, main.firstChild);
+    var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
+    lazy(sNew, loadNew, "1200px 0px");
+    lazy(sRev, loadReviews, "600px 0px");
+    return true;
+  }
+  function start() {
+    if (!document.body || document.body.id !== "ud_shop_start") return;
+    var tries = 0;
+    (function tick() {
+      mount(); pulls();
+      if (++tries < 80 && !(done.sale && done.top)) setTimeout(tick, 250);
+    })();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
