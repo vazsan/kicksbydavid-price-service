@@ -17,10 +17,11 @@
     window.KBD_R2H_BASE = B;
     var s = d.createElement("style"); s.id = "khr-early";
     s.textContent = "html.khr-on #start_banner_big,html.khr-on #start_category_offer,html.khr-on #page_artref_inner,html.khr-on #box_top_content,html.khr-on #start_brand_slider,html.khr-on #kbd-home-trust-marquee{display:none!important}"
-      + "html.khr-on:not(.khr-ready) #main::before{content:'';display:block;height:min(206vw,860px);background:#CFC6B8}"
-      + "@media (min-width:992px){html.khr-on:not(.khr-ready) #main::before{height:861px}}"
-      + "#khr .khr-hero{position:relative;display:block;height:min(206vw,860px);overflow:hidden;background:#CFC6B8}#khr .khr-hero picture,#khr .khr-hero img{display:block;width:100%;height:100%}#khr .khr-hero img{object-fit:cover}#khr .khr-ht{position:absolute;z-index:1;left:0;right:0;top:0}"
-      + "@media (min-width:992px){#khr .khr-hero{height:861px}}"
+      + "html.khr-on:not(.khr-ready) #main::before{content:'';display:block;height:520px;background:#CFC6B8}"
+      + "@media (min-width:992px){html.khr-on:not(.khr-ready) #main::before{height:600px}}"
+      + "html.khr-on:not(.khr-ready) #main>*{visibility:hidden}"
+      + "#khr .khr-hero{position:relative;display:block;height:520px;overflow:hidden;background:#CFC6B8}#khr .khr-hero picture,#khr .khr-hero img{display:block;width:100%;height:100%}#khr .khr-hero img{object-fit:cover;object-position:50% 60%}#khr .khr-ht{position:absolute;z-index:1;left:0;right:0;top:0}"
+      + "@media (min-width:992px){#khr .khr-hero{height:600px}}"
       + "@supports selector(:has(a)){html.khr-on body#ud_shop_start{padding-top:34px}@media(max-width:767.98px){html.khr-on body#ud_shop_start{padding-top:30px}}html.khr-on body#ud_shop_start:has(>#kbd-bar){padding-top:0!important}}";
     d.head.appendChild(s);
     function pl(href, srcset, media) {

@@ -24,7 +24,7 @@
     starsAria: function (n) { return n + "/5"; }, alt: "ASICS Gel-NYC Oyster Grey", aria: "KicksByDavid"
   } : {
     base: "/osszes-termek", newUrl: "/ujdonsagok", saleUrl: "/akcios-termekek",
-    h1: "Klasszikus sneakerek,<br>sok méretben", sub: "Gyári cikkszám minden terméklapon", btn: "Mutasd az összeset",
+    h1: "Felkapott<br>sneakerek", sub: "Gyári cikkszám minden terméklapon", btn: "Mutasd az összeset",
     ticker: ["30 NAP INGYENES CSERE", "UTÁNVÉT", "GYÁRI CIKKSZÁM", "RATE", "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], rate: "GOOGLE",
     newT: "Most érkezett", all: "Mind", sizeT: "Vásárolj a méretedben", sizeAll: "ÖSSZES", sizeNote: "30 nap ingyenes csere, ha nem jó a méret.",
     brandsT: "Népszerű márkák", topT: "Legnépszerűbb", revT: "Rólunk mondták", saleT: "Akciós",
@@ -64,9 +64,9 @@
     + "#khr .khr-sh>a{flex:none;display:inline-flex;align-items:center;gap:4px;height:44px;font-size:13px;font-weight:800}"
     + "#khr .khr-sh>a span{border-bottom:2px solid var(--ink)}"
     /* hős */
-    + "#khr .khr-hero{position:relative;display:block;height:min(206vw,860px);overflow:hidden;background:#CFC6B8}"
+    + "#khr .khr-hero{position:relative;display:block;height:520px;overflow:hidden;background:#CFC6B8}"
     + "#khr .khr-hero picture,#khr .khr-hero img{display:block;width:100%;height:100%}"
-    + "#khr .khr-hero img{object-fit:cover;object-position:50% 50%}"
+    + "#khr .khr-hero img{object-fit:cover;object-position:50% 60%}"
     + "#khr .khr-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(246,243,237,.78) 0,rgba(246,243,237,.42) 34%,rgba(246,243,237,0) 52%);pointer-events:none}"
     + "#khr .khr-ht{position:absolute;z-index:1;left:0;right:0;top:0;padding:30px 20px 0;text-align:center}"
     + "#khr .khr-hero h1{margin:0;padding:0;font:800 38px/1.02 Montserrat,sans-serif;letter-spacing:-1.6px;text-transform:uppercase;color:var(--ink)}"
@@ -128,7 +128,8 @@
     + "#khr .khr-w{max-width:1272px;margin:0 auto;padding:0 16px 72px}#khr .khr-two [data-k=\"rev\"]{margin-top:0}"
     + "#khr .khr-sec{padding:56px 0 0}"
     + "#khr .khr-sh{margin-bottom:20px}#khr .khr-sh h2{font-size:40px;letter-spacing:-1.5px}"
-    + "#khr .khr-hero{height:861px}"
+    + "#khr .khr-hero{height:600px}"
+    + "#khr .khr-hero img{object-position:30% 50%}"
     + "#khr .khr-hero::after{background:linear-gradient(90deg,rgba(246,243,237,0) 40%,rgba(246,243,237,.5) 58%,rgba(246,243,237,.62) 100%)}"
     + "#khr .khr-ht{left:auto;right:max(16px,calc((100vw - 1240px)/2));top:50%;transform:translateY(-50%);width:520px;padding:0;text-align:left}"
     + "#khr .khr-hero h1{font-size:64px;letter-spacing:-2.6px}"
@@ -176,8 +177,8 @@
     for (var k = 0; k < tk.length; k++) t += "<span>" + CHECK + tk[k] + "</span>";
     var ph = '<div class="khr-ph" style="width:100%"></div>';
     return ''
-      + '<a class="khr-hero" href="' + L.base + '?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="861">'
-      + '<img src="' + IMG + 'hero_klassz_mob_780.webp" width="780" height="1606" fetchpriority="high" decoding="async" alt="' + L.alt + '"></picture>'
+      + '<a class="khr-hero" href="' + L.base + '?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="600">'
+      + '<img src="' + IMG + 'hero_klassz_mob_780.webp" width="780" height="1040" fetchpriority="high" decoding="async" alt="' + L.alt + '"></picture>'
       + '<div class="khr-ht"><h1>' + L.h1 + '</h1><p>' + L.sub + '</p><span class="khr-btn">' + L.btn + ' ' + ARROW + "</span></div>"
       + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>'
       + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
