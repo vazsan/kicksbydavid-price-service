@@ -1,4 +1,4 @@
-/* KicksByDavid kezdőlap R2, ALSÓ RÉSZ (Vera csomagja, Dávid TG 2478): Dávid-blokk, GYIK + kapcsolat-kártya, Club, blog (csak HU). A szöveg az élő oldalról szó szerint (cégnév: KICKSBYDAVID s.r.o.).
+/* KicksByDavid kezdőlap R2, ALSÓ RÉSZ (Vera csomagja, Dávid TG 2478): Dávid-blokk, GYIK + kapcsolat-kártya, Club, blog (csak HU). A szöveg az élő oldalról szó szerint (kivéve a cégnév: KICKS BY DÁVID s. r. o., Dávid TG 2245).
    A lábléc, a #kbd-pay és a #kbd-nl érintetlen. A régi blokkok (#kbd-founder, #custom-content-top = GYIK + Club, #box_page_content = blog) csak elrejtve vannak (display:none), a tartalmuk (pl. a GYIK JSON-LD) a helyén marad.
    Kapcsoló: süti kbdbottom, ?kbdbottom=1 / 0; alap: DEF_BT. A home.js tölti be. Generálja: scripts/pdp/home_bottom_gen.py */
 (function () {

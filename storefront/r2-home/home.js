@@ -521,8 +521,8 @@
   }
   /* a modul a fejből töltődik: amint a #main megjelenik a feldolgozás közben, a hős már beszúrásra kerül (nincs régi tartalom villanás, a helyét a fej-tag korai CSS-e tartja) */
   function pageReady() { return !!(document.body && document.body.id === "ud_shop_start" && document.getElementById("main")); }
-  /* alsó rész (Vera csomagja, bottom.js): süti kbdbottom / ?kbdbottom=1|0; alap: DEF_BT (előnézet alatt false). Csak akkor töltődik, ha be van kapcsolva. */
-  var DEF_BT = false;
+  /* alsó rész (Vera csomagja, bottom.js): süti kbdbottom / ?kbdbottom=1|0; alap: DEF_BT (élesítve: true, Dávid TG 2478, Nora mérése msg 2182). Csak akkor töltődik, ha be van kapcsolva. */
+  var DEF_BT = true;
   function loadBottom() {
     var q = /[?&]kbdbottom=([01])(?:&|$)/.exec(location.search), c = /(?:^|;\s*)kbdbottom=([01])/.exec(document.cookie || "");
     var on = q ? q[1] === "1" : (c ? c[1] === "1" : DEF_BT);
