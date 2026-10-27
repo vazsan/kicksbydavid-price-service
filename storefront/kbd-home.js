@@ -13,6 +13,27 @@
 
   var SK = /\.sk$/i.test(location.hostname);
 
+  /* ---------- R2 kezdőlap (Dávid TG 2386, Főnök msg 2060): csak HU, csak a kezdőlap ("/"). Kapcsoló: süti kbdhome; ?kbdhome=1 bekapcsolja, ?kbdhome=0 kikapcsolja (vészkapcsoló,
+     mellette a ?kbdoff=1 az egész szkriptet). R2_LIVE = az alapértelmezés süti nélkül (előnézeti szakaszban false). Az R2 modul külön fájl (storefront/r2-home/home.js), csak akkor töltődik, ha be van kapcsolva.
+     Bekapcsolva a régi kezdőlap-felső (hős, előnysáv, kategóriák, csempék, fülek, értékelések, polcok) nem épül; a GYIK, blog, hírlevél, lábléc, alapító-blokk és a nemrég megnézett marad. ---------- */
+  var R2_LIVE = false;
+  var R2_COMMIT = "576e41158622e7ee5b51ac2823eb496589a23ed0";
+  var R2 = false;
+  (function () {
+    var q = /[?&]kbdhome=([01])(?:&|$)/.exec(location.search), ck = /(?:^|;\s*)kbdhome=([01])/.exec(document.cookie || "");
+    if (q) { try { document.cookie = "kbdhome=" + q[1] + ";path=/;max-age=7776000;SameSite=Lax"; } catch (e) {} ck = { 1: q[1] }; }
+    var on = ck ? ck[1] === "1" : R2_LIVE;
+    if (SK || !on || location.pathname !== "/") return;
+    R2 = true; window.KBD_R2H_ON = 1;
+    var de = document.documentElement; de.className += " khr-on";
+    var st = document.createElement("style"); st.id = "khr-early";
+    st.textContent = "html.khr-on #start_banner_big,html.khr-on #start_category_offer,html.khr-on #page_artref_inner,html.khr-on #box_top_content,html.khr-on #start_brand_slider,html.khr-on #kbd-home-trust-marquee{display:none!important}";
+    (document.head || de).appendChild(st);
+    window.KBD_R2H_BASE = "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@" + R2_COMMIT + "/storefront/r2-home/";
+    var sc = document.createElement("script"); sc.async = true; sc.id = "khr-js"; sc.src = window.KBD_R2H_BASE + "home.js";
+    (document.head || de).appendChild(sc);
+  })();
+
   /* 2026-10-25 (Dávid TG 1859): the hero text block (label, H1, paragraph, men/women buttons, sale link, Google rating line) is hidden; only the banner slider shows, full width.
      The H1 stays in the DOM, visually hidden (SEO / screen readers); everything else in the block is display:none. Switch back: HERO_TXT = true (then rebuild the pin); ?kbdherotxt=1 shows the text block for a test. */
   var HERO_TXT = false;
@@ -397,13 +418,13 @@
     + "#ud_shop_start #kbd-ptabs{background:#fff;padding:44px 0 44px}#ud_shop_start .kbd-pt__head{margin-bottom:20px}"
     + "#ud_shop_start .kbd-pt__tab{height:42px;padding:0 20px;border-radius:12px;border-color:#171717;text-transform:uppercase;letter-spacing:.06em;font-size:12.5px}"
     + "#ud_shop_start .kbd-pt__nav{border-radius:12px;border-color:#171717}#ud_shop_start .kbd-pt__all{text-transform:uppercase;letter-spacing:.06em;font-size:12.5px}"
-    + "#ud_shop_start .product__inner{box-shadow:none!important;border:0!important;border-radius:18px;background:#fff;overflow:hidden}"
-    + "#ud_shop_start .product__img-outer{background:#f3f2ee;border-radius:18px;overflow:hidden}#ud_shop_start .product__img{mix-blend-mode:multiply}"
-    + "#ud_shop_start .product__name,#ud_shop_start .product__name a{font-size:13.5px!important;font-weight:600!important;line-height:1.35!important;color:#171717!important}"
-    + "#ud_shop_start .product__price-base,#ud_shop_start .product__price-base-value,#ud_shop_start .price-gross{font-size:17px!important;font-weight:900!important;color:#171717!important}"
-    + "#ud_shop_start .product__badges .badge{border-radius:8px!important;background:#171717!important;color:#fff!important;font-size:10.5px!important;letter-spacing:.08em;text-transform:uppercase;font-weight:800!important}"
-    + "#ud_shop_start .product__details-btn{border-radius:12px!important;background:#171717!important;color:#fff!important;border:0!important}"
-    + "#ud_shop_start .product__stock{font-size:11.5px!important;color:#8f8d87!important}#ud_shop_start .product__stock.on-stock,#ud_shop_start .product__stock.on-stock .stock__text{color:#1E8E3E!important;font-weight:700!important}#ud_shop_start .product__stock.on-stock svg{color:#1E8E3E!important;fill:#1E8E3E!important}#ud_shop_start .kbd-rv__it i.kbd-rv__stock{display:block;font-style:normal;font-size:11.5px;font-weight:700;color:#1E8E3E;padding:0 12px;margin-top:2px}#ud_shop_start .product__function-btns{position:absolute!important;top:8px!important;right:8px!important;left:auto!important;bottom:auto!important;display:flex!important;flex-direction:column;gap:6px;background:none!important;box-shadow:none!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;width:auto!important;height:auto!important;opacity:1!important;visibility:inherit!important;transform:none!important;z-index:3}#ud_shop_start .product__function-btns .product__func-btn{box-sizing:border-box!important;width:32px!important;height:32px!important;max-height:32px!important;min-width:0!important;min-height:0!important;line-height:0!important;font-size:12px!important;border-radius:50%!important;background:rgba(255,255,255,.85)!important;box-shadow:0 1px 4px rgba(0,0,0,.16)!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important;border:0!important;color:#171717!important;flex:none!important}#ud_shop_start .product__function-btns .product__func-btn:not([hidden]){display:inline-flex}#ud_shop_start .product__function-btns .product__func-btn svg{display:block!important;width:15px!important;height:15px!important;margin:0!important;fill:currentColor;opacity:1!important;visibility:inherit!important}@media(max-width:767.98px){#ud_shop_start .product__function-btns .product__func-btn{width:28px!important;height:28px!important;max-height:28px!important}#ud_shop_start .product__function-btns .product__func-btn svg{width:13px!important;height:13px!important}}"
+    + (R2 ? "" : "#ud_shop_start .product__inner{box-shadow:none!important;border:0!important;border-radius:18px;background:#fff;overflow:hidden}")
+    + (R2 ? "" : "#ud_shop_start .product__img-outer{background:#f3f2ee;border-radius:18px;overflow:hidden}#ud_shop_start .product__img{mix-blend-mode:multiply}")
+    + (R2 ? "" : "#ud_shop_start .product__name,#ud_shop_start .product__name a{font-size:13.5px!important;font-weight:600!important;line-height:1.35!important;color:#171717!important}")
+    + (R2 ? "" : "#ud_shop_start .product__price-base,#ud_shop_start .product__price-base-value,#ud_shop_start .price-gross{font-size:17px!important;font-weight:900!important;color:#171717!important}")
+    + (R2 ? "" : "#ud_shop_start .product__badges .badge{border-radius:8px!important;background:#171717!important;color:#fff!important;font-size:10.5px!important;letter-spacing:.08em;text-transform:uppercase;font-weight:800!important}")
+    + (R2 ? "" : "#ud_shop_start .product__details-btn{border-radius:12px!important;background:#171717!important;color:#fff!important;border:0!important}")
+    + (R2 ? "" : "#ud_shop_start .product__stock{font-size:11.5px!important;color:#8f8d87!important}#ud_shop_start .product__stock.on-stock,#ud_shop_start .product__stock.on-stock .stock__text{color:#1E8E3E!important;font-weight:700!important}#ud_shop_start .product__stock.on-stock svg{color:#1E8E3E!important;fill:#1E8E3E!important}#ud_shop_start .kbd-rv__it i.kbd-rv__stock{display:block;font-style:normal;font-size:11.5px;font-weight:700;color:#1E8E3E;padding:0 12px;margin-top:2px}#ud_shop_start .product__function-btns{position:absolute!important;top:8px!important;right:8px!important;left:auto!important;bottom:auto!important;display:flex!important;flex-direction:column;gap:6px;background:none!important;box-shadow:none!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;width:auto!important;height:auto!important;opacity:1!important;visibility:inherit!important;transform:none!important;z-index:3}#ud_shop_start .product__function-btns .product__func-btn{box-sizing:border-box!important;width:32px!important;height:32px!important;max-height:32px!important;min-width:0!important;min-height:0!important;line-height:0!important;font-size:12px!important;border-radius:50%!important;background:rgba(255,255,255,.85)!important;box-shadow:0 1px 4px rgba(0,0,0,.16)!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important;border:0!important;color:#171717!important;flex:none!important}#ud_shop_start .product__function-btns .product__func-btn:not([hidden]){display:inline-flex}#ud_shop_start .product__function-btns .product__func-btn svg{display:block!important;width:15px!important;height:15px!important;margin:0!important;fill:currentColor;opacity:1!important;visibility:inherit!important}@media(max-width:767.98px){#ud_shop_start .product__function-btns .product__func-btn{width:28px!important;height:28px!important;max-height:28px!important}#ud_shop_start .product__function-btns .product__func-btn svg{width:13px!important;height:13px!important}}")
     + "#ud_shop_start #kbd-reviews{padding:48px 0 40px;background:#f3f2ee}"
     + "#ud_shop_start #start_brand_slider.kbd-on{background:#fff!important;padding:48px 0 44px!important}#ud_shop_start .start_brand_slider.kbd-on .carousel-cell img{display:block;width:112px;height:50px;margin:0 auto;object-fit:cover;box-shadow:none!important;border-radius:999px;border:1.5px solid #dedbd4;background:#f3f2ee;transition:border-color .2s}#ud_shop_start .start_brand_slider.kbd-on .carousel-cell a:hover img{box-shadow:none!important;border-color:#171717}#ud_shop_start .start_brand_slider.kbd-on .main-title__wrap{margin-bottom:22px!important}"
     + "#ud_shop_start .kbd-home-extra{padding:56px 0}#ud_shop_start .kbd-promo{box-shadow:none!important;border-radius:24px;background:#111111;color:#fff!important}#ud_shop_start .kbd-promo .pt{padding:48px 52px}#ud_shop_start .kbd-promo .t1{color:#A3481F;font-size:13px;letter-spacing:.2em;font-weight:700}#ud_shop_start .kbd-promo .t2{font-size:38px;font-weight:900;letter-spacing:-.02em}#ud_shop_start .kbd-promo .ln{background:rgba(255,255,255,.3)}#ud_shop_start .kbd-promo .pd{color:#c9c7c2}#ud_shop_start .kbd-promo .bt{border-radius:12px;text-transform:uppercase;letter-spacing:.06em}#ud_shop_start .kbd-promo .pi{padding:0!important;position:relative;align-self:stretch;min-height:424px}#ud_shop_start .kbd-promo .pi img{width:100%!important;max-width:none!important;height:100%!important;position:absolute;inset:0;object-fit:cover;object-position:center}#ud_shop_start .kbd-promo .pi:after{content:\"\";position:absolute;top:0;bottom:0;left:0;width:26%;background:linear-gradient(90deg,#111111,rgba(17,17,17,0));pointer-events:none}"
@@ -741,14 +762,14 @@
     /* a terméknév szövegként kerül be, nem HTML-ként */
     var spans = s.querySelectorAll(".kbd-rv__it span"), k = 0;
     for (var j = 0; j < list.length && j < 6; j++) if (list[j] && list[j].u && list[j].n) spans[k++].textContent = list[j].n;
-    var ref = $id("kbd-ptabs");
+    var ref = $id("kbd-ptabs") || (R2 && $id("khr"));
     if (ref) after(s, ref);
   }
 
   /* ---------- 6e) alapítói blokk (szöveg a Rólunk oldalról) ---------- */
   function buildFounder() {
     if ($id("kbd-founder")) return;
-    var ref = document.querySelector("#main > .kbd-home-extra") || $id("kbd-ptabs");
+    var ref = document.querySelector("#main > .kbd-home-extra") || $id("kbd-ptabs") || (R2 && $id("khr"));
     if (!ref) return;
     var li = "";
     for (var i = 0; i < T.fL.length; i++) li += "<li>" + svg("shield") + "<span>" + T.fL[i] + "</span></li>";
@@ -1073,7 +1094,13 @@
 
   /* ---------- 7) sorrend: asztalon hero, előnyök, kategóriák, csempék, fülek, ...; mobilon banner, kategóriák, hero, előnyök, csempék, fülek, ... ---------- */
   var lastMob = null;
+  function arrangeR2() {
+    var r = $id("khr"); if (!r) return;
+    var seq = [r, $id("kbd-rv"), $id("kbd-founder")].filter(function (x) { return x && x.parentNode; });
+    for (var i = 1; i < seq.length; i++) if (seq[i - 1].nextElementSibling !== seq[i]) after(seq[i], seq[i - 1]);
+  }
   function arrange() {
+    if (R2) return arrangeR2();
     var main = $id("main"), cat = $id("start_category_offer");
     if (!main || !cat) return;
     var hero = $id("kbd-hero"), usp = $id("kbd-usp"), tabs = $id("kbd-ptabs"), bn = $id("start_banner_big");
@@ -1103,7 +1130,8 @@
     try {
       buildBar(); prefillNewsletter();
       if (document.body && document.body.id === "ud_shop_start") {
-        buildTick(); buildHero(); buildUsp(); orderCats(); buildTiles(); buildTabs(); buildReviews(); buildContact(); fixClub(); buildRecent(); buildFounder(); buildShelves(); buildNewsletter(); buildPay(); fixBlog(); skin(); arrange(); syncRating(); sizeStrip(); fixFooterGap();
+        if (R2) { buildContact(); fixClub(); buildRecent(); buildFounder(); buildNewsletter(); buildPay(); fixBlog(); skin(); arrange(); }
+        else { buildTick(); buildHero(); buildUsp(); orderCats(); buildTiles(); buildTabs(); buildReviews(); buildContact(); fixClub(); buildRecent(); buildFounder(); buildShelves(); buildNewsletter(); buildPay(); fixBlog(); skin(); arrange(); syncRating(); } sizeStrip(); fixFooterGap();
       }
     } catch (e) { if (window.console) console.warn("kbd-home", e); }
     busy = false;
@@ -1118,7 +1146,7 @@
     }, 500);
   }
   function start() {
-    run(); if (document.body && document.body.id === "ud_shop_start") tabWatch();
+    run(); if (!R2 && document.body && document.body.id === "ud_shop_start") tabWatch();
     var main = $id("main");
     if (main && window.MutationObserver && document.body.id === "ud_shop_start") {
       var t = null, mo = new MutationObserver(function () { if (busy) return; clearTimeout(t); t = setTimeout(run, 60); });
@@ -1136,7 +1164,7 @@
 /* ---------- A korábbi, külön Unas-scriptként futó kezdőlapi blokkok, ide beépítve ----------
    (kategóriakártyák, méretsor, UGG ajánló, márkák + márkalogók). Ha a régi script is bent maradna,
    az ID-ellenőrzések miatt nem duplázódnak. */
-if (!/[?&]kbdoff=1/.test(location.search)) {
+if (!/[?&]kbdoff=1/.test(location.search) && !window.KBD_R2H_ON) {
 /* KBD főoldal v2 – kategória kártyák, méretsor, UGG ajánló, márkák (HU+SK), az Unas alap termékkártya-dizájnjához igazítva. FIGYELEM: Unas szkriptben tilos a dupla szögletes zárójel. */
 (function(){
 var SK=/\.sk$/.test(location.hostname);
