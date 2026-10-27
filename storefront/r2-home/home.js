@@ -167,7 +167,7 @@
   }
 
   /* ---------- 1) a váz ---------- */
-  function skeleton() {
+  function skeleton(noHero) {
     var sz = "";
     for (var i = 0; i < SIZES.length; i++) sz += '<a data-s="' + SIZES[i] + '" href="' + L.base + '?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
     sz += '<a href="' + L.base + '"><small>' + L.sizeAll + '</small><b>' + ARROW + "</b></a>";
@@ -176,11 +176,11 @@
     var tk = L.ticker.map(function (x) { return x === "RATE" ? '<i class="khr-rate">5,0 ' + L.rate + "</i>" : x; }), t = "";
     for (var k = 0; k < tk.length; k++) t += "<span>" + CHECK + tk[k] + "</span>";
     var ph = '<div class="khr-ph" style="width:100%"></div>';
-    return ''
+    return (noHero ? '' : ''
       + '<a class="khr-hero" href="' + L.base + '?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="600">'
       + '<img src="' + IMG + 'hero_klassz_mob_780.webp" width="780" height="1040" fetchpriority="high" decoding="async" alt="' + L.alt + '"></picture>'
       + '<div class="khr-ht"><h1>' + L.h1 + '</h1><p>' + L.sub + '</p><span class="khr-btn">' + L.btn + ' ' + ARROW + "</span></div>"
-      + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>'
+      + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>')
       + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
       + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
@@ -394,14 +394,24 @@
   }
   function mount() {
     var main = document.getElementById("main");
-    if (!main || document.getElementById("khr")) return !!document.getElementById("khr");
+    if (!main) return false;
+    var shell = document.getElementById("khr");
+    if (shell && shell.getAttribute("data-shell") !== "1") return true;   /* már felépült */
     var simg = slideImg();
-    /* a slide még nem érkezett meg a feldolgozásból: legfeljebb 1,2 mp-ig várunk rá (a helyet a fej-tag tartja) */
-    if (!simg && document.readyState === "loading" && Date.now() - T0 < 1200) return false;
+    if (!shell) {
+      /* a slide még nem érkezett meg a feldolgozásból: legfeljebb 1,2 mp-ig várunk rá (a helyet a fej-tag tartja) */
+      if (!simg && document.readyState === "loading" && Date.now() - T0 < 1200) return false;
+    }
     if (!document.getElementById("khr-css")) { var st = mk("style"); st.id = "khr-css"; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); }
-    var r = mk("section", "", skeleton()); r.id = "khr"; r.setAttribute("aria-label", L.aria);
-    if (wantSlide(simg)) useSlide(r, simg);
-    main.insertBefore(r, main.firstChild);
+    var r;
+    if (shell) {
+      /* a hőst a fej-tag már kirajzolta (héj): csak a többit építjük alá */
+      r = shell; r.insertAdjacentHTML("beforeend", skeleton(true)); r.setAttribute("data-shell", "done");
+    } else {
+      r = mk("section", "", skeleton()); r.id = "khr"; r.setAttribute("aria-label", L.aria);
+      if (wantSlide(simg)) useSlide(r, simg);
+      main.insertBefore(r, main.firstChild);
+    }
     document.documentElement.className += " khr-ready";
     var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
     /* a hős kép előnyt kap a lassú hálón: a Most érkezett lista (~800 KB HTML) és a tiles.json csak a hős betöltése után (legfeljebb 3,5 mp) indul */
