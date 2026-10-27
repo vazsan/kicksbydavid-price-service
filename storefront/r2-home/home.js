@@ -79,8 +79,8 @@
     + "#khr .khr-intro h1{margin:0;padding:0;font:800 28px/1.02 Montserrat,sans-serif;letter-spacing:-1px;text-transform:none;color:var(--ink)}"
     + "#khr .khr-intro>a{flex:none;display:inline-flex;align-items:center;gap:4px;height:44px;font-size:13px;font-weight:800}#khr .khr-intro>a span{border-bottom:2px solid var(--ink)}"
     + "html.khr-slider #start_banner_big{position:relative}"
-    + ".khr-dots{position:absolute;left:0;right:0;bottom:6px;display:flex;justify-content:center;gap:2px;z-index:6;pointer-events:none}"
-    + ".khr-dots button{pointer-events:auto;width:24px;height:24px;border:0;background:transparent;padding:0;cursor:pointer;display:grid;place-items:center}"
+    + ".khr-dots{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:0;z-index:6;pointer-events:none}"
+    + ".khr-dots button{pointer-events:auto;width:44px;height:44px;border:0;background:transparent;padding:0;cursor:pointer;display:grid;place-items:center}"
     + ".khr-dots button::before{content:'';width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 0 0 1.5px rgba(23,23,23,.55)}"
     + ".khr-dots button[aria-current=true]::before{background:#171717;box-shadow:0 0 0 1.5px #fff}"
     + ".khr-sn{display:none}"
@@ -90,7 +90,7 @@
     + "#khr .khr-tkin{display:flex;align-items:center;height:38px;width:max-content;animation:khrm var(--tkd,26s) linear infinite;will-change:transform}"
     + "#khr .khr-tkh{display:flex;align-items:center;gap:18px;padding-right:18px;flex:none}"
     + "@keyframes khrm{from{transform:translateX(0)}to{transform:translateX(-25%)}}"
-    + "#khr .khr-tk:hover .khr-tkin,#khr .khr-tk:active .khr-tkin,#khr .khr-tk:focus-within .khr-tkin{animation-play-state:paused}"
+    + "#khr .khr-tk:hover .khr-tkin,#khr .khr-tk:active .khr-tkin,#khr .khr-tk:focus-within .khr-tkin,#khr .khr-tk.khr-tkp .khr-tkin{animation-play-state:paused}"
     + "@media (prefers-reduced-motion:reduce){#khr .khr-tkin{animation:none;transform:none}#khr .khr-tkh:not(:first-child){display:none}#khr .khr-tk{padding:0 16px}}"
     + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}#khr .khr-tk i{font-style:normal}"
     + "#khr .khr-first{padding-top:18px}"
@@ -191,6 +191,12 @@
 
   /* ---------- 1) a váz ---------- */
   function SLIDER() { return /(^|\s)khr-slider(\s|$)/.test(document.documentElement.className); }
+  /* előnysáv: érintésre megáll (iOS Safari :active-ot csak touchstart figyelővel ad, ezért a kis figyelő: a sáv animációja csak CSS marad) */
+  function tickerTouch(root) {
+    var tk = $(".khr-tk", root); if (!tk || tk.getAttribute("data-t")) return; tk.setAttribute("data-t", "1");
+    var on = function () { tk.classList.add("khr-tkp"); }, off = function () { tk.classList.remove("khr-tkp"); };
+    tk.addEventListener("touchstart", on, { passive: true }); tk.addEventListener("touchend", off, { passive: true }); tk.addEventListener("touchcancel", off, { passive: true });
+  }
   function skeleton(noHero) {
     var sz = "";
     for (var i = 0; i < SIZES.length; i++) sz += '<a data-s="' + SIZES[i] + '" href="' + L.base + '?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
@@ -438,6 +444,7 @@
     var banner = document.getElementById("start_banner_big");
     var r = mk("section", "", skeleton(true)); r.id = "khr"; r.setAttribute("aria-label", L.aria);
     if (banner && banner.parentNode === main) main.insertBefore(r, banner.nextSibling); else main.insertBefore(r, main.firstChild);
+    tickerTouch(r);
     document.documentElement.className += " khr-ready";
     var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
     afterHero(r, function () { tiles(r); lazy(sNew, loadNew, "1200px 0px"); });
@@ -457,7 +464,7 @@
       var box = mk("div", "khr-dots"), total = f.cells.length, bs = [];
       for (var i = 0; i < total; i++) (function (k) {
         var b = mk("button"); b.type = "button"; b.setAttribute("aria-label", (k + 1) + "/" + total);
-        b.addEventListener("click", function () { try { f.select(k); } catch (e) {} });
+        b.addEventListener("click", function () { try { f.stopPlayer(); f.select(k); } catch (e) {} });
         box.appendChild(b); bs.push(b);
       })(i);
       function upd() { for (var j = 0; j < bs.length; j++) bs[j].setAttribute("aria-current", j === f.selectedIndex ? "true" : "false"); }
@@ -466,7 +473,7 @@
       /* gépen oldalsó nyilak (a natív számláló + nyíl sor rejtve van, telefonon húzás) */
       var pb = mk("button", "khr-sn p", CHEV.l), nb = mk("button", "khr-sn n", CHEV.r);
       pb.type = nb.type = "button"; pb.setAttribute("aria-label", L.prev); nb.setAttribute("aria-label", L.next);
-      pb.addEventListener("click", function () { try { f.previous(); } catch (e) {} }); nb.addEventListener("click", function () { try { f.next(); } catch (e) {} });
+      pb.addEventListener("click", function () { try { f.stopPlayer(); f.previous(); } catch (e) {} }); nb.addEventListener("click", function () { try { f.stopPlayer(); f.next(); } catch (e) {} });
       banner.appendChild(pb); banner.appendChild(nb);
     })();
   }
@@ -485,11 +492,11 @@
     var r;
     if (shell) {
       /* a hőst a fej-tag már kirajzolta (héj): csak a többit építjük alá */
-      r = shell; r.insertAdjacentHTML("beforeend", skeleton(true)); r.setAttribute("data-shell", "done");
+      r = shell; r.insertAdjacentHTML("beforeend", skeleton(true)); r.setAttribute("data-shell", "done"); tickerTouch(r);
     } else {
       r = mk("section", "", skeleton()); r.id = "khr"; r.setAttribute("aria-label", L.aria);
       if (wantSlide(simg)) useSlide(r, simg);
-      main.insertBefore(r, main.firstChild);
+      main.insertBefore(r, main.firstChild); tickerTouch(r);
     }
     document.documentElement.className += " khr-ready";
     var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
