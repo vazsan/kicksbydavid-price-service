@@ -174,10 +174,10 @@ html body:not(#d1):not(#d2):not(#d3) #page_artdet_content .r2-row{grid-template-
 html body:not(#d1):not(#d2):not(#d3) #page_artdet_content .r2-sz{grid-template-columns:repeat(12,1fr)!important}
 }
 
-/* SK only (David TG 2549, main msg 2228): the cart buttons (main + sticky bar) in the shop's own brown = theme --primary #A3481F, hover #833a19, active #783517, white text (5.99:1 on the base colour) */
-html[lang^="sk"] body:not(#d1):not(#d2):not(#d3) .artdet__cart-btn,html[lang^="sk"] body:not(#d1):not(#d2):not(#d3) .fixed-cart__btn{background:#A3481F!important;color:#fff!important}
-html[lang^="sk"] body:not(#d1):not(#d2):not(#d3) .artdet__cart-btn:hover,html[lang^="sk"] body:not(#d1):not(#d2):not(#d3) .artdet__cart-btn:focus-visible,html[lang^="sk"] body:not(#d1):not(#d2):not(#d3) .fixed-cart__btn:hover,html[lang^="sk"] body:not(#d1):not(#d2):not(#d3) .fixed-cart__btn:focus-visible{background:#833a19!important}
-html[lang^="sk"] body:not(#d1):not(#d2):not(#d3) .artdet__cart-btn:not(:disabled):not(.disabled):active,html[lang^="sk"] body:not(#d1):not(#d2):not(#d3) .fixed-cart__btn:not(:disabled):not(.disabled):active{background:#783517!important}
+/* HU + SK (David TG 2549 for SK, TG 2555 for HU, main msg 2228/2245): the cart buttons (main + sticky bar) in the shop's own brown = theme --primary #A3481F, hover #833a19, active #783517, white text (5.99:1 on the base colour) */
+html body:not(#d1):not(#d2):not(#d3) .artdet__cart-btn,html body:not(#d1):not(#d2):not(#d3) .fixed-cart__btn{background:#A3481F!important;color:#fff!important}
+html body:not(#d1):not(#d2):not(#d3) .artdet__cart-btn:hover,html body:not(#d1):not(#d2):not(#d3) .artdet__cart-btn:focus-visible,html body:not(#d1):not(#d2):not(#d3) .fixed-cart__btn:hover,html body:not(#d1):not(#d2):not(#d3) .fixed-cart__btn:focus-visible{background:#833a19!important}
+html body:not(#d1):not(#d2):not(#d3) .artdet__cart-btn:not(:disabled):not(.disabled):active,html body:not(#d1):not(#d2):not(#d3) .fixed-cart__btn:not(:disabled):not(.disabled):active{background:#783517!important}
 /* SK same-day line (Vera mockup v2): Montserrat 13/600, 12 px under 380 px so it stays on one line */
 .kbd-sameday{display:flex;align-items:center;justify-content:center;gap:6px;margin:2px 0 10px;font:600 13px/1.4 Montserrat,Montserrat-fallback,sans-serif;color:#171717;letter-spacing:-.005em;text-align:center}
 .kbd-sameday svg{flex:0 0 auto;color:#171717}
