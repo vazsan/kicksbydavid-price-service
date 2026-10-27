@@ -17,7 +17,7 @@
      mellette a ?kbdoff=1 az egész szkriptet). R2_LIVE = az alapértelmezés süti nélkül (előnézeti szakaszban false). Az R2 modul külön fájl (storefront/r2-home/home.js), csak akkor töltődik, ha be van kapcsolva.
      Bekapcsolva a régi kezdőlap-felső (hős, előnysáv, kategóriák, csempék, fülek, értékelések, polcok) nem épül; a GYIK, blog, hírlevél, lábléc, alapító-blokk és a nemrég megnézett marad. ---------- */
   var R2_LIVE = false;
-  var R2_COMMIT = "37fba70eeb785a30416b7411ae5dfaeddd4c4582";
+  var R2_COMMIT = "c4b3371b61cef69f679a65a803ffbde0d91720fd";
   var R2 = false;
   (function () {
     var q = /[?&]kbdhome=([01])(?:&|$)/.exec(location.search), ck = /(?:^|;\s*)kbdhome=([01])/.exec(document.cookie || "");
