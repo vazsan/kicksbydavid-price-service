@@ -74,6 +74,7 @@
     + "#khr .khr-hero .khr-btn{margin-top:16px;color:#fff}"
     + "#khr .khr-cap{position:absolute;z-index:1;right:16px;bottom:16px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.1em;text-align:right;line-height:1.35;text-shadow:0 1px 6px rgba(0,0,0,.35)}"
     /* slider-mód: H1-sor a slider alatt + pöttyök a natív slideren */
+    + "#khr .khr-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}"
     + "#khr .khr-intro{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:26px 0 0}"
     + "#khr .khr-intro h1{margin:0;padding:0;font:800 28px/1.02 Montserrat,sans-serif;letter-spacing:-1px;text-transform:none;color:var(--ink)}"
     + "#khr .khr-intro>a{flex:none;display:inline-flex;align-items:center;gap:4px;height:44px;font-size:13px;font-weight:800}#khr .khr-intro>a span{border-bottom:2px solid var(--ink)}"
@@ -195,7 +196,7 @@
       + '<div class="khr-ht"><h1>' + L.h1 + '</h1><p>' + L.sub + '</p><span class="khr-btn">' + L.btn + ' ' + ARROW + "</span></div>"
       + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>')
       + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
-      + (SLIDER() ? '<div class="khr-intro"><h1>' + L.h1.replace(/<br>/g, " ") + '</h1><a href="' + L.base + '"><span>' + L.btn + "</span>" + ARROW + "</a></div>" : "")
+      + (SLIDER() ? '<h1 class="khr-sr">' + L.h1.replace(/<br>/g, " ") + "</h1>" : "")
       + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
       + '<section class="khr-sec" aria-label="' + L.brandsT + '"><div class="khr-sh"><h2>' + L.brandsT + '</h2></div><div class="khr-bl">' + br + "</div></section>"
