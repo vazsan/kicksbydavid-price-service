@@ -521,7 +521,17 @@
   }
   /* a modul a fejből töltődik: amint a #main megjelenik a feldolgozás közben, a hős már beszúrásra kerül (nincs régi tartalom villanás, a helyét a fej-tag korai CSS-e tartja) */
   function pageReady() { return !!(document.body && document.body.id === "ud_shop_start" && document.getElementById("main")); }
+  /* alsó rész (Vera csomagja, bottom.js): süti kbdbottom / ?kbdbottom=1|0; alap: DEF_BT (előnézet alatt false). Csak akkor töltődik, ha be van kapcsolva. */
+  var DEF_BT = false;
+  function loadBottom() {
+    var q = /[?&]kbdbottom=([01])(?:&|$)/.exec(location.search), c = /(?:^|;\s*)kbdbottom=([01])/.exec(document.cookie || "");
+    var on = q ? q[1] === "1" : (c ? c[1] === "1" : DEF_BT);
+    if (!on || document.getElementById("khb-js")) return;
+    window.KBD_R2B_DEF = DEF_BT;
+    var s = mk("script"); s.id = "khb-js"; s.async = true; s.src = BASE + "bottom.js"; (document.head || document.documentElement).appendChild(s);
+  }
   function boot() {
+    loadBottom();
     if (pageReady()) return startMain();
     if (document.readyState !== "loading") return;
     var started = false;
