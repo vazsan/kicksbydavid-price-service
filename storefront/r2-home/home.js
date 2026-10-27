@@ -1,4 +1,4 @@
-/* KicksByDavid kezdőlap R2 (HU) – hős, bizalmi sáv, Most érkezett, méretcsempék, márkalogók, Legnépszerűbb + értékelések, Akciós.
+/* KicksByDavid kezdőlap R2 (HU + SK, domain alapján) – hős, bizalmi sáv, Most érkezett, méretcsempék, márkalogók, Legnépszerűbb + értékelések, Akciós.
    Dávid TG 2386, Főnök msg 2060. A kártyák az Unas SAJÁT, szerver által renderelt termékkártyái (az Akciós és a Legnépszerűbb a kezdőlap natív moduljából,
    a Most érkezett a natív /ujdonsagok AJAX-listából): a csomópontok ÁT vannak helyezve (nem másolva), a bolt saját JS-e (kedvenc, összehasonlítás, gyorsnézet) ugyanúgy kezeli őket.
    A kapcsolót a kbd-home.js adja (süti kbdhome, ?kbdhome=1 / 0). Ez a fájl csak akkor töltődik be, ha az R2 be van kapcsolva, csak a HU kezdőlapon. */
@@ -10,7 +10,29 @@
   var BASE = window.KBD_R2H_BASE || "";
   var IMG = BASE + "img/";
   var ORIGIN = location.protocol + "//" + location.host;
-  var TI_BIG = "3ba033477a0d031a5f060029c5d", TI_SMALL = "0d3908782f85181dd586d19e174";
+  var SK = /\.sk$/i.test(location.hostname);
+  function skPl(n) { return n === 1 ? "hodnotenie" : (n >= 2 && n <= 4 ? "hodnotenia" : "hodnotení"); }
+  /* szövegek és címek nyelvenként. SK: Zara szövegei, Dávid OK-ja (TG 2390); a hős címe SK-n a Dávid által látott változat. A -N% jelvény és a számok mindkét nyelven az élő kártyákból / a Trustindexből jönnek. */
+  var L = SK ? {
+    base: "/vsetky-produkty", newUrl: "/novinky", saleUrl: "/akcie",
+    h1: "Klasiky,<br>v mnohých veľkostiach", sub: "Výrobný kód pri každom produkte", btn: "Zobraziť všetko",
+    ticker: ["VÝMENA DO 30 DNÍ ZADARMO", "DOBIERKA", "VÝROBNÝ KÓD", "RATE", "DOPRAVA ZADARMO NAD 120 €"], rate: "GOOGLE",
+    newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesedí veľkosť, výmenu do 30 dní platíme my.",
+    brandsT: "Obľúbené značky", topT: "Najobľúbenejšie", revT: "Čo o nás hovoria zákazníci", saleT: "Zľavy",
+    revBasis: function (n) { return "Na základe " + n + " " + skPl(n); }, gBtn: "Hodnotenia na Google", revLang: "sk",
+    tiBig: "6b883db76988873e850692b71b0", tiSmall: "f2ddae483a2767044106f3718af", tiles: "tiles-sk.json", prev: "Predchádzajúce", next: "Ďalšie",
+    starsAria: function (n) { return n + "/5"; }, alt: "ASICS Gel-NYC Oyster Grey", aria: "KicksByDavid"
+  } : {
+    base: "/osszes-termek", newUrl: "/ujdonsagok", saleUrl: "/akcios-termekek",
+    h1: "Klasszikus sneakerek,<br>sok méretben", sub: "Gyári cikkszám minden terméklapon", btn: "Mutasd az összeset",
+    ticker: ["30 NAP INGYENES CSERE", "UTÁNVÉT", "GYÁRI CIKKSZÁM", "RATE", "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], rate: "GOOGLE",
+    newT: "Most érkezett", all: "Mind", sizeT: "Vásárolj a méretedben", sizeAll: "ÖSSZES", sizeNote: "30 nap ingyenes csere, ha nem jó a méret.",
+    brandsT: "Népszerű márkák", topT: "Legnépszerűbb", revT: "Rólunk mondták", saleT: "Akciós",
+    revBasis: function (n) { return n + " vélemény alapján"; }, gBtn: "Vélemények a Google-on", revLang: "hu",
+    tiBig: "3ba033477a0d031a5f060029c5d", tiSmall: "0d3908782f85181dd586d19e174", tiles: "tiles.json", prev: "Előző", next: "Következő",
+    starsAria: function (n) { return n + " csillag az 5-ből"; }, alt: "ASICS Gel-NYC Oyster Grey sneaker utcai kövön", aria: "Kezdőlap"
+  };
+  var TI_BIG = L.tiBig, TI_SMALL = L.tiSmall;
 
   var SIZES = ["36", "36.5", "37.5", "38", "38.5", "39", "40", "40.5", "41", "42", "42.5", "43", "44", "44.5", "45", "45.5", "46", "47", "47.5"];
   var BRANDS = [["Nike", "nike"], ["Air Jordan", "air-jordan"], ["Adidas", "adidas"], ["New Balance", "new-balance"], ["ASICS", "asics"], ["UGG", "ugg"], ["ON", "on"], ["Puma", "puma"],
@@ -86,6 +108,7 @@
     + "#khr .khr-rs .khr-glogo{display:block;width:74px;height:auto;margin-top:6px}"
     + "#khr .khr-rv{display:grid;grid-auto-flow:column;grid-auto-columns:262px;gap:8px;overflow-x:auto;margin:8px -16px 0 0;padding-right:16px;scrollbar-width:none}"
     + "#khr .khr-rv::-webkit-scrollbar{display:none}"
+    + "#khr .khr-rv.khr-one{grid-auto-columns:100%}"
     + "#khr .khr-rc{padding:16px;border:1px solid var(--line);border-radius:18px;background:#fff}"
     + "#khr .khr-rc .hd2{display:flex;align-items:center;gap:10px}"
     + "#khr .khr-rc .av{flex:none;width:36px;height:36px;border-radius:18px;background:var(--grey);border:1px solid var(--line);display:grid;place-items:center;font-size:15px;font-weight:800;overflow:hidden}"
@@ -122,6 +145,7 @@
     + "#khr .khr-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}"
     + "#khr .khr-grid>.product:nth-child(n+5){display:block}"
     + "#khr .khr-rv{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:1fr 1fr;margin-right:0;padding-right:0;overflow:visible}"
+    + "#khr .khr-rv.khr-one{grid-template-columns:1fr}"
     + "#khr .khr-nav{display:grid;place-items:center;position:absolute;z-index:3;top:42%;width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:#fff;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.14);cursor:pointer;padding:0}"
     + "#khr .khr-nav[hidden]{display:none}"
     + "#khr .khr-nav.p{left:-14px}#khr .khr-nav.n{right:-14px}"
@@ -133,35 +157,35 @@
   function $$(s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); }
   function mk(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function abs(u) { return /^https?:/.test(u) ? u : ORIGIN + u; }
-  function stars(n) { var s = ""; for (var i = 0; i < n; i++) s += STAR; return '<span class="khr-stars" role="img" aria-label="' + n + ' csillag az 5-ből">' + s + "</span>"; }
+  function stars(n) { var s = ""; for (var i = 0; i < n; i++) s += STAR; return '<span class="khr-stars" role="img" aria-label="' + L.starsAria(n) + '">' + s + "</span>"; }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function head(title, href, pill) {
     return '<div class="khr-sh"><h2>' + title + (pill ? ' <span class="khr-pill">' + pill + "</span>" : "") + "</h2>"
-      + (href ? '<a href="' + href + '"><span>Mind</span>' + ARROW + "</a>" : "") + "</div>";
+      + (href ? '<a href="' + href + '"><span>' + L.all + '</span>' + ARROW + "</a>" : "") + "</div>";
   }
 
   /* ---------- 1) a váz ---------- */
   function skeleton() {
     var sz = "";
-    for (var i = 0; i < SIZES.length; i++) sz += '<a data-s="' + SIZES[i] + '" href="/osszes-termek?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
-    sz += '<a href="/osszes-termek"><small>ÖSSZES</small><b>' + ARROW + "</b></a>";
+    for (var i = 0; i < SIZES.length; i++) sz += '<a data-s="' + SIZES[i] + '" href="' + L.base + '?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
+    sz += '<a href="' + L.base + '"><small>' + L.sizeAll + '</small><b>' + ARROW + "</b></a>";
     var br = "";
-    for (var j = 0; j < BRANDS.length; j++) br += '<a data-b="' + BRANDS[j][0] + '" href="/osszes-termek?filter=8208356:' + encodeURIComponent(BRANDS[j][0]) + '"><img src="' + IMG + "brandlogo_" + BRANDS[j][1] + '.webp" alt="' + BRANDS[j][0] + '" loading="lazy" decoding="async"></a>';
-    var tk = ["30 NAP INGYENES CSERE", "UTÁNVÉT", "GYÁRI CIKKSZÁM", '<i class="khr-rate">5,0 GOOGLE</i>', "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], t = "";
+    for (var j = 0; j < BRANDS.length; j++) br += '<a data-b="' + BRANDS[j][0] + '" href="' + L.base + '?filter=8208356:' + encodeURIComponent(BRANDS[j][0]) + '"><img src="' + IMG + "brandlogo_" + BRANDS[j][1] + '.webp" alt="' + BRANDS[j][0] + '" loading="lazy" decoding="async"></a>';
+    var tk = L.ticker.map(function (x) { return x === "RATE" ? '<i class="khr-rate">5,0 ' + L.rate + "</i>" : x; }), t = "";
     for (var k = 0; k < tk.length; k++) t += "<span>" + CHECK + tk[k] + "</span>";
     var ph = '<div class="khr-ph" style="width:100%"></div>';
     return ''
-      + '<a class="khr-hero" href="/osszes-termek?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="861">'
-      + '<img src="' + IMG + 'hero_klassz_mob_780.webp" srcset="' + IMG + 'hero_klassz_mob_780.webp 780w, ' + IMG + 'hero_klassz_mob_1170.webp 1170w" sizes="100vw" width="780" height="1606" fetchpriority="high" decoding="async" alt="ASICS Gel-NYC Oyster Grey sneaker utcai kövön"></picture>'
-      + '<div class="khr-ht"><h1>Klasszikus sneakerek,<br>sok méretben</h1><p>Gyári cikkszám minden terméklapon</p><span class="khr-btn">Mutasd az összeset ' + ARROW + "</span></div>"
+      + '<a class="khr-hero" href="' + L.base + '?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="861">'
+      + '<img src="' + IMG + 'hero_klassz_mob_780.webp" srcset="' + IMG + 'hero_klassz_mob_780.webp 780w, ' + IMG + 'hero_klassz_mob_1170.webp 1170w" sizes="100vw" width="780" height="1606" fetchpriority="high" decoding="async" alt="' + L.alt + '"></picture>'
+      + '<div class="khr-ht"><h1>' + L.h1 + '</h1><p>' + L.sub + '</p><span class="khr-btn">' + L.btn + ' ' + ARROW + "</span></div>"
       + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>'
       + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
-      + '<section class="khr-sec khr-first" data-k="new" aria-label="Most érkezett">' + head("Most érkezett", "/ujdonsagok") + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
-      + '<section class="khr-sec" aria-label="Vásárolj a méretedben"><div class="khr-sh"><h2>Vásárolj a méretedben</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">30 nap ingyenes csere, ha nem jó a méret.</p></section>'
-      + '<section class="khr-sec" aria-label="Népszerű márkák"><div class="khr-sh"><h2>Népszerű márkák</h2></div><div class="khr-bl">' + br + "</div></section>"
-      + '<section class="khr-sec khr-two"><div data-k="top">' + head("Legnépszerűbb", "/osszes-termek") + '<div class="khr-grid type--1 list-type--1">' + ph + "</div></div>"
-      + '<div data-k="rev"><div class="khr-sh"><h2>Rólunk mondták</h2></div><div class="khr-revbox"><div class="khr-rvph"></div></div></div></section>'
-      + '<section class="khr-sec" data-k="sale" aria-label="Akciós">' + head('Akciós', "/akcios-termekek") + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
+      + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
+      + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
+      + '<section class="khr-sec" aria-label="' + L.brandsT + '"><div class="khr-sh"><h2>' + L.brandsT + '</h2></div><div class="khr-bl">' + br + "</div></section>"
+      + '<section class="khr-sec khr-two"><div data-k="top">' + head(L.topT, L.base) + '<div class="khr-grid type--1 list-type--1">' + ph + "</div></div>"
+      + '<div data-k="rev"><div class="khr-sh"><h2>' + L.revT + '</h2></div><div class="khr-revbox"><div class="khr-rvph"></div></div></div></section>'
+      + '<section class="khr-sec" data-k="sale" aria-label="' + L.saleT + '">' + head(L.saleT, L.saleUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + "</div>";
   }
 
@@ -173,7 +197,7 @@
     if (card.getAttribute("style") === "") card.removeAttribute("style");
     return card;
   }
-  var APPAREL = /jacket|hoodie|pants|shorts|t-shirt|\btee\b|\bcap\b|\bbag\b|track|sweat|crew|fleece|póló|pulóver|nadrág|sapka|táska|kabát|dzseki|zokni|kapucnis|mellény|felső/i;
+  var APPAREL = /jacket|hoodie|pants|shorts|t-shirt|\btee\b|\bcap\b|\bbag\b|track|sweat|crew|fleece|póló|pulóver|nadrág|sapka|táska|kabát|dzseki|zokni|kapucnis|mellény|felső|mikina|tričko|nohavice|bunda|šiltovka|taška|ponožky|čiapka|vesta|košeľa/i;
   function isShoe(c) {
     var a = c.querySelector("a.product__name-link") || c.querySelector("a.product_link_normal");
     return !!a && !!a.getAttribute("href") && !APPAREL.test(a.textContent || "");
@@ -220,7 +244,7 @@
   function loadNew(sec) {
     if (done["new"] || sec.getAttribute("data-loading")) return;
     sec.setAttribute("data-loading", "1");
-    var key = "khr_new1", url = ORIGIN + "/ujdonsagok?ajax_filter=1&ajax_nodesign=1&filter_value_count_disabled=1";
+    var key = "khr_new1", url = ORIGIN + L.newUrl + "?ajax_filter=1&ajax_nodesign=1&filter_value_count_disabled=1";
     function render(htmlTxt) {
       var doc; try { doc = new DOMParser().parseFromString(htmlTxt, "text/html"); } catch (e) { return false; }
       var cards = $$(".js-product", doc).filter(isShoe).slice(0, N_NEW).map(function (c) { return document.importNode(c, true); });
@@ -253,7 +277,7 @@
     var box = $(".khr-railbox", sec), rail = box && $(".khr-rail", box);
     if (!rail || $(".khr-nav", box)) return;
     var p = mk("button", "khr-nav p", CHEV.l), n = mk("button", "khr-nav n", CHEV.r);
-    p.type = n.type = "button"; p.setAttribute("aria-label", "Előző"); n.setAttribute("aria-label", "Következő");
+    p.type = n.type = "button"; p.setAttribute("aria-label", L.prev); n.setAttribute("aria-label", L.next);
     function upd() { p.hidden = rail.scrollLeft < 8; n.hidden = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 8; }
     function go(d) { rail.scrollBy({ left: d * Math.max(200, rail.clientWidth * 0.8), behavior: "smooth" }); }
     p.addEventListener("click", function () { go(-1); }); n.addEventListener("click", function () { go(1); });
@@ -263,13 +287,13 @@
 
   /* ---------- 3) értékelések: a Trustindex élő adatából (content.html), R2 kártyákkal ---------- */
   function tiUrl(pid) { return "https://cdn.trustindex.io/widgets/" + pid.slice(0, 2) + "/" + pid + "/content.html"; }
-  function ago(ts) {
-    var d = Math.max(0, Math.floor((Date.now() / 1000 - ts) / 86400));
-    if (d < 1) return "ma";
-    if (d < 7) return d + " napja";
-    if (d < 30) return Math.floor(d / 7) + " hete";
-    if (d < 365) return Math.floor(d / 30) + " hónapja";
-    return Math.floor(d / 365) + " éve";
+  /* a dátum a widget saját nyelvi sztringjéből (data-time-locale: "formátum|ma|egyes|többes|...": nap, hét, hónap, év) */
+  function ago(ts, loc) {
+    var p = (loc || "%d %s|ma|napja|napja|hete|hete|hónapja|hónapja|éve|éve").split("|");
+    var d = Math.max(0, Math.floor((Date.now() / 1000 - ts) / 86400)), n, u;
+    if (d < 1) return p[1] || "";
+    if (d < 7) { n = d; u = 0; } else if (d < 30) { n = Math.floor(d / 7); u = 1; } else if (d < 365) { n = Math.floor(d / 30); u = 2; } else { n = Math.floor(d / 365); u = 3; }
+    return (p[0] || "%d %s").replace("%d", n).replace("%s", p[2 + u * 2 + (n === 1 ? 0 : 1)] || "");
   }
   function tiCount(root) {
     var a = root.querySelector(".ti-footer .ti-rating-text a") || root.querySelector(".ti-footer .ti-rating-text"), m;
@@ -283,7 +307,7 @@
   function parse(t) { try { return new DOMParser().parseFromString(t, "text/html"); } catch (e) { return null; } }
   function getTi(pid) { return fetch(tiUrl(pid)).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { return t ? parse(t) : null; }); }
   function setRate(r, n) {
-    var e = $(".khr-rate"); if (e && r > 0 && n > 0) e.textContent = r.toFixed(1).replace(".", ",") + " GOOGLE";
+    var e = $(".khr-rate"); if (e && r > 0 && n > 0) e.textContent = r.toFixed(1).replace(".", ",") + " " + L.rate;
     else if (e) e.parentNode.style.display = "none";
   }
   function loadReviews(sec) {
@@ -299,10 +323,11 @@
       if (!rating && small) rating = tiRating(small);
       if (n && rating) { try { sessionStorage.setItem("kbd_ti", JSON.stringify({ t: Date.now(), r: rating, n: n })); } catch (e) {} }
       var items = $$(".ti-review-item", big).filter(function (it) {
-        return (it.getAttribute("data-language") || "hu") === "hu" && parseFloat(it.getAttribute("data-rating")) >= 4 && ($(".ti-review-content", it) || {}).textContent;
+        return (it.getAttribute("data-language") || L.revLang) === L.revLang && parseFloat(it.getAttribute("data-rating")) >= 4 && ($(".ti-review-content", it) || {}).textContent;
       });
       if (!items.length || !(rating > 0) || !(n > 0)) throw new Error("ti-empty");
       gUrl = items[0].getAttribute("data-platform-page-url") || "";
+      var wd = $(".ti-widget", big), loc = wd ? wd.getAttribute("data-time-locale") : "";
       setRate(rating, n);
       var cards = "";
       for (var i = 0; i < items.length && i < 4; i++) {
@@ -311,13 +336,13 @@
         if (txt.length > 190) txt = txt.slice(0, 187).replace(/\s+\S*$/, "") + "…";
         var pic = $(".ti-profile-img img", it), src = pic ? pic.getAttribute("src") : "";
         cards += '<div class="khr-rc"><div class="hd2"><span class="av">' + (/^https:\/\/lh3\.googleusercontent\.com\//.test(src || "") ? '<img src="' + esc(src) + '" alt="" width="36" height="36" loading="lazy" referrerpolicy="no-referrer">' : esc(name.charAt(0).toUpperCase()))
-          + '</span><span class="nm2"><b>' + esc(name) + "</b><small>" + ago(parseInt(it.getAttribute("data-time"), 10) || 0) + '</small></span><img class="gi" src="https://cdn.trustindex.io/assets/platform/Google/icon.svg" alt="Google" width="18" height="18" loading="lazy"></div>'
+          + '</span><span class="nm2"><b>' + esc(name) + "</b><small>" + ago(parseInt(it.getAttribute("data-time"), 10) || 0, loc) + '</small></span><img class="gi" src="https://cdn.trustindex.io/assets/platform/Google/icon.svg" alt="Google" width="18" height="18" loading="lazy"></div>'
           + stars(Math.round(parseFloat(it.getAttribute("data-rating")) || 5)) + "<p>" + esc(txt) + "</p></div>";
       }
       var link = /^https:\/\/www\.google\.com\/maps\//.test(gUrl) ? gUrl : "";
-      box.innerHTML = '<div class="khr-rs"><span class="n">' + rating.toFixed(1).replace(".", ",") + "</span><span>" + stars(5) + "<b>" + n + ' vélemény alapján</b><img class="khr-glogo" src="' + IMG + 'ti_Google_logo.svg" alt="Google" width="74" height="23"></span></div>'
-        + '<div class="khr-rv">' + cards + "</div>"
-        + (link ? '<a class="khr-gl" href="' + esc(link) + '" target="_blank" rel="noopener">Vélemények a Google-on ' + ARROW + "</a>" : "");
+      box.innerHTML = '<div class="khr-rs"><span class="n">' + rating.toFixed(1).replace(".", ",") + "</span><span>" + stars(5) + "<b>" + L.revBasis(n) + '</b><img class="khr-glogo" src="' + IMG + 'ti_Google_logo.svg" alt="Google" width="74" height="23"></span></div>'
+        + '<div class="khr-rv' + (items.length === 1 ? " khr-one" : "") + '">' + cards + "</div>"
+        + (link ? '<a class="khr-gl" href="' + esc(link) + '" target="_blank" rel="noopener">' + L.gBtn + ' ' + ARROW + "</a>" : "");
     }).catch(function () {
       /* tartalék: az eredeti Trustindex nagy widget (a loader a script helyére teszi) */
       var sc = document.createElement("script"); sc.defer = true; sc.async = true; sc.src = "https://cdn.trustindex.io/loader.js?" + TI_BIG;
@@ -328,7 +353,7 @@
   /* ---------- 3b) üres méret- és márkaszűrők elrejtése: a napi 2f ellenőrzés (home_tiles_gen.py) írja a tiles.json-t; nincs fájl vagy furcsa a tartalma = minden csempe látszik ---------- */
   function tiles(root) {
     if (!window.fetch) return;
-    var u = "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-home-r2/storefront/r2-home/tiles.json?v=" + Math.floor(Date.now() / 3600000);
+    var u = "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-home-r2/storefront/r2-home/" + L.tiles + "?v=" + Math.floor(Date.now() / 3600000);
     fetch(u).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
       if (!d || !d.sizes || !d.brands || d.sizes.length < 12 || d.brands.length < 10) return;
       $$("a[data-s]", root).forEach(function (a) { if (d.sizes.indexOf(a.getAttribute("data-s")) < 0) a.style.display = "none"; });
@@ -341,7 +366,7 @@
     var main = document.getElementById("main");
     if (!main || document.getElementById("khr")) return !!document.getElementById("khr");
     if (!document.getElementById("khr-css")) { var st = mk("style"); st.id = "khr-css"; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); }
-    var r = mk("section", "", skeleton()); r.id = "khr"; r.setAttribute("aria-label", "Kezdőlap");
+    var r = mk("section", "", skeleton()); r.id = "khr"; r.setAttribute("aria-label", L.aria);
     main.insertBefore(r, main.firstChild);
     var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
     tiles(r);
