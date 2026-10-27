@@ -153,7 +153,7 @@
     return ''
       + '<a class="khr-hero" href="/osszes-termek?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="861">'
       + '<img src="' + IMG + 'hero_klassz_mob_780.webp" srcset="' + IMG + 'hero_klassz_mob_780.webp 780w, ' + IMG + 'hero_klassz_mob_1170.webp 1170w" sizes="100vw" width="780" height="1606" fetchpriority="high" decoding="async" alt="ASICS Gel-NYC Oyster Grey sneaker utcai kövön"></picture>'
-      + '<div class="khr-ht"><h1>Klasszikusok,<br>sok méretben</h1><p>Gyári cikkszám minden terméklapon</p><span class="khr-btn">Mutasd az összeset ' + ARROW + "</span></div>"
+      + '<div class="khr-ht"><h1>Klasszikus sneakerek,<br>sok méretben</h1><p>Gyári cikkszám minden terméklapon</p><span class="khr-btn">Mutasd az összeset ' + ARROW + "</span></div>"
       + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>'
       + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
       + '<section class="khr-sec khr-first" data-k="new" aria-label="Most érkezett">' + head("Most érkezett", "/ujdonsagok") + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
