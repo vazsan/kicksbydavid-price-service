@@ -136,6 +136,8 @@
     + "#khr .khr-rc .gi{width:18px;height:18px}"
     + "#khr .khr-rc .khr-stars{margin-top:10px}"
     + "#khr .khr-rc p{margin:6px 0 0;font-size:15px;font-weight:600;line-height:1.4}"
+    + "#khr .khr-rc0 .khr-stars{margin-top:8px}#khr .khr-rc0{padding-bottom:12px}"
+    + "#khr .khr-rvbox{position:relative}"
     + "#khr .khr-gl{display:flex;align-items:center;justify-content:center;height:48px;margin-top:8px;border:1.5px solid var(--ink);border-radius:14px;font-size:14px;font-weight:800}"
     + "#khr .khr-rvph{height:230px;margin-top:8px;border-radius:18px;background:var(--grey);animation:khrp 1.4s ease-in-out infinite}"
     /* a kártya a téma saját kártyája: alap betű (a #khr 15 px-es alapja ne öröklődjön) */
@@ -160,11 +162,13 @@
     + "#khr .khr-szr{grid-auto-flow:row;grid-template-columns:repeat(10,1fr);gap:8px;margin-right:0;padding-right:0}"
     + "#khr .khr-szr a{height:64px}"
     + "#khr .khr-bl{grid-template-columns:repeat(8,1fr);gap:10px}#khr .khr-bl a{height:84px}#khr .khr-bl img{max-height:56px}"
-    + "#khr .khr-two{display:grid;grid-template-columns:7fr 5fr;gap:40px;align-items:start}"
+    + "#khr .khr-two{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:40px;align-items:start}#khr .khr-two>*{min-width:0}"
     + "#khr .khr-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}"
     + "#khr .khr-grid>.product:nth-child(n+5){display:block}"
     + "#khr .khr-rv{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:1fr 1fr;margin-right:0;padding-right:0;overflow:visible}"
     + "#khr .khr-rv.khr-one{grid-template-columns:1fr}"
+    + "#khr .khr-rv.khr-rvall{grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-template-columns:none;grid-auto-columns:calc((100% - 8px)/2);overflow-x:auto;overflow-y:hidden}"
+    + "#khr .khr-rv.khr-rvall.khr-one{grid-template-rows:auto;grid-auto-columns:100%}"
     + "#khr .khr-nav{display:grid;place-items:center;position:absolute;z-index:3;top:42%;width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:#fff;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.14);cursor:pointer;padding:0}"
     + "#khr .khr-nav[hidden]{display:none}"
     + "#khr .khr-nav.p{left:-14px}#khr .khr-nav.n{right:-14px}"
@@ -298,7 +302,7 @@
 
   /* nyilak (asztalon): a sín görgetése */
   function navFor(sec) {
-    var box = $(".khr-railbox", sec), rail = box && $(".khr-rail", box);
+    var box = $(".khr-railbox", sec), rail = box && ($(".khr-rail", box) || $(".khr-rv", box));
     if (!rail || $(".khr-nav", box)) return;
     var p = mk("button", "khr-nav p", CHEV.l), n = mk("button", "khr-nav n", CHEV.r);
     p.type = n.type = "button"; p.setAttribute("aria-label", L.prev); n.setAttribute("aria-label", L.next);
@@ -334,47 +338,61 @@
     var es = $$(".khr-rate");
     es.forEach(function (e) { if (r > 0 && n > 0) e.textContent = r.toFixed(1).replace(".", ",") + " " + L.rate; else e.parentNode.style.display = "none"; });
   }
+  /* a widget egy értékelésének eredeti szövege: ha a Trustindex lefordította (SK widget a magyar véleményeket), az eredetit a rejtett data-ti-json mező hordozza; különben a látható szöveg az eredeti */
+  function tiOriginal(it) {
+    var tc = $(".ti-review-content", it); if (!tc) return "";
+    var js = $("[data-ti-json]", tc);
+    if (js) { try { var o = JSON.parse(decodeURIComponent(js.getAttribute("data-ti-json"))); if (o && typeof o.text === "string") return o.text.replace(/\s+/g, " ").trim(); } catch (e) {} }
+    var cl = tc.cloneNode(true); $$(".ti-more-image-count,.ti-review-image,.ti-read-more,script,style,[hidden]", cl).forEach(function (x) { x.parentNode.removeChild(x); });
+    return (cl.textContent || "").replace(/\s+/g, " ").trim();
+  }
+  function tiReviews(doc, out) {
+    $$(".ti-review-item", doc).forEach(function (it) {
+      var id = it.getAttribute("data-id"); if (!id) return;
+      var txt = tiOriginal(it), hasJson = !!$("[data-ti-json]", it), pic = $(".ti-profile-img img", it);
+      var r = { id: id, t: parseInt(it.getAttribute("data-time"), 10) || 0, lang: it.getAttribute("data-language") || "", rating: Math.round(parseFloat(it.getAttribute("data-rating")) || 5), name: (($(".ti-name", it) || {}).textContent || "").replace(/\s+/g, " ").trim(), pic: pic ? pic.getAttribute("src") : "", txt: txt, url: it.getAttribute("data-platform-page-url") || "", orig: hasJson };
+      if (!out[id] || (!out[id].txt && r.txt) || (r.orig && !out[id].orig)) out[id] = r;
+    });
+  }
+  /* Minden érték, amit a két Trustindex widget adata hordoz (HU + SK widget egyesítve, azonosító szerint), a legfrissebb elöl, EREDETI nyelven (gépi fordítás nélkül), a szöveg nélküliek rövid kártyaként. Dávid TG 2455. */
   function loadReviews(sec) {
     var box = $(".khr-revbox", sec); if (!box || box.getAttribute("data-done")) return;
     box.setAttribute("data-done", "1");
     if (!window.fetch || !window.DOMParser) return setRate(0, 0);
     var rating = 0, n = 0, gUrl = "";
     try { var c = JSON.parse(sessionStorage.getItem("kbd_ti") || "null"); if (c && c.t && Date.now() - c.t < 3600000) { rating = c.r; n = c.n; } } catch (e) {}
-    Promise.all([getTi(TI_BIG), rating ? Promise.resolve(null) : getTi(TI_SMALL), SK ? getTi("3ba033477a0d031a5f060029c5d") : Promise.resolve(null)]).then(function (res) {
-      var big = res[0], small = res[1], huDoc = res[2], huText = {};
-      /* SK: a Trustindex az SK widgetben a magyar vélemények szövegét gépi fordításban adja; a valódi, eredeti magyar szöveget a HU widgetből vesszük (azonos vélemény-azonosító). Nincs HU-találat = a kártya kimarad. */
-      if (huDoc) $$(".ti-review-item", huDoc).forEach(function (h) { var c = $(".ti-review-content", h); if (c) huText[h.getAttribute("data-id")] = c; });
+    var OTHER = SK ? "3ba033477a0d031a5f060029c5d" : "6b883db76988873e850692b71b0";
+    Promise.all([getTi(TI_BIG), rating ? Promise.resolve(null) : getTi(TI_SMALL), getTi(OTHER).catch(function () { return null; })]).then(function (res) {
+      var big = res[0], small = res[1], other = res[2];
       if (!big) throw new Error("ti");
       if (!n) n = tiCount(big);
       if (!rating && small) rating = tiRating(small);
       if (n && rating) { try { sessionStorage.setItem("kbd_ti", JSON.stringify({ t: Date.now(), r: rating, n: n })); } catch (e) {} }
-      /* HU: csak magyar vélemény. SK (Dávid/Főnök msg 2087): elöl a szlovák, utána a legfrissebb magyar 4-5 csillagos, eredeti nyelven, fordítás nélkül; összesen legfeljebb 4 kártya */
-      var good = $$(".ti-review-item", big).filter(function (it) {
-        var lg = it.getAttribute("data-language") || L.revLang;
-        return (lg === L.revLang || (SK && lg === "hu" && huText[it.getAttribute("data-id")])) && parseFloat(it.getAttribute("data-rating")) >= 4 && ($(".ti-review-content", it) || {}).textContent;
-      });
-      var tm = function (it) { return parseInt(it.getAttribute("data-time"), 10) || 0; };
-      var own = good.filter(function (it) { return (it.getAttribute("data-language") || L.revLang) === L.revLang; }).sort(function (x, y) { return tm(y) - tm(x); });
-      var other = good.filter(function (it) { return own.indexOf(it) < 0; }).sort(function (x, y) { return tm(y) - tm(x); });
-      var items = own.concat(other);
+      var all = {}; tiReviews(big, all); if (other) tiReviews(other, all);
+      var items = Object.keys(all).map(function (k) { return all[k]; }).sort(function (x, y) { return y.t - x.t; });
+      /* a slider-módban (előnézet, Dávid TG 2455) MIND; a hős-módban (élő) a régi válogatás: HU csak magyar, SK elöl a szlovák, utána a legfrissebb magyarok, legfeljebb 4, 4-5 csillag, csak szöveges */
+      var ALL = SLIDER();
+      if (!ALL) {
+        var okr = function (r) { return r.txt && r.rating >= 4; };
+        var own = items.filter(function (r) { return r.lang === L.revLang && okr(r); }), oth = SK ? items.filter(function (r) { return r.lang === "hu" && okr(r); }) : [];
+        items = own.concat(oth).slice(0, 4);
+      }
       if (!items.length || !(rating > 0) || !(n > 0)) throw new Error("ti-empty");
-      gUrl = items[0].getAttribute("data-platform-page-url") || "";
+      for (var g = 0; g < items.length && !gUrl; g++) gUrl = items[g].url;
       var wd = $(".ti-widget", big), loc = wd ? wd.getAttribute("data-time-locale") : "";
       setRate(rating, n);
       var cards = "";
-      for (var i = 0; i < items.length && i < 4; i++) {
-        var it = items[i], name = ($(".ti-name", it) || {}).textContent || "", tc = ((it.getAttribute("data-language") || L.revLang) !== L.revLang && huText[it.getAttribute("data-id")]) || $(".ti-review-content", it), txt = ""; if (tc) { var cl = tc.cloneNode(true); $$(".ti-more-image-count,.ti-review-image,.ti-read-more,script,style", cl).forEach(function (x) { x.parentNode.removeChild(x); }); txt = cl.textContent || ""; }
-        name = name.replace(/\s+/g, " ").trim(); txt = txt.replace(/\s+/g, " ").trim();
-        if (txt.length > 190) txt = txt.slice(0, 187).replace(/\s+\S*$/, "") + "…";
-        var pic = $(".ti-profile-img img", it), src = pic ? pic.getAttribute("src") : "";
-        cards += '<div class="khr-rc"><div class="hd2"><span class="av">' + (/^https:\/\/lh3\.googleusercontent\.com\//.test(src || "") ? '<img src="' + esc(src) + '" alt="" width="36" height="36" loading="lazy" referrerpolicy="no-referrer">' : esc(name.charAt(0).toUpperCase()))
-          + '</span><span class="nm2"><b>' + esc(name) + "</b><small>" + ago(parseInt(it.getAttribute("data-time"), 10) || 0, loc) + '</small></span><img class="gi" src="https://cdn.trustindex.io/assets/platform/Google/icon.svg" alt="Google" width="18" height="18" loading="lazy"></div>'
-          + stars(Math.round(parseFloat(it.getAttribute("data-rating")) || 5)) + "<p>" + esc(txt) + "</p></div>";
-      }
+      items.forEach(function (r) {
+        var txt = r.txt; if (txt.length > 280) txt = txt.slice(0, 277).replace(/\s+\S*$/, "") + "…";
+        cards += '<div class="khr-rc' + (txt ? "" : " khr-rc0") + '"><div class="hd2"><span class="av">' + (/^https:\/\/lh3\.googleusercontent\.com\//.test(r.pic || "") ? '<img src="' + esc(r.pic) + '" alt="" width="36" height="36" loading="lazy" referrerpolicy="no-referrer">' : esc(r.name.charAt(0).toUpperCase()))
+          + '</span><span class="nm2"><b>' + esc(r.name) + "</b><small>" + ago(r.t, loc) + '</small></span><img class="gi" src="https://cdn.trustindex.io/assets/platform/Google/icon.svg" alt="Google" width="18" height="18" loading="lazy"></div>'
+          + stars(r.rating) + (txt ? "<p>" + esc(txt) + "</p>" : "") + "</div>";
+      });
       var link = /^https:\/\/www\.google\.com\/maps\//.test(gUrl) ? gUrl : "";
       box.innerHTML = '<div class="khr-rs"><span class="n">' + rating.toFixed(1).replace(".", ",") + "</span><span>" + stars(5) + "<b>" + L.revBasis(n) + '</b><img class="khr-glogo" src="' + IMG + 'ti_Google_logo.svg" alt="Google" width="74" height="23"></span></div>'
-        + '<div class="khr-rv' + (items.length === 1 ? " khr-one" : "") + '">' + cards + "</div>"
+        + '<div class="khr-railbox khr-rvbox"><div class="khr-rv' + (ALL ? " khr-rvall" : "") + (items.length === 1 ? " khr-one" : "") + '">' + cards + "</div></div>"
         + (link ? '<a class="khr-gl" href="' + esc(link) + '" target="_blank" rel="noopener">' + L.gBtn + ' ' + ARROW + "</a>" : "");
+      if (ALL) navFor(box);
     }).catch(function () {
       /* tartalék: az eredeti Trustindex nagy widget (a loader a script helyére teszi) */
       var sc = document.createElement("script"); sc.defer = true; sc.async = true; sc.src = "https://cdn.trustindex.io/loader.js?" + TI_BIG;
