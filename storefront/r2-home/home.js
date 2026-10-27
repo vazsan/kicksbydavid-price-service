@@ -12,10 +12,10 @@
   var ORIGIN = location.protocol + "//" + location.host;
   var SK = /\.sk$/i.test(location.hostname);
   function skPl(n) { return n === 1 ? "hodnotenie" : (n >= 2 && n <= 4 ? "hodnotenia" : "hodnotení"); }
-  /* szövegek és címek nyelvenként. SK: Zara szövegei, Dávid OK-ja (TG 2390); a hős címe SK-n a Dávid által látott változat. A -N% jelvény és a számok mindkét nyelven az élő kártyákból / a Trustindexből jönnek. */
+  /* szövegek és címek nyelvenként. SK: Zara szövegei, Dávid OK-ja (TG 2390); a hős címe SK-n Dávid lektorálása (TG 2398). A -N% jelvény és a számok mindkét nyelven az élő kártyákból / a Trustindexből jönnek. */
   var L = SK ? {
     base: "/vsetky-produkty", newUrl: "/novinky", saleUrl: "/akcie",
-    h1: "Klasiky,<br>v mnohých veľkostiach", sub: "Výrobný kód pri každom produkte", btn: "Zobraziť všetko",
+    h1: "Tenisky, ktoré<br>práve letia", sub: "Výrobný kód pri každom produkte", btn: "Zobraziť všetko",
     ticker: ["VÝMENA DO 30 DNÍ ZADARMO", "DOBIERKA", "VÝROBNÝ KÓD", "RATE", "DOPRAVA ZADARMO NAD 120 €"], rate: "GOOGLE",
     newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesedí veľkosť, výmenu do 30 dní platíme my.",
     brandsT: "Obľúbené značky", topT: "Najobľúbenejšie", revT: "Čo o nás hovoria zákazníci", saleT: "Zľavy",
