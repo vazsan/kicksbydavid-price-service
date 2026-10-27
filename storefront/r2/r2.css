@@ -181,5 +181,7 @@ html[lang^="sk"] body:not(#d1):not(#d2):not(#d3) .artdet__cart-btn:not(:disabled
 /* SK same-day line (Vera mockup v2): Montserrat 13/600, 12 px under 380 px so it stays on one line */
 .kbd-sameday{display:flex;align-items:center;justify-content:center;gap:6px;margin:2px 0 10px;font:600 13px/1.4 Montserrat,Montserrat-fallback,sans-serif;color:#171717;letter-spacing:-.005em;text-align:center}
 .kbd-sameday svg{flex:0 0 auto;color:#171717}
-.kbd-sameday span{text-wrap:balance}
-@media (max-width:379px){.kbd-sameday{font-size:12px}}
+.kbd-sameday span{text-wrap:balance;white-space:nowrap}
+/* fluid size so the line stays on ONE line from 340 px up (main msg 2237: clamp 11.5-13 px); under 340 px it may wrap to two lines instead of overflowing */
+.kbd-sameday{font-size:clamp(11.5px,3.1vw,13px)}
+@media (max-width:339px){.kbd-sameday span{white-space:normal}}
