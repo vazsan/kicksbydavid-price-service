@@ -1,8 +1,8 @@
-/* KBD PDP R2, preview only (cookie kbdr2, ?kbdr2=1). HU only. Source: vera/scripts/pdp_ref3_theme.mjs R2_JS + pdp_r2_below.mjs r2BelowJs. */
+/* KBD PDP R2, default on, off with cookie kbdr2=0 (?kbdr2=0). HU + SK. Source: vera/scripts/pdp_ref3_theme.mjs R2_JS + pdp_r2_below.mjs r2BelowJs. */
 (function () {
   try {
     var h = location.hostname || "";
-    if (/\.sk$/i.test(h) || (document.documentElement.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0) return;
+    var SKL = /\.sk$/i.test(h) || (document.documentElement.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0;
     var tries = 0, doneA = false, doneB = false;
     var q = function (s) { return document.querySelector(s); };
     function readyA() { return q(".artdet__block-cart-inner") && q("#artdet__cart") && ((q("#artdet__type") && q("#kbd2-pay") && q("#kbd4-checks")) || tries > 20); }   // products without a size selector (one-size items) are wrapped after 2 s anyway
@@ -23,12 +23,12 @@ const bb=q('.r2-buy');if(bb&&!bb.querySelector('.artdet__cart-btn'))bb.classList
       } finally { releaseHold(); }
     }
     // non-shoe products (Terméktípus Ruházat / Kiegészítő): row 1 'Új darab, gyári címkével' (David TG 2271, Zara alternative); shoes keep 'Új pár, a saját dobozában'
-    function nonShoe() { var it = document.querySelectorAll("#pane-data .data__item"); for (var i = 0; i < it.length; i++) { var tx = (it[i].textContent || "").replace(/\s+/g, " ").trim(); if (/^Terméktípus\s*:\s*(Ruházat|Kiegészítő)/i.test(tx)) return true; } return false; }
-    function fixRow1() { try { if (!nonShoe()) return; var f = document.querySelector(".r2-li span:last-child"); if (f && /Új pár/.test(f.textContent)) f.textContent = "Új darab, gyári címkével"; } catch (e) {} }
+    function nonShoe() { var it = document.querySelectorAll("#pane-data .data__item"); for (var i = 0; i < it.length; i++) { var tx = (it[i].textContent || "").replace(/\s+/g, " ").trim(); if (SKL) { var m = tx.match(/^Typ produktu\s*:\s*(.+)$/i); if (m) return !/^Obuv/i.test(m[1]); } else if (/^Terméktípus\s*:\s*(Ruházat|Kiegészítő)/i.test(tx)) return true; } return false; }   // SK: any Typ produktu other than Obuv (Oblečenie, Doplnky...) is non-shoe
+    function fixRow1() { try { if (!nonShoe()) return; var f = document.querySelector(".r2-li span:last-child"); if (f && SKL && /Nový pár/.test(f.textContent)) f.textContent = "Nový kus s visačkou výrobcu"; else if (f && !SKL && /Új pár/.test(f.textContent)) f.textContent = "Új darab, gyári címkével"; } catch (e) {} }
     function runB() {
       if (doneB) return; doneB = true;
       try {
-      (()=>{if(document.querySelector('.r2-cmp'))return;const D={"cmp":{"mode":"A","title":"Miért tőlünk?","rows":["Új pár, a saját dobozában","Méret-tanács: írd meg, mit hordasz","Követési link, amint a futár átveszi","1 munkanapon belül válaszolunk","Ingyenes szállítás 46 250 Ft felett"]}};const q=s=>document.querySelector(s);const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+      (()=>{if(document.querySelector('.r2-cmp'))return;const D={};const q=s=>document.querySelector(s);const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
 // 1) the 4 function icons join the points/SKU row
 const mt=q('#kbd2-meta'),fn=q('#artdet__functions');if(mt&&fn)mt.append(fn);
 // 5b) the 'Szállítás és átvétel' accordion starts CLOSED (Unas opens it by default; its answers repeat the FAQ).

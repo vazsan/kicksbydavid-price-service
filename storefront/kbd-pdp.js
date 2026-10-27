@@ -801,12 +801,12 @@ if(!on||!h.classList.contains("kbd-pdp")) return;
 var cs=d.currentScript, ld=d.getElementById("kbd-pdp-loader"), src=(cs&&cs.src)||(ld&&ld.src)||"";
 if(!/kbd-pdp\.js/.test(src)) return;
 h.classList.add("kbd-v2");
-/* R2 kinézet (David TG 2256): alapból BE a HU termékoldalakon; ?kbdr2=0 kikapcsolja (süti kbdr2=0, 30 nap), ?kbdr2=1 visszakapcsolja; SK-n nincs (HU szöveg). A kbd-ready addig vár, amíg az r2.js lefutott (vagy 2,5 mp), hogy ne legyen elrendezés-ugrás. */
+/* R2 kinézet (David TG 2256): alapból BE a HU termékoldalakon, SK-n is (David TG 2289, Zara végleges SK szövegei); ?kbdr2=0 kikapcsolja (süti kbdr2=0, 30 nap), ?kbdr2=1 visszakapcsolja. A kbd-ready addig vár, amíg az r2.js lefutott (vagy 2,5 mp), hogy ne legyen elrendezés-ugrás. */
 try{
 var mr=q.match(/[?&]kbdr2=([01])(?:&|$)/);
 if(mr) d.cookie="kbdr2="+mr[1]+";path=/;max-age=2592000;SameSite=Lax";
 var ck=d.cookie.match(/(?:^|; )kbdr2=([01])(?:;|$)/);
-if(!sk && !(ck && ck[1]==="0")){
+if(!(ck && ck[1]==="0")){
 window.__kbdR2Wait=true; h.classList.add("kbd-r2");
 var br=src.replace(/kbd-pdp\.js.*$/,"r2/");
 var lk=d.createElement("link"); lk.rel="stylesheet"; lk.id="kbd-r2-css"; lk.href=br+"r2.css"; (d.head||h).appendChild(lk);

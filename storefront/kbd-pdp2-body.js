@@ -40,14 +40,14 @@
     /* Szlovák szövegek. Gépi fordítás a meglévő szlovák kifejezések (výmena, vrátenie, dobierka, kód výrobcu, DIČ) alapján; anyanyelvi átnézés javasolt. */
     sk: {
       diff: [
-        { ic: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z M9 12l2 2 4-4", t: "Originalitu si môžeš overiť", s: "Kód výrobcu je uvedený. Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model." },
-        { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "Firma vystupuje pod svojím menom", s: "KICKS BY DÁVID s. r. o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail. Na správy odpovedáme do 1 pracovného dňa." },
-        { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "Riziko nesieme my", s: "Môžeš platiť na dobierku, výmenu aj vrátenie do 30 dní platíme my." }
+        { ic: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z M9 12l2 2 4-4", t: "Originalitu si môžeš overiť", s: "Výrobný kód je uvedený pri produkte. Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model." },
+        { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "Overiteľná firma", s: "KICKS BY DÁVID s. r. o., DIČ 2121629928. Adresa, telefón, ktorý zdvihneme, aj e-mail. Na správy odpovedáme do 1 pracovného dňa." },
+        { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "Riziko berieme na seba", s: "Môžeš platiť na dobierku a výmenu aj vrátenie do 30 dní platíme my." }
       ],
       fitTitle: "Komu a k čomu ich odporúčame?",
       sizeTitle: "Bude ti veľkosť sedieť?",
-      sizeText: "Tabuľka veľkostí ti pomôže podľa vnútornej dĺžky chodidla. Ak veľkosť predsa nesedí, výmenu aj vrátenie do 30 dní platíme my. Napíš nám, aké topánky nosíš, a povieme ti tvoju veľkosť.",
-      sizeAsk: "Mám otázku k veľkosti", sizeEu: "Veľkosť EU", sizeCm: "Vnútorná dĺžka chodidla (cm)",
+      sizeText: "Tabuľka veľkostí ti pomôže podľa vnútornej dĺžky topánky. Ak veľkosť predsa nesedí, výmenu aj vrátenie do 30 dní platíme my. Napíš nám, aké topánky nosíš, a povieme ti tvoju veľkosť.",
+      sizeAsk: "Mám otázku k veľkosti", sizeEu: "Veľkosť EU", sizeCm: "Vnútorná dĺžka topánky (cm)",
       reviewsTitle: "Názory našich zákazníkov",
       compareTitle: "Čím sa líši KicksByDavid?", compareBrand: "KicksByDavid", compareCols: ["Resellové e-shopy", "Veľké e-shopy"],
       compareRows: [
