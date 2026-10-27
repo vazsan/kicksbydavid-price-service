@@ -318,22 +318,30 @@
     if (!window.fetch || !window.DOMParser) return setRate(0, 0);
     var rating = 0, n = 0, gUrl = "";
     try { var c = JSON.parse(sessionStorage.getItem("kbd_ti") || "null"); if (c && c.t && Date.now() - c.t < 3600000) { rating = c.r; n = c.n; } } catch (e) {}
-    Promise.all([getTi(TI_BIG), rating ? Promise.resolve(null) : getTi(TI_SMALL)]).then(function (res) {
-      var big = res[0], small = res[1];
+    Promise.all([getTi(TI_BIG), rating ? Promise.resolve(null) : getTi(TI_SMALL), SK ? getTi("3ba033477a0d031a5f060029c5d") : Promise.resolve(null)]).then(function (res) {
+      var big = res[0], small = res[1], huDoc = res[2], huText = {};
+      /* SK: a Trustindex az SK widgetben a magyar vélemények szövegét gépi fordításban adja; a valódi, eredeti magyar szöveget a HU widgetből vesszük (azonos vélemény-azonosító). Nincs HU-találat = a kártya kimarad. */
+      if (huDoc) $$(".ti-review-item", huDoc).forEach(function (h) { var c = $(".ti-review-content", h); if (c) huText[h.getAttribute("data-id")] = c; });
       if (!big) throw new Error("ti");
       if (!n) n = tiCount(big);
       if (!rating && small) rating = tiRating(small);
       if (n && rating) { try { sessionStorage.setItem("kbd_ti", JSON.stringify({ t: Date.now(), r: rating, n: n })); } catch (e) {} }
-      var items = $$(".ti-review-item", big).filter(function (it) {
-        return (it.getAttribute("data-language") || L.revLang) === L.revLang && parseFloat(it.getAttribute("data-rating")) >= 4 && ($(".ti-review-content", it) || {}).textContent;
+      /* HU: csak magyar vélemény. SK (Dávid/Főnök msg 2087): elöl a szlovák, utána a legfrissebb magyar 4-5 csillagos, eredeti nyelven, fordítás nélkül; összesen legfeljebb 4 kártya */
+      var good = $$(".ti-review-item", big).filter(function (it) {
+        var lg = it.getAttribute("data-language") || L.revLang;
+        return (lg === L.revLang || (SK && lg === "hu" && huText[it.getAttribute("data-id")])) && parseFloat(it.getAttribute("data-rating")) >= 4 && ($(".ti-review-content", it) || {}).textContent;
       });
+      var tm = function (it) { return parseInt(it.getAttribute("data-time"), 10) || 0; };
+      var own = good.filter(function (it) { return (it.getAttribute("data-language") || L.revLang) === L.revLang; }).sort(function (x, y) { return tm(y) - tm(x); });
+      var other = good.filter(function (it) { return own.indexOf(it) < 0; }).sort(function (x, y) { return tm(y) - tm(x); });
+      var items = own.concat(other);
       if (!items.length || !(rating > 0) || !(n > 0)) throw new Error("ti-empty");
       gUrl = items[0].getAttribute("data-platform-page-url") || "";
       var wd = $(".ti-widget", big), loc = wd ? wd.getAttribute("data-time-locale") : "";
       setRate(rating, n);
       var cards = "";
       for (var i = 0; i < items.length && i < 4; i++) {
-        var it = items[i], name = ($(".ti-name", it) || {}).textContent || "", tc = $(".ti-review-content", it), txt = ""; if (tc) { var cl = tc.cloneNode(true); $$(".ti-more-image-count,.ti-review-image,.ti-read-more,script,style", cl).forEach(function (x) { x.parentNode.removeChild(x); }); txt = cl.textContent || ""; }
+        var it = items[i], name = ($(".ti-name", it) || {}).textContent || "", tc = ((it.getAttribute("data-language") || L.revLang) !== L.revLang && huText[it.getAttribute("data-id")]) || $(".ti-review-content", it), txt = ""; if (tc) { var cl = tc.cloneNode(true); $$(".ti-more-image-count,.ti-review-image,.ti-read-more,script,style", cl).forEach(function (x) { x.parentNode.removeChild(x); }); txt = cl.textContent || ""; }
         name = name.replace(/\s+/g, " ").trim(); txt = txt.replace(/\s+/g, " ").trim();
         if (txt.length > 190) txt = txt.slice(0, 187).replace(/\s+\S*$/, "") + "…";
         var pic = $(".ti-profile-img img", it), src = pic ? pic.getAttribute("src") : "";
