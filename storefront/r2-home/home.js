@@ -14,7 +14,7 @@
   function skPl(n) { return n === 1 ? "hodnotenie" : (n >= 2 && n <= 4 ? "hodnotenia" : "hodnotení"); }
   /* szövegek és címek nyelvenként. SK: Zara szövegei, Dávid OK-ja (TG 2390); a hős címe SK-n Dávid lektorálása (TG 2398). A -N% jelvény és a számok mindkét nyelven az élő kártyákból / a Trustindexből jönnek. */
   var L = SK ? {
-    base: "/vsetky-produkty", newUrl: "/novinky", saleUrl: "/akcie",
+    base: "/vsetky-produkty", newUrl: "/novinky", saleUrl: "/akcie", tkdur: 24,
     h1: "Tenisky, ktoré<br>práve letia", sub: "Výrobný kód pri každom produkte", btn: "Zobraziť všetko",
     ticker: ["VÝMENA DO 30 DNÍ ZADARMO", "DOBIERKA", "VÝROBNÝ KÓD", "RATE", "DOPRAVA ZADARMO NAD 120 €"], rate: "GOOGLE",
     newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesedí veľkosť, výmenu do 30 dní platíme my.",
@@ -23,7 +23,7 @@
     tiBig: "6b883db76988873e850692b71b0", tiSmall: "f2ddae483a2767044106f3718af", tiles: "tiles-sk.json", prev: "Predchádzajúce", next: "Ďalšie",
     starsAria: function (n) { return n + "/5"; }, alt: "ASICS Gel-NYC Oyster Grey", aria: "KicksByDavid"
   } : {
-    base: "/osszes-termek", newUrl: "/ujdonsagok", saleUrl: "/akcios-termekek",
+    base: "/osszes-termek", newUrl: "/ujdonsagok", saleUrl: "/akcios-termekek", tkdur: 26,
     h1: "Felkapott<br>sneakerek", sub: "Gyári cikkszám minden terméklapon", btn: "Mutasd az összeset",
     ticker: ["30 NAP INGYENES CSERE", "UTÁNVÉT", "GYÁRI CIKKSZÁM", "RATE", "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], rate: "GOOGLE",
     newT: "Most érkezett", all: "Mind", sizeT: "Vásárolj a méretedben", sizeAll: "ÖSSZES", sizeNote: "30 nap ingyenes csere, ha nem jó a méret.",
@@ -85,7 +85,13 @@
     + ".khr-dots button[aria-current=true]::before{background:#171717;box-shadow:0 0 0 1.5px #fff}"
     + ".khr-sn{display:none}"
     /* bizalmi sáv */
-    + "#khr .khr-tk{display:flex;gap:18px;overflow:hidden;white-space:nowrap;height:38px;align-items:center;margin:0 -16px;padding:0 16px;border-bottom:1px solid var(--line);font-size:11px;font-weight:800;letter-spacing:.08em}"
+    /* előnysáv: lassú, folyamatos balra gördülés (marquee, csak CSS: a tartalom 4x, translateX(-25%), ~35 px/s; hover/érintés megáll; reduced-motion: áll) */
+    + "#khr .khr-tk{overflow:hidden;white-space:nowrap;height:38px;margin:0 -16px;border-bottom:1px solid var(--line);font-size:11px;font-weight:800;letter-spacing:.08em}"
+    + "#khr .khr-tkin{display:flex;align-items:center;height:38px;width:max-content;animation:khrm var(--tkd,26s) linear infinite;will-change:transform}"
+    + "#khr .khr-tkh{display:flex;align-items:center;gap:18px;padding-right:18px;flex:none}"
+    + "@keyframes khrm{from{transform:translateX(0)}to{transform:translateX(-25%)}}"
+    + "#khr .khr-tk:hover .khr-tkin,#khr .khr-tk:active .khr-tkin,#khr .khr-tk:focus-within .khr-tkin{animation-play-state:paused}"
+    + "@media (prefers-reduced-motion:reduce){#khr .khr-tkin{animation:none;transform:none}#khr .khr-tkh:not(:first-child){display:none}#khr .khr-tk{padding:0 16px}}"
     + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}#khr .khr-tk i{font-style:normal}"
     + "#khr .khr-first{padding-top:18px}"
     /* kártyasín és rács: a kártya a natív Unas kártya */
@@ -147,7 +153,7 @@
     + "#khr .khr-hero p{margin-top:16px;font-size:16px}"
     + "#khr .khr-hero .khr-btn{margin-top:24px;height:52px;padding:0 26px;font-size:15px}"
     + "#khr .khr-cap{right:auto;left:max(16px,calc((100vw - 1240px)/2));bottom:24px;text-align:left}"
-    + "#khr .khr-tk{margin:0;padding:0;justify-content:space-between}"
+    + "#khr .khr-tk{margin:0}@media (prefers-reduced-motion:reduce){#khr .khr-tk{padding:0}}"
     + "#khr .khr-first{padding-top:32px}"
     + "#khr .khr-rail{grid-auto-columns:calc((1240px - 48px)/4.35);gap:16px;margin:0 -6px;padding:6px}"
     + "#khr .khr-rail{min-height:520px}#khr .khr-grid{min-height:900px}#khr .khr-ph{min-height:500px}"
@@ -189,13 +195,14 @@
     for (var j = 0; j < BRANDS.length; j++) br += '<a data-b="' + BRANDS[j][0] + '" href="' + L.base + '?filter=8208356:' + encodeURIComponent(BRANDS[j][0]) + '"><img src="' + IMG + "brandlogo_" + BRANDS[j][1] + '.webp" alt="' + BRANDS[j][0] + '" loading="lazy" decoding="async"></a>';
     var tk = L.ticker.map(function (x) { return x === "RATE" ? '<i class="khr-rate">5,0 ' + L.rate + "</i>" : x; }), t = "";
     for (var k = 0; k < tk.length; k++) t += "<span>" + CHECK + tk[k] + "</span>";
+    var tkh = ""; for (var c = 0; c < 4; c++) tkh += '<div class="khr-tkh"' + (c ? ' aria-hidden="true"' : "") + ">" + t + "</div>";
     var ph = '<div class="khr-ph" style="width:100%"></div>';
     return (noHero || SLIDER() ? '' : ''
       + '<a class="khr-hero" href="' + L.base + '?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="600">'
       + '<img src="' + IMG + 'hero_klassz_mob_780.webp" width="780" height="1040" fetchpriority="high" decoding="async" alt="' + L.alt + '"></picture>'
       + '<div class="khr-ht"><h1>' + L.h1 + '</h1><p>' + L.sub + '</p><span class="khr-btn">' + L.btn + ' ' + ARROW + "</span></div>"
       + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>')
-      + '<div class="khr-w"><div class="khr-tk">' + t + "</div>"
+      + '<div class="khr-w"><div class="khr-tk"><div class="khr-tkin" style="--tkd:' + L.tkdur + 's">' + tkh + "</div></div>"
       + (SLIDER() ? '<h1 class="khr-sr">' + L.h1.replace(/<br>/g, " ") + "</h1>" : "")
       + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
@@ -324,8 +331,8 @@
   function parse(t) { try { return new DOMParser().parseFromString(t, "text/html"); } catch (e) { return null; } }
   function getTi(pid) { return fetch(tiUrl(pid)).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { return t ? parse(t) : null; }); }
   function setRate(r, n) {
-    var e = $(".khr-rate"); if (e && r > 0 && n > 0) e.textContent = r.toFixed(1).replace(".", ",") + " " + L.rate;
-    else if (e) e.parentNode.style.display = "none";
+    var es = $$(".khr-rate");
+    es.forEach(function (e) { if (r > 0 && n > 0) e.textContent = r.toFixed(1).replace(".", ",") + " " + L.rate; else e.parentNode.style.display = "none"; });
   }
   function loadReviews(sec) {
     var box = $(".khr-revbox", sec); if (!box || box.getAttribute("data-done")) return;
