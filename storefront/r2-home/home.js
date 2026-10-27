@@ -386,6 +386,12 @@
     $$("source", np).forEach(function (so) { so.removeAttribute("class"); so.removeAttribute("style"); });
     tgt.parentNode.replaceChild(np, tgt);
   }
+  function afterHero(r, fn) {
+    var im = $(".khr-hero img", r), done0 = false;
+    function go() { if (done0) return; done0 = true; fn(); }
+    if (!im || im.complete) return go();
+    im.addEventListener("load", go); im.addEventListener("error", go); setTimeout(go, 3500);
+  }
   function mount() {
     var main = document.getElementById("main");
     if (!main || document.getElementById("khr")) return !!document.getElementById("khr");
@@ -398,8 +404,8 @@
     main.insertBefore(r, main.firstChild);
     document.documentElement.className += " khr-ready";
     var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
-    tiles(r);
-    lazy(sNew, loadNew, "1200px 0px");
+    /* a hős kép előnyt kap a lassú hálón: a Most érkezett lista (~800 KB HTML) és a tiles.json csak a hős betöltése után (legfeljebb 3,5 mp) indul */
+    afterHero(r, function () { tiles(r); lazy(sNew, loadNew, "1200px 0px"); });
     lazy(sRev, loadReviews, "600px 0px");
     return true;
   }

@@ -735,6 +735,7 @@
       im[i].setAttribute("width", ci[0]);
       im[i].setAttribute("height", ci[1]);
       im[i].setAttribute("decoding", "async");
+      if (R2) im[i].setAttribute("loading", "lazy");   /* R2: a Club-képek az oldal alján vannak, ne vegyék el a sávot a hőstől */
       im[i].src = location.protocol + "//" + location.host + "/shop_ordered/26121/pic/kbdc-" + m[1] + ".webp";
     }
     var t = document.querySelector(".kbdc-hero-title");
