@@ -194,7 +194,8 @@
   function pulls() {
     var secSale = $('[data-k="sale"]'), secTop = $('[data-k="top"]');
     if (!done.sale) {
-      var c1 = nativeCards("page_artref_inner").filter(isShoe);
+      /* csak a ténylegesen akciós kártyák (kedvezmény-jelvény): ha az akció véget ér, a sor magától eltűnik */
+      var c1 = nativeCards("page_artref_inner").filter(isShoe).filter(function (c) { return !!c.querySelector(".badge--sale"); });
       if (c1.length >= 4) {
         done.sale = fill(secSale, c1.slice(0, N_SALE), ".khr-rail", N_SALE);
         if (done.sale) salePill(secSale);
@@ -336,12 +337,19 @@
     lazy(sRev, loadReviews, "600px 0px");
     return true;
   }
+  /* ami 20 mp alatt sem kapott elég natív kártyát (pl. véget ért az akció), nem marad üres keret */
+  function giveUp() {
+    var k, e;
+    if (!done.sale) { e = $('[data-k="sale"]'); if (e && e.parentNode) e.parentNode.removeChild(e); }
+    if (!done.top) { e = $('[data-k="top"]'); if (e && e.parentNode) e.parentNode.removeChild(e); }
+  }
   function start() {
     if (!document.body || document.body.id !== "ud_shop_start") return;
     var tries = 0;
     (function tick() {
       mount(); pulls();
       if (++tries < 80 && !(done.sale && done.top)) setTimeout(tick, 250);
+      else giveUp();
     })();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
