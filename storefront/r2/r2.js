@@ -43,11 +43,11 @@ const lg=q('#header_logo_img img');const logo=lg?'<img alt="KicksByDavid" src="'
 if(C.mode==='B'){card.append(el('div','r2-row r2-head','<span class="r2-ql">'+C.left+'</span><span class="r2-us">'+logo+'</span>'));
  C.rows.forEach(t=>card.append(el('div','r2-row','<span>'+t+'</span><span class="r2-yes" aria-label="igen, nálunk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>')));}
 else{C.rows.forEach(t=>card.append(el('div','r2-li','<span class="r2-yes" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>'+t.replace('[MEGERŐSÍTENDŐ]','<em class="r2-tbc">megerősítendő</em>')+'</span>')));}
-w.append(card);diff.after(cmp);
+w.append(card);if(diff)diff.after(cmp);
 const ph=el('section','r2-ph');const pw=el('div','kbd2-w');ph.append(pw);
 if(D.draftLabels)pw.append(el('span','r2-draft','Opcionális · csak saját fotóval'));pw.append(el('h2','r2-h2',SK?"Skôr, než ti ho pošleme":"Mielőtt elindul hozzád"));
 const g=el('div','r2-ph-g');['Saját fotó: a pár ellenőrzése (címke, cikkszám)','Saját fotó: dobozolás','Saját fotó: csomag átadás'].forEach(t=>g.append(el('div','',t)));pw.append(g);
-pw.append(el('p','','Csak akkor kerül ki, ha Dávid lefotózza. AI-kép ide nem mehet.'));cmp.after(ph);
+pw.append(el('p','','Csak akkor kerül ki, ha Dávid lefotózza. AI-kép ide nem mehet.'));if(cmp.isConnected)cmp.after(ph);
 // INACTIVE by default (Dávid TG 2218): shown only when the switch is on: <html class="kbd-photos-on"> or window.KBD_PHOTOS=true
 if(!(window.KBD_PHOTOS===true||document.documentElement.classList.contains('kbd-photos-on')))ph.hidden=true;
 // 4) size table -> 2-row grid

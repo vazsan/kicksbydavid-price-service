@@ -478,8 +478,8 @@ title: "Originalita a starostlivosť",
 html: '<div style="font-size:15px;line-height:1.7">' +
 H3F + 'Ako zistím, že je to originál?</h3><p>Nápis „100 % originál“ nájdeš na každom e-shope, aj na podvodných. U nás preto dôkazom nie je on, ale tieto tri veci:</p>' +
 '<p><strong>1. Výrobný kód je uvedený pri produkte.</strong> Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model.</p>' +
-'<p><strong>2. Firma vystupuje pod svojím menom.</strong> KICKS BY DÁVID s. r. o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail, na ktorý odpovedáme do 1 pracovného dňa.</p>' +
-'<p><strong>3. Riziko nesieme my.</strong> Môžeš platiť na dobierku, takže peniaze máš u seba až do prevzatia. Ak niečo nesedí, vrátenie aj výmenu platíme my.</p>' +
+'<p><strong>2. Overiteľná firma.</strong> KICKS BY DÁVID s. r. o., DIČ 2121629928. Adresa, telefón, ktorý zdvihneme, aj e-mail. Na správy odpovedáme do 1 pracovného dňa.</p>' +
+'<p><strong>3. Riziko berieme na seba.</strong> Môžeš platiť na dobierku a výmenu aj vrátenie do 30 dní platíme my.</p>' +
 H3 + 'Odkiaľ páry pochádzajú?</h3><p>Od overených európskych veľkoobchodných partnerov, nové a v originálnej krabici. Často ide o modely a veľkosti, ktoré u nás v obchodoch už nekúpiš.</p>' +
 H3 + 'Ako ich udržať ako nové?</h3>' +
 '<p><strong>Pred prvým nosením:</strong> impregnačný sprej v dvoch tenkých vrstvách urobí viac než akékoľvek neskoršie čistenie.</p>' +
@@ -519,6 +519,14 @@ if (norm(s.textContent) !== "1. Kód výrobcu je uvedený.") return;
 var p = s.parentNode;
 if (p.getAttribute("data-kbd-faq")) return;
 p.innerHTML = "<strong>1. Výrobný kód je uvedený pri produkte.</strong> Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model.";
+p.setAttribute("data-kbd-faq", "1");
+});
+Array.prototype.forEach.call(document.querySelectorAll("p > strong"), function (s) {
+var k = norm(s.textContent), p = s.parentNode;
+if (p.getAttribute("data-kbd-faq")) return;
+if (k === "2. Firma vystupuje pod svojím menom.") p.innerHTML = "<strong>2. Overiteľná firma.</strong> KICKS BY DÁVID s. r. o., DIČ 2121629928. Adresa, telefón, ktorý zdvihneme, aj e-mail. Na správy odpovedáme do 1 pracovného dňa.";
+else if (k === "3. Riziko nesieme my.") p.innerHTML = "<strong>3. Riziko berieme na seba.</strong> Môžeš platiť na dobierku a výmenu aj vrátenie do 30 dní platíme my.";
+else return;
 p.setAttribute("data-kbd-faq", "1");
 });
 }

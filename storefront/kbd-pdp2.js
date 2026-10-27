@@ -94,7 +94,7 @@
     sk: {
       benefits: [
         "Nové, v originálnej krabici, od overeného európskeho veľkoobchodníka",
-        "Kód výrobcu je uvedený (%SKU%), vo vyhľadávači si ho môžeš overiť",
+        "Výrobný kód je uvedený (%SKU%), vo vyhľadávači si ho môžeš overiť",
         "Platiť môžeš aj na dobierku"
       ],
       sizeHint: "Nie si si istý veľkosťou? Ak nám napíšeš, aké topánky nosíš, povieme ti tvoju veľkosť.",
