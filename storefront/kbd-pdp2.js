@@ -10,6 +10,7 @@
   if (!h.classList.contains("kbd-pdp") || !h.classList.contains("kbd-v2")) return;
   if (window.__kbdPdp2) return;
   window.__kbdPdp2 = true;
+  var SELF = (d.currentScript && d.currentScript.src) || "";   /* ebből a könyvtárból töltődik a dupimg.json is (ugyanaz a rögzített commit) */
 
   /* ========================= KONFIGURÁCIÓ ========================= */
   var CFG = {
@@ -431,19 +432,60 @@
     tgt.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  /* galéria: legfeljebb CFG.maxImages kép a nagy sávban és az indexképek között is */
+  /* galéria: legfeljebb CFG.maxImages kép a nagy sávban és az indexképek között is.
+     2026-10-29 (David TG 2691, main msg 2462): az Unas adatban egyes termékeknél a főkép újra fel van töltve altpic_1 (néha altpic_2) néven is, ezért a galéria elején ugyanaz a kép többször jön.
+     A dupimg.json (kulcsok: "<cikkszám>_altpic_<n>", csak a képileg azonos, távolság 0 + pixel-ellenőrzött képek) alapján ezek a cellák kikerülnek, még a maxImages-vágás ELŐTT, így a következő kép lép be a helyükre.
+     Ha az adatfájl nem töltődik be (diSet === false), a galéria pontosan olyan, mint eddig. Az első cella soha nem törlődik. */
+  var diSet;   /* undefined = az adat úton van (max. DI.wait ms), false = nincs adat, objektum = a duplikált képkulcsok */
+  var DI = { wait: 900 }, diReq = false;
+  function diFail() { if (diSet === undefined) { diSet = false; safe(); } }
+  function diStart() {
+    if (diReq) return;
+    diReq = true;
+    var u = SELF && /kbd-pdp2\.js/.test(SELF) ? SELF.replace(/kbd-pdp2\.js.*$/, "dupimg.json") : "";
+    if (!u || !window.fetch) { diSet = false; return; }
+    setTimeout(diFail, DI.wait);
+    try {
+      window.fetch(u, { credentials: "omit" }).then(function (r) {
+        if (!r.ok) throw 0;
+        return r.json();
+      }).then(function (j) {
+        if (!j || j.v !== 1 || !Array.isArray(j.k)) throw 0;
+        var o = Object.create(null);
+        j.k.forEach(function (k) { o[k] = 1; });
+        if (diSet === undefined) { diSet = o; safe(); }
+      }).catch(diFail);
+    } catch (e) { diFail(); }
+  }
+  function giKey(el) {
+    var i = el && el.querySelector && el.querySelector("img"), s = i ? (i.getAttribute("data-src") || i.getAttribute("data-flickity-lazyload") || i.getAttribute("src") || "") : "", m = s.match(/\/img\/\d+\/([^\/]+)\//);
+    return m ? m[1] : "";
+  }
+  function dupCells(fl) {
+    if (!fl || !diSet) return [];
+    return fl.cells.filter(function (c, i) { return i > 0 && diSet[giKey(c.element)] === 1; }).map(function (c) { return c.element; });
+  }
   function limitGallery() {
     var alts = $(SEL.alts), th = $(SEL.thumbs);
     if (!alts || !window.Flickity || !alts.classList.contains("flickity-enabled") || alts.getAttribute("data-kbd2")) return;
+    if (diSet === undefined) return;   /* a duplikált-kép adat még úton: a vágás vár (a kbd-ready is vár rá, nincs ugrás) */
     var f = Flickity.data(alts);
     if (!f) return;
+    var thOn = th && th.classList.contains("flickity-enabled"), del = dupCells(f);
+    if (del.length && th && !thOn) return;   /* az indexképek sávja még nem kész: a két sáv sorrendje nem csúszhat el, a következő körben újra */
     alts.setAttribute("data-kbd2", "1");
     function cut(fl) {
       if (fl && fl.cells.length > CFG.maxImages) fl.remove(fl.cells.slice(CFG.maxImages).map(function (c) { return c.element; }));
       if (fl) fl.resize();
     }
+    function dedupe(fl) {
+      var x = dupCells(fl);
+      if (x.length && x.length < fl.cells.length) fl.remove(x);
+    }
+    dedupe(f);
+    if (thOn) dedupe(Flickity.data(th));
     cut(f);
-    if (th && th.classList.contains("flickity-enabled")) cut(Flickity.data(th));
+    if (thOn) cut(Flickity.data(th));
     var all = $(".carousel__num-all");
     if (all && f.cells.length) all.textContent = f.cells.length;
     if (f.cells.length <= 1) { var nav = $(".carousel__nav--artdet-alt-images"); if (nav) nav.style.display = "none"; }
@@ -545,7 +587,7 @@
   /* ========================= MODELL-SÁV ========================= */
   var FAMT = SK ? { all: "Zobraziť všetko", nav: "Model" } : { all: "Összes", nav: "Modell" };
   var famData, famReq = false;
-  function famDone() { var F = window.KBD_FAM; if (!F) return; if (lpSet === undefined) return; /* az utolsó pár adata még úton (max. LP.wait): a kirajzolás vár */ F.done = true; if (F.release) F.release(); }
+  function famDone() { var F = window.KBD_FAM; if (!F) return; if (lpSet === undefined || diSet === undefined) return; /* az utolsó pár / duplikált-kép adata még úton (max. LP.wait / DI.wait): a kirajzolás vár */ F.done = true; if (F.release) F.release(); }
   function famKey() {
     var c = $('link[rel="canonical"]'), u = c && c.getAttribute("href"), m = u && u.match(/^https?:\/\/[^\/]+\/([^?#]+)/);
     return m ? m[1].replace(/\/$/, "") : "";
@@ -933,6 +975,7 @@
   /* <<< kuponblokk */
 
   lpStart();
+  diStart();
   if (d.readyState !== "loading") safe(); else d.addEventListener("DOMContentLoaded", safe);
   if (d.readyState === "complete") setTimeout(safe, 300); else window.addEventListener("load", function () { safe(); setTimeout(safe, 400); });
   if (window.jQuery) window.jQuery(d).on("ajaxComplete", function () { setTimeout(safe, 50); });
