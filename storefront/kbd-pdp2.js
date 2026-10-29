@@ -20,7 +20,7 @@
     ship: { pilot: ["*"] },
     /* modell-sáv a cím és az ár között (minta: store/pdp-minta/adonio-modellsav*.jpg). A pilot lista, az adat helye és a letöltés a kbd-pdp.js-ben van (window.KBD_FAM): ott indul a letöltés az első kirajzolás előtt. */
     fam: { minCards: 3 },
-    /* kuponblokk az ár alatt (kbd-pdp2-coupon.js; akciós terméken nincs) + elfogyott-méret értesítő (csak a ?kbdnotify=1 süti-kapu mögött, nem küld sehova) */
+    /* kuponblokk az ár alatt (kbd-pdp2-coupon.js; akciós terméken a KBD10, az akciós árból számolva) + elfogyott-méret értesítő (csak a ?kbdnotify=1 süti-kapu mögött, nem küld sehova) */
     coupon: { enabled: true },
     cod: { hu: "1 100 Ft" },                        /* utánvét felára, HU; az SK érték a v11 szótárából jön */
     /* Trustindex: kis jelvény (a hero-ban) és nagy vélemény-widget (a lap alján, a 6. lépésben) */
@@ -819,6 +819,12 @@
   var C = SK
     ? { code: "KBD10", type: "abs", val: 10, tag: "Kupón", save: "Zľava s kódom", amt: "10 €", withCode: "", codeLbl: "Kód", copy: "Kopírovať", copied: "Skopírované", how: "", info: "Nedá sa kombinovať s vernostnými bodmi ani s iným zľavovým kódom.", infoLabel: "Informácie o kupóne" }
     : { code: "KBD5", type: "pct", val: 5, tag: "Kupon", save: "Kedvezmény kóddal", amt: "5%", withCode: "", codeLbl: "Kód", copy: "Másolás", copied: "Kimásolva", how: "", info: "Pontokkal és más kuponkóddal nem vonható össze.", infoLabel: "Tudnivaló a kuponról" };
+  /* Akciós terméken (David TG 2870, main msg 2647): a KBD5 ott nem váltható be (getCoupon: DisableOnSale/DisableForSaleProducts yes), a KBD10 igen (2026-10-29 22:39 óta).
+     KBD10 = 10 € a végösszegből; HU-n Ft-ban: a bolt HUF árfolyama 2026-10-19 óta fix 370 (rendelések ExchangeValue, és az oldali ár = EUR x 370), a kosár ugyanezzel vált (10-10: -1825 Ft = 5 € x 364,934). */
+  var HUF_PER_EUR = 370;
+  var CS = SK ? C
+    : { code: "KBD10", type: "abs", val: 10 * HUF_PER_EUR, tag: "Kupon", save: "Kedvezmény kóddal", amt: "3 700 Ft", withCode: "", codeLbl: "Kód", copy: "Másolás", copied: "Kimásolva", how: "", info: "Más kuponkóddal nem vonható össze.", infoLabel: "Tudnivaló a kuponról" };
+  var CUR = C;
   var N = SK
     ? { tileA: "Je tvoja veľkosť vypredaná?", tileB: "Napíšeme ti, keď sa vráti", title: "Napíšeme ti, keď sa vráti", text: "Napíšeme ti len o veľkosti, newsletter neposielame.", pick: "Akú veľkosť potrebuješ?", email: "Tvoj e-mail", ph: "meno@priklad.sk",
         consent: "Súhlasím s upozornením e-mailom, súhlas môžem kedykoľvek odvolať.", priv: "Ochrana údajov", btn: "Chcem upozornenie",
@@ -871,8 +877,8 @@
   /* ---- kuponblokk ---- */
   function priceBlock() { return $("#artdet__main-block .artdet__price-and-countdown"); }
   function isSale() { return !!$("#artdet__main-block .artdet__prices.has-price-sale") || !!$("#artdet__main-block .artdet__price-discount"); }
-  function priceNow() {
-    var p = $("#artdet__main-block .artdet__price-base-value .price-gross-format");
+  function priceNow(sale) {
+    var p = sale ? $("#artdet__main-block .artdet__price-discount .price-gross-format") : $("#artdet__main-block .artdet__price-base-value .price-gross-format");
     var t = p ? (p.textContent || "") : "";
     if (SK) { var f = parseFloat(t.replace(/[^\d,.]/g, "").replace(",", ".")); return isNaN(f) ? 0 : f; }
     var n = parseInt(t.replace(/[^\d]/g, ""), 10); return isNaN(n) ? 0 : n;
@@ -883,13 +889,13 @@
     while (t.length > 3) { o = " " + t.slice(-3) + o; t = t.slice(0, -3); }
     return t + o + " Ft";
   }
-  function withCode(p) { return C.type === "pct" ? Math.round(p * (100 - C.val) / 100) : Math.round((p - C.val) * 100) / 100; }
+  function withCode(p, c) { return c.type === "pct" ? Math.round(p * (100 - c.val) / 100) : Math.round((p - c.val) * 100) / 100; }
   var INFO_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg>';
   var ARROW = '<svg class="kbdc-ar" width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="#A3481F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h13M9.5 1.5L14 6l-4.5 4.5"/></svg>';
   var OK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var COPY_ARROW = '<svg width="14" height="11" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6h13M9.5 1.5L14 6l-4.5 4.5"/></svg>';
   function couponHtml(calc, copied) {
-    var info = C.info ? '<span class="kbdc-info kr2-left"><button type="button" class="kbdc-i" aria-label="' + esc(C.infoLabel) + '" aria-expanded="false" aria-controls="kbdc-pop-1" aria-describedby="kbdc-pop-1">' + INFO_SVG + '</button><span class="kbdc-pop" id="kbdc-pop-1" role="tooltip">' + esc(C.info) + '</span></span>' : "";
+    var C = CUR, info = C.info ? '<span class="kbdc-info kr2-left"><button type="button" class="kbdc-i" aria-label="' + esc(C.infoLabel) + '" aria-expanded="false" aria-controls="kbdc-pop-1" aria-describedby="kbdc-pop-1">' + INFO_SVG + '</button><span class="kbdc-pop" id="kbdc-pop-1" role="tooltip">' + esc(C.info) + '</span></span>' : "";
     return '<span class="krd-t1"><small>' + esc(C.tag) + '</small><b>\u2212' + esc(C.amt) + '</b></span>' +
       '<span class="krd-r"><span class="krd-l">' + esc(C.save) + info + '</span><span class="krd-p">' + esc(calc).replace(/ /g, "\u00a0") + '</span></span>' +
       '<button type="button" class="krd-t2' + (copied ? " ok" : "") + '" aria-label="' + esc((copied ? C.copied : C.copy) + ": " + C.code) + '"><b>' + esc(C.code) + '</b><span>' + (copied ? OK_SVG + esc(C.copied) : esc(C.copy) + COPY_ARROW) + '</span></button>';
@@ -904,23 +910,23 @@
   var copiedUntil = 0;
   function coupon() {
     var inner = $("#artdet__main-block .artdet__block-cart-inner"), pb = priceBlock(), e = d.getElementById("kbd-coupon");
-    var p = pb ? priceNow() : 0, ok = !!(inner && pb) && !isSale() && p > 0 && withCode(p) > 0;
+    var sale = isSale(), c = sale ? CS : C, p = pb ? priceNow(sale) : 0, ok = !!(inner && pb) && p > 0 && withCode(p, c) > 0;
     if (!ok) { if (e && e.parentNode) e.parentNode.removeChild(e); return; }
-    css();
+    css(); CUR = c;
     if (!e) { e = d.createElement("div"); e.id = "kbd-coupon"; e.className = "krd"; }
-    var html = couponHtml(money(withCode(p)), Date.now() < copiedUntil);
+    var html = couponHtml(money(withCode(p, c)), Date.now() < copiedUntil);
     if (e.getAttribute("data-k") !== html) { e.innerHTML = html; e.setAttribute("data-k", html); }
     if (e.previousElementSibling !== pb || e.parentNode !== pb.parentNode) pb.parentNode.insertBefore(e, pb.nextSibling);
   }
   d.addEventListener("click", function (ev) {
     var b = ev.target.closest && ev.target.closest("#kbd-coupon .krd-t2");
     if (!b) return;
-    var done = function () { copiedUntil = Date.now() + 2200; coupon(); setTimeout(coupon, 2300); try { (window.dataLayer = window.dataLayer || []).push({ event: "kbd_coupon_copy", coupon_code: C.code }); } catch (e) {} };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(C.code).then(done, function () { fallbackCopy(); done(); });
+    var done = function () { copiedUntil = Date.now() + 2200; coupon(); setTimeout(coupon, 2300); try { (window.dataLayer = window.dataLayer || []).push({ event: "kbd_coupon_copy", coupon_code: CUR.code }); } catch (e) {} };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(CUR.code).then(done, function () { fallbackCopy(); done(); });
     else { fallbackCopy(); done(); }
   });
   function fallbackCopy() {
-    try { var t = d.createElement("textarea"); t.value = C.code; t.setAttribute("readonly", ""); t.style.cssText = "position:fixed;left:-9999px;top:0"; d.body.appendChild(t); t.select(); d.execCommand("copy"); d.body.removeChild(t); } catch (e) {}
+    try { var t = d.createElement("textarea"); t.value = CUR.code; t.setAttribute("readonly", ""); t.style.cssText = "position:fixed;left:-9999px;top:0"; d.body.appendChild(t); t.select(); d.execCommand("copy"); d.body.removeChild(t); } catch (e) {}
   }
 
   /* ---- értesítő (csak NF) ---- */
