@@ -622,19 +622,22 @@
 
   /* ========================= UTOLSÓ PÁR ========================= */
   /* Óránként frissülő lista (scripts/pdp/last1_publish.py, Samu): azok az aktív lábbeli-sorok (Unas cikkszám), ahol az Unas készlete pontosan 1.
-     Fájl: /shop_ordered/26121/pic/kbd/last1.json = {"v":1,"t":<epoch mp>,"n":<db>,"s":[cikkszám,...]}, ugyanazon a HU és SK domainen.
+     Fájl: /shop_ordered/26121/pic/kbd/last1_<ÉÉÉÉHHNNÓÓ>.json (UTC óra) = {"v":1,"t":<epoch mp>,"n":<db>,"s":[cikkszám,...]}, ugyanazon a HU és SK domainen. Óránként új fájlnév, mert a bolt-domainek a régi nevű fájl régi másolatát órákig kiszolgálták.
+     Sorrend: az (most - 53 perc) órájának fájlja (a job :50-kor fut, ~:52-re van fent), ha az nincs meg vagy régi: az előző óra, végül a régi fix nevű last1.json (átmeneti).
      Ha a fájl hiányzik, hibás, vagy 2 óránál régebbi, vagy a méret most nincs raktáron: NEM jelenik meg semmi (inkább hiányzó jelzés, mint téves "utolsó pár").
      A méretváltás új oldalbetöltés (a méretek linkek), ezért nincs dinamikus követés. A jobb oszlop kirajzolása legfeljebb LP.wait ms-ig vár az adatra (a modell-sáv várakozásával együtt). */
-  var LP = { url: "/shop_ordered/26121/pic/kbd/last1.json", maxAge: 7200, wait: 900 };
+  var LP = { url: "/shop_ordered/26121/pic/kbd/last1.json", pre: "/shop_ordered/26121/pic/kbd/last1_", lag: 3180000, maxAge: 7200, wait: 900 };
   var lpSet, lpReq = false;   /* undefined = az adat úton van, false = nincs jelzés, objektum = a cikkszámok halmaza */
   function lpFail() { if (lpSet === undefined) { lpSet = false; safe(); } }
-  function lpStart() {
-    if (lpReq) return;
-    lpReq = true;
-    if (!window.fetch || !(TX && TX.last1)) { lpSet = false; return; }
-    setTimeout(lpFail, LP.wait);
+  function lpName(ms) {
+    var t = new Date(ms), p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return LP.pre + t.getUTCFullYear() + p(t.getUTCMonth() + 1) + p(t.getUTCDate()) + p(t.getUTCHours()) + ".json";
+  }
+  function lpTry(urls, i) {
+    if (lpSet !== undefined) return;
+    if (i >= urls.length) { lpFail(); return; }
     try {
-      window.fetch(LP.url + "?c=" + Math.floor(Date.now() / 300000), { credentials: "omit" }).then(function (r) {
+      window.fetch(urls[i], { credentials: "omit" }).then(function (r) {
         if (!r.ok) throw 0;
         var sd = Date.parse(r.headers.get("date") || "");
         return r.json().then(function (j) { return [j, isNaN(sd) ? Date.now() : sd]; });
@@ -644,8 +647,16 @@
         var o = Object.create(null);
         j.s.forEach(function (k) { o[k] = 1; });
         if (lpSet === undefined) { lpSet = o; safe(); }
-      }).catch(lpFail);
-    } catch (e) { lpFail(); }
+      }).catch(function () { lpTry(urls, i + 1); });
+    } catch (e) { lpTry(urls, i + 1); }
+  }
+  function lpStart() {
+    if (lpReq) return;
+    lpReq = true;
+    if (!window.fetch || !(TX && TX.last1)) { lpSet = false; return; }
+    setTimeout(lpFail, LP.wait);
+    var n = Date.now();
+    lpTry([lpName(n - LP.lag), lpName(n - LP.lag - 3600000), LP.url + "?c=" + Math.floor(n / 300000)], 0);
   }
   function lpSku() {
     var e = $$(".artdet__sku-value"), i, t;
