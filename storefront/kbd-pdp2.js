@@ -442,20 +442,27 @@
   function diStart() {
     if (diReq) return;
     diReq = true;
-    var u = SELF && /kbd-pdp2\.js/.test(SELF) ? SELF.replace(/kbd-pdp2\.js.*$/, "dupimg.json") : "";
-    if (!u || !window.fetch) { diSet = false; return; }
+    var pin = SELF && /kbd-pdp2\.js/.test(SELF) ? SELF.replace(/kbd-pdp2\.js.*$/, "dupimg.json") : "";
+    if (!pin || !window.fetch) { diSet = false; return; }
+    /* 1. a naponta újraépülő lista (jsDelivr ág, 12 órás ?d= mint a modell-sáv szilánkjainál; az éjszakai job purge-ol), 2. ha az nem jön: a kiadás idején rögzített másolat */
+    var urls = ["https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-pdp-storefront/storefront/dupimg.json?d=" + Math.floor(Date.now() / 43200000), pin];
     setTimeout(diFail, DI.wait);
-    try {
-      window.fetch(u, { credentials: "omit" }).then(function (r) {
-        if (!r.ok) throw 0;
-        return r.json();
-      }).then(function (j) {
-        if (!j || j.v !== 1 || !Array.isArray(j.k)) throw 0;
-        var o = Object.create(null);
-        j.k.forEach(function (k) { o[k] = 1; });
-        if (diSet === undefined) { diSet = o; safe(); }
-      }).catch(diFail);
-    } catch (e) { diFail(); }
+    function one(i) {
+      if (diSet !== undefined) return;
+      if (i >= urls.length) { diFail(); return; }
+      try {
+        window.fetch(urls[i], { credentials: "omit" }).then(function (r) {
+          if (!r.ok) throw 0;
+          return r.json();
+        }).then(function (j) {
+          if (!j || j.v !== 1 || !Array.isArray(j.k) || !j.k.length) throw 0;
+          var o = Object.create(null);
+          j.k.forEach(function (k) { o[k] = 1; });
+          if (diSet === undefined) { diSet = o; safe(); }
+        }).catch(function () { one(i + 1); });
+      } catch (e) { one(i + 1); }
+    }
+    one(0);
   }
   function giKey(el) {
     var i = el && el.querySelector && el.querySelector("img"), s = i ? (i.getAttribute("data-src") || i.getAttribute("data-flickity-lazyload") || i.getAttribute("src") || "") : "", m = s.match(/\/img\/\d+\/([^\/]+)\//);
@@ -464,6 +471,36 @@
   function dupCells(fl) {
     if (!fl || !diSet) return [];
     return fl.cells.filter(function (c, i) { return i > 0 && diSet[giKey(c.element)] === 1; }).map(function (c) { return c.element; });
+  }
+  /* a nagyító (PhotoSwipe): az Unas a képlistáját betöltéskor egyszer olvassa a rejtett .photoSwipeDatas linkekből, ezért a kivett cellák a nagyítóban még ott lennének ("1 / 7").
+     A PhotoSwipe konstruktorát becsomagoljuk: induláskor a lista a galéria AKTUÁLIS celláiból (sorrend, darabszám) áll össze, és a megnyitott kép indexe ennek megfelelően igazodik.
+     Csak ha a duplikált-kép adat betöltődött és a galéria már feldolgozott; bármi váratlan esetén (kulcs nem egyezik, darabszám eltér) a régi, módosítatlan lista marad. */
+  function psItems(items, opts) {
+    var alts = $(SEL.alts), f = alts && window.Flickity && Flickity.data(alts);
+    if (!f || !alts.getAttribute("data-kbd2") || !items || !items.length) return null;
+    var byKey = {};
+    items.forEach(function (it) { var m = ((it && it.src) || "").match(/\/img\/\d+\/([^\/]+)\//); if (m) byKey[m[1]] = it; });
+    var out = [];
+    f.cells.forEach(function (c) { var it = byKey[giKey(c.element)]; if (it) out.push(it); });
+    if (!out.length || out.length !== f.cells.length) return null;
+    var i = out.indexOf(items[opts && opts.index]);
+    if (i < 0) return null;
+    var o2 = {}, k;
+    for (k in opts) if (Object.prototype.hasOwnProperty.call(opts, k)) o2[k] = opts[k];
+    o2.index = i;
+    return { items: out, opts: o2 };
+  }
+  function psSync() {
+    var PS = window.PhotoSwipe;
+    if (!PS || PS.__kbd2 || !diSet) return;
+    var W = function (el, ui, items, opts) {
+      try { var r = psItems(items, opts); if (r) { items = r.items; opts = r.opts; } } catch (e) {}
+      return new PS(el, ui, items, opts);
+    };
+    W.prototype = PS.prototype;
+    for (var k in PS) if (Object.prototype.hasOwnProperty.call(PS, k)) W[k] = PS[k];
+    W.__kbd2 = 1;
+    window.PhotoSwipe = W;
   }
   function limitGallery() {
     var alts = $(SEL.alts), th = $(SEL.thumbs);
@@ -488,6 +525,7 @@
     if (thOn) cut(Flickity.data(th));
     var all = $(".carousel__num-all");
     if (all && f.cells.length) all.textContent = f.cells.length;
+    if (diSet) psSync();
     if (f.cells.length <= 1) { var nav = $(".carousel__nav--artdet-alt-images"); if (nav) nav.style.display = "none"; }
   }
 
