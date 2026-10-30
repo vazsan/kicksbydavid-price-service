@@ -43,7 +43,8 @@
 
   /* ---------- 0) szövegek ---------- */
   var T = SK ? {
-    bar: ["Doprava zadarmo nad 120 €", "Platba aj na dobierku", "Výmena a vrátenie zadarmo do 30 dní"],
+    /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Doprava zadarmo nad 120 €", "Platba aj na dobierku", "Výmena a vrátenie zadarmo do 30 dní" */
+    bar: ['<a class="kbd-bar__sale" href="/akcie">Jesenný výpredaj: <b>až -50 % zľava</b></a>'],
     phone: "+421 910 252 548",
     ey: "Originálne tenisky z európskych skladov",
     h1: "Originálne tenisky za výhodnejšie ceny",
@@ -96,7 +97,8 @@
     blogAll: "Všetky články",
     eyb: { tiles: "Rýchly vstup", rev: "Hodnotenia", sh: "Značka", rv: "Pokračuj", sizes: "Podľa veľkosti", blog: "Magazín", brands: "Značky" }
   } : {
-    bar: ["Ingyenes szállítás 46 250 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere"],
+    /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Ingyenes szállítás 46 250 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere" */
+    bar: ['<a class="kbd-bar__sale" href="/akcios-termekek">Őszi leárazás: <b>akár -50% kedvezmény</b></a>'],
     phone: "+36 20 556 4258",
     ey: "Eredeti sneakerek európai raktárakból",
     h1: "Eredeti sneakerek, kedvezőbb áron",
@@ -186,6 +188,10 @@
     + "#kbd-bar .kbd-bar__msg{display:flex;align-items:center;gap:18px}"
     + "#kbd-bar .kbd-bar__msg span+span:before{content:'•';opacity:.45;margin-right:18px}"
     + "#kbd-bar .kbd-bar__ph{position:absolute;right:20px;color:#fff!important;text-decoration:none!important;opacity:.9}"
+    /* sale line: white text, the discount in an action-red #E10600 pill (white on #E10600 = 4.97:1, AA) */
+    + "#kbd-bar a.kbd-bar__sale{color:#fff!important;text-decoration:none!important;text-transform:none!important;letter-spacing:.01em!important;white-space:nowrap}"
+    + "#kbd-bar a.kbd-bar__sale b{background:#E10600;color:#fff;font-weight:800;border-radius:999px;padding:2px 9px;margin-left:2px}"
+    + "#kbd-bar a.kbd-bar__sale:hover{text-decoration:underline!important}"
     + "@media(max-width:1100px){#kbd-bar .kbd-bar__ph{display:none}}"
     + "@media(max-width:767.98px){#kbd-bar{font-size:11.5px}#kbd-bar .kbd-bar__in{height:30px;padding:0 12px}"
     + "#kbd-bar .kbd-bar__msg{position:relative;width:100%;height:30px;display:block}"
@@ -498,7 +504,7 @@
     hd.parentNode.insertBefore(b, hd);
     /* mobilon egyszerre egy üzenet, 4 mp-enként váltva */
     var k = 0, sp = b.querySelectorAll(".kbd-bar__msg span");
-    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (sp.length < 2 || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
     setInterval(function () {
       if (!MQ.matches) return;
       sp[k].className = "";
