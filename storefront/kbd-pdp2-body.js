@@ -234,6 +234,33 @@
     return el("section", "kbd2-desc", "kbd2-desc", wrap('<div class="kbd2-desc-main">' + main + "</div>" + side));
   }
 
+  /* kbd-desc v1 (store/pdp-desc/TERV.md, 2026-10-31): when the Unas description is the canonical structured block
+     (<div class="kbd-desc" data-kbd-desc>), show ALL of its sections in the v2 look, not only the first one:
+     first section = big title + the lead, every further section = subtitle + its own paragraphs/lists,
+     the data table = the "Adatok" card. The FAQ is still shown by secFaq (parseDetails reads the same h3/p pairs). */
+  function secDescV1() {
+    var root = $("#pane-details .kbd-desc[data-kbd-desc]");
+    if (!root) return null;
+    var lead = $(".kbd-desc__lead", root), main = "", side = "", first = true;
+    $$(".kbd-desc__sec", root).forEach(function (s) {
+      var h = $(".kbd-desc__h", s);
+      if (!h || /kbd-desc__sec--faq/.test(s.className)) return;
+      if (/kbd-desc__sec--data/.test(s.className)) {
+        side = '<aside class="kbd2-specs"><h3>' + esc(txt(h)) + "</h3><dl>" + $$("tr", s).map(function (tr) {
+          var c = $$("th,td", tr); return c.length > 1 ? "<dt>" + esc(txt(c[0])) + "</dt><dd>" + esc(txt(c[1])) + "</dd>" : "";
+        }).join("") + "</dl></aside>";
+        return;
+      }
+      var body = s.cloneNode(true), hh = $(".kbd-desc__h", body);
+      if (hh) hh.parentNode.removeChild(hh);
+      if (first) { main += "<h2>" + esc(txt(h)) + "</h2>" + (lead ? '<p class="kbd2-lead">' + esc(txt(lead)) + "</p>" : ""); first = false; }
+      else main += "<h3>" + esc(txt(h)) + "</h3>";
+      main += body.innerHTML;
+    });
+    if (!main) return null;
+    return el("section", "kbd2-desc", "kbd2-desc kbd2-desc--v1", wrap('<div class="kbd2-desc-main">' + main + "</div>" + side));
+  }
+
   /* méretsegéd: a mérettáblázatot az oldal saját HTML-jéből (1. lapfül) olvassuk, mert a mérettáblázat-script elviszi a DOM-ból */
   function pageSizes() {
     return $$("#artdet__type .product-type__value--text").map(function (v) {
@@ -366,7 +393,7 @@
     built = true;
     var D = parseDetails(), box = el("div", "kbd2-body");
     anchor.parentNode.insertBefore(box, anchor);
-    var order = [secDiff(), secDesc(D), null, secReviews(), secCompare(), secFaq(D), secSeller()];
+    var order = [secDiff(), secDescV1() || secDesc(D), null, secReviews(), secCompare(), secFaq(D), secSeller()];
     var slotSize = null;
     order.forEach(function (s, i) {
       if (i === 2) { slotSize = d.createComment("kbd2-size"); box.appendChild(slotSize); return; }
