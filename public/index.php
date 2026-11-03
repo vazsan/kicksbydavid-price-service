@@ -42,6 +42,7 @@ $router->get('/dashboard', [App\Controllers\DashboardController::class, 'index']
 $router->get('/dpd', [App\Controllers\DpdController::class, 'index']);
 $router->post('/dpd/generate', [App\Controllers\DpdController::class, 'generate']);
 $router->get('/dpd/label/:orderId', [App\Controllers\DpdController::class, 'download']);
+$router->get('/dpd/track/:waybill', [App\Controllers\DpdController::class, 'track']);
 
 $route = $_GET['route'] ?? '/';
 $router->dispatch($_SERVER['REQUEST_METHOD'], '/' . ltrim((string) $route, '/'));

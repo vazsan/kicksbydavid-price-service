@@ -8,7 +8,8 @@ use App\Core\Csrf;
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign in — Profit Analytics</title>
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <?php $appCss = dirname(__DIR__, 2) . '/public/assets/css/app.css'; ?>
+    <link rel="stylesheet" href="/assets/css/app.css<?= is_file($appCss) ? '?v=' . filemtime($appCss) : '' ?>">
 </head>
 <body class="auth-page">
     <main class="auth-card">

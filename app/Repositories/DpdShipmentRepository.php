@@ -28,6 +28,20 @@ final class DpdShipmentRepository
     }
 
     /**
+     * True when the waybill belongs to one of our shipments - the
+     * tracking endpoint only looks up parcels we generated ourselves.
+     */
+    public function hasWaybill(string $waybill): bool
+    {
+        $stmt = Database::connection()->prepare(
+            "SELECT 1 FROM dpd_shipments WHERE FIND_IN_SET(:wb, REPLACE(waybills, ' ', '')) > 0 LIMIT 1"
+        );
+        $stmt->execute(['wb' => $waybill]);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
      * Most recently generated/attempted shipments, newest first.
      *
      * @return array<int, array<string, mixed>>

@@ -370,3 +370,71 @@ a:hover { text-decoration: underline; }
     .auth-page { padding: 16px; }
     .auth-card { padding: 24px 20px; }
 }
+
+/* ---- DPD tracking cards (styled after the DPD app) ------------------ */
+:root { --color-dpd: #dc0032; }
+
+.trk-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.trk-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+.trk-card {
+    border: 2px solid var(--color-border);
+    border-radius: 14px;
+    background: var(--color-surface);
+}
+.trk-card.is-open,
+.trk-card:hover { border-color: var(--color-dpd); }
+.trk-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+}
+.trk-main { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+.trk-waybill { font-size: 18px; color: #6b6b6b; letter-spacing: 0.02em; }
+.trk-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.trk-bar span { height: 8px; border-radius: 4px; background: #ebe9e7; }
+.trk-bar span.on { background: var(--color-dpd); }
+.trk-card[data-tone="done"] .trk-bar span.on { background: var(--color-success); }
+.trk-card[data-tone="problem"] .trk-bar span.on { background: var(--color-warning); }
+.trk-status { font-size: 15px; color: #6b6b6b; }
+.trk-card[data-tone="problem"] .trk-status { color: var(--color-danger); font-weight: 600; }
+.trk-card[data-tone="done"] .trk-status { color: var(--color-success); font-weight: 600; }
+.trk-meta { font-size: 12px; color: var(--color-text-muted); }
+.trk-chevron { font-size: 30px; line-height: 1; color: #444; transition: transform .15s; }
+.trk-card.is-open .trk-chevron { transform: rotate(90deg); }
+
+.trk-events { list-style: none; margin: 0; padding: 4px 16px 14px 34px; position: relative; }
+.trk-event { position: relative; display: flex; flex-direction: column; padding: 8px 0; border-top: 1px solid var(--color-border); font-size: 13px; }
+.trk-event::before {
+    content: "";
+    position: absolute;
+    left: -18px;
+    top: 13px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #c9c6c3;
+}
+.trk-event:first-child::before { background: var(--color-dpd); }
+.trk-event-problem::before { background: var(--color-warning); }
+.trk-event-time { color: var(--color-text-muted); font-size: 12px; }
+.trk-event-label { font-weight: 600; }
+.trk-event-problem .trk-event-label { color: var(--color-danger); }
+.trk-event-place { color: var(--color-text-muted); font-size: 12px; }
+
+@media (max-width: 768px) {
+    .trk-summary { padding: 14px; }
+    .trk-waybill { font-size: 17px; }
+}

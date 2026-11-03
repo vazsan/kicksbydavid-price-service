@@ -43,6 +43,42 @@
     </form>
 </section>
 
+<?php
+$tracked = array_values(array_filter(
+    $shipments,
+    static fn (array $s): bool => ($s['status'] ?? '') === 'created' && trim((string) ($s['waybills'] ?? '')) !== ''
+));
+$tracked = array_slice($tracked, 0, 20);
+?>
+<?php if ($tracked !== []): ?>
+<section class="card">
+    <div class="trk-head">
+        <h2>Csomagkövetés</h2>
+        <span class="muted small" id="trk-updated">Élő DPD-adat</span>
+    </div>
+    <div class="trk-list">
+        <?php foreach ($tracked as $s): ?>
+            <?php foreach (array_filter(array_map('trim', explode(',', (string) $s['waybills']))) as $wb): ?>
+                <div class="trk-card" data-waybill="<?= e($wb) ?>">
+                    <button type="button" class="trk-summary" aria-expanded="false">
+                        <span class="trk-main">
+                            <span class="trk-waybill"><?= e($wb) ?></span>
+                            <span class="trk-bar" aria-hidden="true">
+                                <span></span><span></span><span></span><span></span><span></span>
+                            </span>
+                            <span class="trk-status">Betöltés...</span>
+                            <span class="trk-meta">Rendelés <?= e($s['unas_order_id'] ?? '') ?></span>
+                        </span>
+                        <span class="trk-chevron" aria-hidden="true">&#8250;</span>
+                    </button>
+                    <ol class="trk-events" hidden></ol>
+                </div>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
+
 <section class="card">
     <h2>Recent labels</h2>
     <?php if ($shipments === []): ?>
@@ -93,3 +129,6 @@
         </table>
     <?php endif; ?>
 </section>
+
+<?php $trkJs = dirname(__DIR__, 2) . '/public/assets/js/dpd-tracking.js'; ?>
+<script src="/assets/js/dpd-tracking.js<?= is_file($trkJs) ? '?v=' . filemtime($trkJs) : '' ?>"></script>

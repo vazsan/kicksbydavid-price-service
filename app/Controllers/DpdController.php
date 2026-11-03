@@ -11,6 +11,7 @@ use App\Core\Logger;
 use App\Core\View;
 use App\Repositories\DpdShipmentRepository;
 use App\Services\DpdLabelGenerator;
+use App\Services\DpdTrackingService;
 
 /**
  * Web UI for generating DPD Polska shipping labels from UNAS orders.
@@ -115,6 +116,39 @@ final class DpdController
         header('X-Content-Type-Options: nosniff');
         readfile($absPath);
         exit;
+    }
+
+    /**
+     * Live DPD tracking for one of our waybills, as JSON for the
+     * tracking cards on the DPD page (public/assets/js/dpd-tracking.js).
+     *
+     * @param array<string, string> $params Router params; 'waybill' here.
+     */
+    public function track(array $params = []): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+
+        if (!Auth::check()) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Not signed in.']);
+            return;
+        }
+
+        $waybill = (string) ($params['waybill'] ?? '');
+        if (preg_match('/^[0-9A-Za-z]{8,20}$/', $waybill) !== 1 || !(new DpdShipmentRepository())->hasWaybill($waybill)) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Unknown waybill.']);
+            return;
+        }
+
+        try {
+            echo json_encode(DpdTrackingService::fromConfig()->track($waybill), JSON_UNESCAPED_UNICODE);
+        } catch (\Throwable $e) {
+            Logger::error('dpd_tracking', 'Tracking lookup failed', ['waybill' => $waybill, 'error' => $e->getMessage()]);
+            http_response_code(502);
+            echo json_encode(['error' => 'DPD tracking is not reachable right now.']);
+        }
     }
 
     private function configOk(): bool

@@ -7,6 +7,11 @@ $currentPath = '/' . trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP
 if ($currentPath === '/') {
     $currentPath = '/dashboard';
 }
+// Cache-busting: phones kept serving the old stylesheet after a deploy.
+$asset = static function (string $path): string {
+    $file = dirname(__DIR__, 2) . '/public' . $path;
+    return $path . (is_file($file) ? '?v=' . filemtime($file) : '');
+};
 $navItems = [
     '/dashboard' => 'Dashboard',
     '/orders' => 'Orders',
@@ -28,7 +33,7 @@ $navItems = [
     
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title ?? 'Profit Analytics') ?> — Profit Analytics</title>
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="<?= e($asset('/assets/css/app.css')) ?>">
 </head>
 <body>
     <div class="app-shell">
@@ -59,6 +64,6 @@ $navItems = [
         </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-    <script src="/assets/js/app.js"></script>
+    <script src="<?= e($asset('/assets/js/app.js')) ?>"></script>
 </body>
 </html>

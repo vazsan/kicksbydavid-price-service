@@ -103,4 +103,5 @@ $presetLabels = [
 <script>
     window.__dashboardSeries = <?= json_encode($series, JSON_UNESCAPED_UNICODE) ?>;
 </script>
-<script src="/assets/js/dashboard.js"></script>
+<?php $dashJs = dirname(__DIR__, 2) . '/public/assets/js/dashboard.js'; ?>
+<script src="/assets/js/dashboard.js<?= is_file($dashJs) ? '?v=' . filemtime($dashJs) : '' ?>"></script>
