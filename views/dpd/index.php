@@ -48,7 +48,7 @@
     <?php if ($shipments === []): ?>
         <p class="muted">No labels generated yet.</p>
     <?php else: ?>
-        <table class="data-table">
+        <table class="data-table data-table-stack">
             <thead>
                 <tr>
                     <th>Order</th>
@@ -63,10 +63,10 @@
                 <?php foreach ($shipments as $s): ?>
                     <?php $status = (string) ($s['status'] ?? ''); ?>
                     <tr>
-                        <td><?= e($s['unas_order_id'] ?? '') ?></td>
-                        <td><?= e($s['waybills'] ?? '') ?: '—' ?></td>
-                        <td><?= (int) ($s['parcel_count'] ?? 0) ?></td>
-                        <td>
+                        <td data-label="Order"><?= e($s['unas_order_id'] ?? '') ?></td>
+                        <td data-label="Waybill(s)"><?= e($s['waybills'] ?? '') ?: '—' ?></td>
+                        <td data-label="Parcels"><?= (int) ($s['parcel_count'] ?? 0) ?></td>
+                        <td data-label="Status">
                             <span class="badge badge-<?= $status === 'created' ? 'ok' : 'error' ?>">
                                 <?= e($status !== '' ? $status : 'unknown') ?>
                             </span>
@@ -76,15 +76,15 @@
                                 </div>
                             <?php endif; ?>
                         </td>
-                        <td><?= e($s['created_at'] ?? '') ?></td>
-                        <td>
+                        <td data-label="Created"><?= e($s['created_at'] ?? '') ?></td>
+                        <td class="cell-action">
                             <?php if ($status === 'created' && ($s['label_path'] ?? '') !== ''): ?>
                                 <a class="btn btn-secondary btn-small"
                                    href="/dpd/label/<?= e(rawurlencode((string) $s['unas_order_id'])) ?>">
                                     Download PDF
                                 </a>
                             <?php else: ?>
-                                —
+                                <span class="no-action">—</span>
                             <?php endif; ?>
                         </td>
                     </tr>

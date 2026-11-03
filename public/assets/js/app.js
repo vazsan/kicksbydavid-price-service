@@ -3,6 +3,14 @@
 // scripts (e.g. dashboard.js) attach their own behavior.
 (function () {
     'use strict';
-    // Reserved for future shared behavior (e.g. table sorting/filtering
-    // helpers used across Orders/Products/Inventory screens).
+
+    // Mobile: the sidebar collapses into a top bar; the Menu button opens it.
+    var toggle = document.querySelector('.nav-toggle');
+    var sidebar = document.querySelector('.sidebar');
+    if (toggle && sidebar) {
+        toggle.addEventListener('click', function () {
+            var open = sidebar.classList.toggle('is-open');
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+    }
 })();

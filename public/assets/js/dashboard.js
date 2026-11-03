@@ -2,7 +2,10 @@
 // Reads window.__dashboardSeries (set inline by views/dashboard/index.php)
 // and renders it with Chart.js. Kept as one file per page rather than one
 // per chart since the data source and axis (stat_date) are shared.
-(function () {
+// Runs on DOMContentLoaded: this file is included inside the page content,
+// before the layout's Chart.js tag at the end of <body>, so Chart is not
+// defined yet when it is parsed.
+document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
     var series = window.__dashboardSeries || [];
@@ -18,6 +21,7 @@
             data: { labels: labels, datasets: datasets },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 scales: { y: { beginAtZero: true } },
             },
@@ -60,4 +64,4 @@
             tension: 0.25,
         },
     ]);
-})();
+});

@@ -3,11 +3,29 @@
 /** @var string $title */
 use App\Core\Auth;
 $user = Auth::user();
+$currentPath = '/' . trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
+if ($currentPath === '/') {
+    $currentPath = '/dashboard';
+}
+$navItems = [
+    '/dashboard' => 'Dashboard',
+    '/orders' => 'Orders',
+    '/dpd' => 'DPD Labels',
+    '/products' => 'Products',
+    '/inventory' => 'Inventory',
+    '/purchase-costs' => 'Purchase Costs',
+    '/shipping-costs' => 'Shipping Costs',
+    '/payment-fees' => 'Payment Fees',
+    '/returns' => 'Returns',
+    '/settings' => 'Settings',
+    '/sync-logs' => 'Sync Logs',
+    '/api-logs' => 'API Logs',
+];
 ?>
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
+<head><meta charset="utf-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title ?? 'Profit Analytics') ?> — Profit Analytics</title>
     <link rel="stylesheet" href="/assets/css/app.css">
@@ -15,20 +33,15 @@ $user = Auth::user();
 <body>
     <div class="app-shell">
         <aside class="sidebar">
-            <div class="sidebar-brand">Profit Analytics</div>
+            <div class="sidebar-top">
+                <div class="sidebar-brand">Profit Analytics</div>
+                <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="sidebar-menu">Menu</button>
+            </div>
+            <div class="sidebar-menu" id="sidebar-menu">
             <nav class="sidebar-nav">
-                <a href="/dashboard" class="active">Dashboard</a>
-                <a href="/orders">Orders</a>
-                <a href="/dpd">DPD Labels</a>
-                <a href="/products">Products</a>
-                <a href="/inventory">Inventory</a>
-                <a href="/purchase-costs">Purchase Costs</a>
-                <a href="/shipping-costs">Shipping Costs</a>
-                <a href="/payment-fees">Payment Fees</a>
-                <a href="/returns">Returns</a>
-                <a href="/settings">Settings</a>
-                <a href="/sync-logs">Sync Logs</a>
-                <a href="/api-logs">API Logs</a>
+                <?php foreach ($navItems as $href => $label): ?>
+                    <a href="<?= e($href) ?>"<?= str_starts_with($currentPath, $href) ? ' class="active"' : '' ?>><?= e($label) ?></a>
+                <?php endforeach; ?>
             </nav>
             <div class="sidebar-footer">
                 <?php if ($user): ?>
@@ -38,6 +51,7 @@ $user = Auth::user();
                         <button type="submit" class="btn-link">Sign out</button>
                     </form>
                 <?php endif; ?>
+            </div>
             </div>
         </aside>
         <main class="main-content">

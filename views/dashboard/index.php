@@ -88,15 +88,15 @@ $presetLabels = [
 <section class="charts-grid">
     <div class="chart-card">
         <h3>Revenue &amp; Profit over time</h3>
-        <canvas id="chart-revenue-profit" height="90"></canvas>
+        <div class="chart-box"><canvas id="chart-revenue-profit"></canvas></div>
     </div>
     <div class="chart-card">
         <h3>Orders over time</h3>
-        <canvas id="chart-orders" height="90"></canvas>
+        <div class="chart-box"><canvas id="chart-orders"></canvas></div>
     </div>
     <div class="chart-card">
         <h3>Ad Spend over time</h3>
-        <canvas id="chart-ad-spend" height="90"></canvas>
+        <div class="chart-box"><canvas id="chart-ad-spend"></canvas></div>
     </div>
 </section>
 
