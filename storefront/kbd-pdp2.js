@@ -85,7 +85,7 @@
         banner: ["46 250 Ft felett minden szállítás", "INGYENES"],
         s1: "Szállítási módok", ship: [["Packeta csomagpont / automata", "1 110 Ft", "automatánál csak bankkártya"], ["Packeta házhozszállítás", "2 220 Ft"]],
         s2: "Fizetés", pay: [["Bankkártya (Visa, Mastercard)", "0 Ft"], ["Utánvét", "+1 073 Ft", "átvételkor fizetsz"]],
-        warn: "Utánvéttel fizetnél? Válassz csomagpontot vagy házhozszállítást. Csomagautomatánál csak bankkártyával fizethetsz.",
+        warn: "Utánvét minden szállítási módnál választható. Csomagautomatánál csak bankkártyával fizethetsz.",
         foot: ["Kiszállítás nyomkövetéssel. E-mailben szólunk, hol tart a csomagod.", "↺ 30 napig ingyenes csere és visszaküldés.", "☎ Kérdésed van? %PHONE%"],
         checks: ["Utánvét", "30 nap ingyenes csere", "Nyomkövetés"],
         cards: [["truck", "Ingyenes szállítás", "46 250 Ft felett. Utánvét +1 073 Ft."], ["shield", "100% eredeti", "Eredeti dobozban, új állapotban. Dupla pénz vissza, ha hamis."], ["swap", "30 nap csere", "A cserét és a visszaküldést mi fizetjük."], ["ruler", "Méretgarancia", "Írd meg, mit hordasz, megmondjuk a méreted."]]
