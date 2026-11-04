@@ -22,7 +22,7 @@
     fam: { minCards: 3 },
     /* kuponblokk az ár alatt (kbd-pdp2-coupon.js; akciós terméken a KBD10, az akciós árból számolva) + elfogyott-méret értesítő (csak a ?kbdnotify=1 süti-kapu mögött, nem küld sehova) */
     coupon: { enabled: true },
-    cod: { hu: "1 100 Ft" },                        /* utánvét felára, HU; az SK érték a v11 szótárából jön */
+    cod: { hu: "1 073 Ft" },                        /* utánvét felára, HU; az SK érték a v11 szótárából jön */
     /* Trustindex: kis jelvény (a hero-ban) és nagy vélemény-widget (a lap alján, a 6. lépésben) */
     trustindex: {
       hu: { small: "0d3908782f85181dd586d19e174", big: "3ba033477a0d031a5f060029c5d" },
@@ -81,14 +81,14 @@
       upsell: { prev: "Előző", next: "Következő" },
       ship: {
         eta: "Várható kézbesítés:", free: "✓ Ehhez a párhoz ingyenes a szállítás", miss: "Még <b>%X%</b> hiányzik az ingyenes szállításhoz",
-        cod: "Utánvéttel is fizethetsz (+1 100 Ft)", btn: "Szállítási díjak és információk", title: "Szállítás és fizetés", close: "Bezárás",
+        cod: "Utánvéttel is fizethetsz (+1 073 Ft)", btn: "Szállítási díjak és információk", title: "Szállítás és fizetés", close: "Bezárás",
         banner: ["46 250 Ft felett minden szállítás", "INGYENES"],
-        s1: "Szállítási módok", ship: [["Packeta csomagpont / automata", "1 089 Ft", "automatánál csak bankkártya"], ["Packeta házhozszállítás", "2 179 Ft"], ["MPL", "3 800 Ft"]],
-        s2: "Fizetés", pay: [["Bankkártya (Visa, Mastercard)", "0 Ft"], ["Utánvét", "+1 100 Ft", "átvételkor fizetsz"]],
+        s1: "Szállítási módok", ship: [["Packeta csomagpont / automata", "1 110 Ft", "automatánál csak bankkártya"], ["Packeta házhozszállítás", "2 220 Ft"]],
+        s2: "Fizetés", pay: [["Bankkártya (Visa, Mastercard)", "0 Ft"], ["Utánvét", "+1 073 Ft", "átvételkor fizetsz"]],
         warn: "Utánvéttel fizetnél? Válassz csomagpontot vagy házhozszállítást. Csomagautomatánál csak bankkártyával fizethetsz.",
         foot: ["Kiszállítás nyomkövetéssel. E-mailben szólunk, hol tart a csomagod.", "↺ 30 napig ingyenes csere és visszaküldés.", "☎ Kérdésed van? %PHONE%"],
         checks: ["Utánvét", "30 nap ingyenes csere", "Nyomkövetés"],
-        cards: [["truck", "Ingyenes szállítás", "46 250 Ft felett. Utánvét +1 100 Ft."], ["shield", "100% eredeti", "Eredeti dobozban, új állapotban. Dupla pénz vissza, ha hamis."], ["swap", "30 nap csere", "A cserét és a visszaküldést mi fizetjük."], ["ruler", "Méretgarancia", "Írd meg, mit hordasz, megmondjuk a méreted."]]
+        cards: [["truck", "Ingyenes szállítás", "46 250 Ft felett. Utánvét +1 073 Ft."], ["shield", "100% eredeti", "Eredeti dobozban, új állapotban. Dupla pénz vissza, ha hamis."], ["swap", "30 nap csere", "A cserét és a visszaküldést mi fizetjük."], ["ruler", "Méretgarancia", "Írd meg, mit hordasz, megmondjuk a méreted."]]
       }
     },
     /* Szlovák szövegek. Gépi fordítás a meglévő szlovák kifejezések (dobierka, výmena, kód výrobcu) alapján; anyanyelvi átnézés javasolt. */

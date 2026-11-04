@@ -27,7 +27,7 @@
       {ic:"cash",b:"Utánvét",s:"Nem kötelező előre fizetned."}
     ],
     contactQ:"Kérdésed van?", contactCall:"Hívj minket:", phone:"+36 20 556 4258", tel:"+36205564258",
-    shipLabel:"Szállítás:", shipOpts:[["Packeta pont / automata","1 089 Ft"],["Packeta házhoz","2 179 Ft"]], cod:"Utánvét +1 100 Ft",
+    shipLabel:"Szállítás:", shipOpts:[["Packeta pont / automata","1 110 Ft"],["Packeta házhoz","2 220 Ft"]], cod:"Utánvét +1 073 Ft",
     freeFrom:"Ingyenes szállítás 46 250 Ft-tól", missing:"ehhez a párhoz még <b>%X%</b> hiányzik",
     zoom:"Kép nagyítása",
     sizePick:"Méret (EU)",
