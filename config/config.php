@@ -52,6 +52,9 @@ return [
         'username' => Env::get('TURUM_USERNAME', ''),
         'password' => Env::get('TURUM_PASSWORD', ''),
         'rate_limit_per_minute' => (int) Env::get('TURUM_RATE_LIMIT_PER_MINUTE', 30),
+        // Read-only: the Turum full-list cache the dropship jobs on the same
+        // account already refresh (see cron/sync_turum_prices.php).
+        'list_cache_path' => Env::get('TURUM_LIST_CACHE_PATH', dirname(__DIR__, 2) . '/public_html/dropship/turum_list_cache.json'),
     ],
 
     // DPD Polska shipping labels (DPDServices SOAP API). See
