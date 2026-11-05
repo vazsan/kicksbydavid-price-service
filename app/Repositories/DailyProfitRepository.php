@@ -7,52 +7,46 @@ namespace App\Repositories;
 use App\Core\Database;
 
 /**
- * Reads the precomputed daily_profit cache table for dashboard KPIs and
- * charts. This table is populated by cron/recalculate_profit.php (a later
- * build step); until that job has run at least once it is simply empty,
- * and the dashboard renders a clean zero/empty state rather than erroring.
+ * Reads the precomputed daily_profit cache (one row per day x shop,
+ * written by cron/recalculate_profit.php) for the dashboard.
  */
 final class DailyProfitRepository
 {
-    /**
-     * Aggregated totals for the given inclusive date range.
-     */
-    public function totals(string $from, string $to): array
-    {
-        $stmt = Database::connection()->prepare(
-            'SELECT
-                COALESCE(SUM(revenue), 0)              AS revenue,
-                COALESCE(SUM(net_revenue), 0)           AS net_revenue,
-                COALESCE(SUM(cogs), 0)                  AS cogs,
-                COALESCE(SUM(gross_profit), 0)           AS gross_profit,
-                COALESCE(SUM(ad_spend), 0)               AS ad_spend,
-                COALESCE(SUM(payment_fees), 0)            AS payment_fees,
-                COALESCE(SUM(shipping_cost), 0)            AS shipping_cost,
-                COALESCE(SUM(contribution_profit), 0)       AS contribution_profit,
-                COALESCE(SUM(orders_count), 0)               AS orders_count,
-                COALESCE(SUM(units_sold), 0)                  AS units_sold
-             FROM daily_profit
-             WHERE stat_date BETWEEN :from AND :to'
-        );
-        $stmt->execute(['from' => $from, 'to' => $to]);
-
-        return $stmt->fetch() ?: [];
-    }
+    /** Summable daily_profit columns the dashboard uses. */
+    public const SUM_COLUMNS = [
+        'revenue', 'net_revenue', 'merchandise_revenue', 'shipping_fee_charged', 'handling_fee_charged',
+        'revenue_native', 'revenue_native_in_base', 'cogs', 'cogs_units_matched', 'cogs_units_total',
+        'cogs_full_orders', 'cogs_full_revenue', 'cogs_full_profit', 'gross_profit', 'ad_spend',
+        'payment_fees', 'payment_fee_missing_orders', 'shipping_cost', 'shipping_cost_missing_orders',
+        'discount_total', 'contribution_profit', 'orders_count', 'orders_completed', 'orders_open',
+        'orders_failed', 'failed_revenue', 'units_sold',
+    ];
 
     /**
-     * Day-by-day rows for the given range, used to feed the Chart.js
-     * time series on the dashboard.
+     * Day x shop rows in the inclusive range, optionally limited to the
+     * given shops (e.g. ['hu']). Empty $shops = every shop.
+     *
+     * @param array<int, string> $shops
+     * @return array<int, array<string, mixed>>
      */
-    public function series(string $from, string $to): array
+    public function rows(string $from, string $to, array $shops = []): array
     {
-        $stmt = Database::connection()->prepare(
-            'SELECT stat_date, revenue, contribution_profit, orders_count, ad_spend, cogs
-             FROM daily_profit
-             WHERE stat_date BETWEEN :from AND :to
-             ORDER BY stat_date ASC'
-        );
-        $stmt->execute(['from' => $from, 'to' => $to]);
+        $sql = 'SELECT stat_date, shop, ' . implode(', ', self::SUM_COLUMNS) . ', calculated_at
+                FROM daily_profit WHERE stat_date BETWEEN ? AND ?';
+        $params = [$from, $to];
+        if ($shops !== []) {
+            $sql .= ' AND shop IN (' . implode(',', array_fill(0, count($shops), '?')) . ')';
+            array_push($params, ...array_values($shops));
+        }
+        $stmt = Database::connection()->prepare($sql . ' ORDER BY stat_date, shop');
+        $stmt->execute($params);
 
         return $stmt->fetchAll();
+    }
+
+    public function lastCalculatedAt(): ?string
+    {
+        $v = Database::connection()->query('SELECT MAX(calculated_at) FROM daily_profit')->fetchColumn();
+        return $v === false || $v === null ? null : (string) $v;
     }
 }

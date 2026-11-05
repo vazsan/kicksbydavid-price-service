@@ -1,7 +1,6 @@
 // Profit Analytics - dashboard charts.
-// Reads window.__dashboardSeries (set inline by views/dashboard/index.php)
-// and renders it with Chart.js. Kept as one file per page rather than one
-// per chart since the data source and axis (stat_date) are shared.
+// Reads window.__dashboardSeries (one row per period bucket, set inline by
+// views/dashboard/index.php) and renders it with Chart.js.
 // Runs on DOMContentLoaded: this file is included inside the page content,
 // before the layout's Chart.js tag at the end of <body>, so Chart is not
 // defined yet when it is parsed.
@@ -9,59 +8,69 @@ document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
     var series = window.__dashboardSeries || [];
-    var labels = series.map(function (row) { return row.stat_date; });
+    var currency = window.__dashboardCurrency || 'EUR';
+    var labels = series.map(function (row) { return row.label; });
 
-    function lineChart(canvasId, datasets) {
+    function chart(canvasId, config) {
         var el = document.getElementById(canvasId);
         if (!el || typeof Chart === 'undefined') {
             return;
         }
-        new Chart(el.getContext('2d'), {
-            type: 'line',
-            data: { labels: labels, datasets: datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                scales: { y: { beginAtZero: true } },
-            },
-        });
+        config.options = Object.assign({
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { labels: { boxWidth: 12 } } },
+        }, config.options || {});
+        new Chart(el.getContext('2d'), config);
     }
 
-    lineChart('chart-revenue-profit', [
-        {
-            label: 'Revenue',
-            data: series.map(function (r) { return r.revenue; }),
-            borderColor: '#2f5dff',
-            backgroundColor: 'rgba(47,93,255,0.1)',
-            tension: 0.25,
-        },
-        {
-            label: 'Contribution Profit',
-            data: series.map(function (r) { return r.contribution_profit; }),
-            borderColor: '#1a9e6c',
-            backgroundColor: 'rgba(26,158,108,0.1)',
-            tension: 0.25,
-        },
-    ]);
+    var money = function (v) {
+        return Number(v).toLocaleString('hu-HU', { maximumFractionDigits: currency === 'HUF' ? 0 : 2 }) + ' ' + currency;
+    };
 
-    lineChart('chart-orders', [
-        {
-            label: 'Orders',
-            data: series.map(function (r) { return r.orders_count; }),
-            borderColor: '#c98a1f',
-            backgroundColor: 'rgba(201,138,31,0.1)',
-            tension: 0.25,
+    chart('chart-revenue-profit', {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Bevétel',
+                    data: series.map(function (r) { return r.revenue; }),
+                    backgroundColor: 'rgba(47,93,255,0.55)',
+                    borderColor: '#2f5dff',
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Profit (hirdetés előtt)',
+                    data: series.map(function (r) { return r.profit; }),
+                    type: 'line',
+                    borderColor: '#1a9e6c',
+                    backgroundColor: 'rgba(26,158,108,0.15)',
+                    tension: 0.25,
+                },
+            ],
         },
-    ]);
+        options: {
+            plugins: {
+                tooltip: { callbacks: { label: function (c) { return c.dataset.label + ': ' + money(c.parsed.y); } } },
+            },
+        },
+    });
 
-    lineChart('chart-ad-spend', [
-        {
-            label: 'Ad Spend',
-            data: series.map(function (r) { return r.ad_spend; }),
-            borderColor: '#d64545',
-            backgroundColor: 'rgba(214,69,69,0.1)',
-            tension: 0.25,
+    chart('chart-orders', {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Rendelések',
+                data: series.map(function (r) { return r.orders; }),
+                backgroundColor: 'rgba(201,138,31,0.6)',
+                borderColor: '#c98a1f',
+                borderWidth: 1,
+            }],
         },
-    ]);
+        options: { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+    });
 });

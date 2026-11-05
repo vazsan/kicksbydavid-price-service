@@ -438,3 +438,31 @@ a:hover { text-decoration: underline; }
     .trk-summary { padding: 14px; }
     .trk-waybill { font-size: 17px; }
 }
+
+/* ---- Profit dashboard (F1) ---- */
+.dash-filter { flex-wrap: wrap; justify-content: flex-end; }
+.dash-meta { margin: -12px 0 16px; }
+.alert-warning { background: #fff6e5; color: #7a5208; border: 1px solid #f1d9a6; }
+.kpi-sub { font-size: 12px; color: var(--color-text-muted); line-height: 1.35; }
+.kpi-card-strong { border-color: var(--color-success); }
+.kpi-card-muted { background: #f9fafb; }
+.dash-section {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 0 0 24px;
+}
+.dash-section h2 { margin: 0 0 4px; font-size: 15px; }
+.charts-grid { margin-bottom: 24px; }
+.data-table .row-total td { font-weight: 700; }
+.data-table td .muted { font-size: 12px; }
+.assumptions { margin: 8px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.5; }
+.assumptions li { margin-bottom: 6px; }
+
+@media (max-width: 768px) {
+    .dash-filter select { flex: 1 1 calc(50% - 4px); }
+    .dash-meta { margin-top: -12px; font-size: 12px; }
+    .dash-section { padding: 12px; }
+    .kpi-sub { font-size: 11px; }
+}
