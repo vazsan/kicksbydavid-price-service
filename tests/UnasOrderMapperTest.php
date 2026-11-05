@@ -141,4 +141,45 @@ $unresolvableArrayOrder = $mapper->mapOrderHeader([
 ], 'EUR');
 $t->assertSame('unknown', $unresolvableArrayOrder['status'], 'a <Status> that decodes to an array with no extractable scalar falls back to "unknown" rather than fabricating or printing "Array"');
 
+// --- F0 (2026-11-05): shop face, per-order FX, net total, referer, UTM ---
+$hufOrder = $mapper->mapOrderHeader([
+    'Id' => '800001',
+    'Date' => '2026.10.04 13:39:02',
+    'Lang' => 'hu',
+    'Currency' => 'HUF',
+    'ExchangeValue' => '368.659',
+    'SumPriceGross' => '43465',
+    'Referer' => 'android-app:',
+    'Shipping' => ['Id' => '9', 'Name' => 'Packeta'],
+    'UTM' => ['Source' => 'facebook', 'Medium' => 'paid', 'Campaign' => 'bf'],
+    'Items' => ['Item' => [
+        ['Sku' => 'FN6245-100-9', 'Quantity' => '1', 'PriceGross' => '40183.831', 'PriceNet' => '40183.831'],
+        ['Sku' => 'shipping-cost', 'Quantity' => '1', 'PriceGross' => '2211.95', 'PriceNet' => '2211.95'],
+        ['Sku' => 'handel-cost', 'Quantity' => '1', 'PriceGross' => '1069', 'PriceNet' => '1069'],
+    ]],
+], 'EUR');
+$t->assertSame('hu', $hufOrder['shop'], 'maps <Lang> hu to shop hu');
+$t->assertSame('368.659', $hufOrder['unas_exchange_value'], 'keeps UNAS <ExchangeValue> verbatim for a HUF order');
+$t->assertSame('0.002713', $hufOrder['exchange_rate_to_base'], 'exchange_rate_to_base = 1 / ExchangeValue (no longer the 1.0 default)');
+$t->assertSame('43464.7810', $hufOrder['grand_total_net'], 'grand_total_net = SUM(PriceNet * Quantity) over every item');
+$t->assertSame('android-app:', $hufOrder['referer'], 'maps <Referer>');
+$t->assertSame('facebook', $hufOrder['utm_source'], 'maps <UTM><Source>');
+$t->assertSame('bf', $hufOrder['utm_campaign'], 'maps <UTM><Campaign>');
+$t->assertNull($hufOrder['utm_term'], 'missing UTM field stays null');
+$t->assertSame('Packeta', $hufOrder['shipping_method'], 'maps <Shipping><Name> to shipping_method');
+
+$eurOrder = $mapper->mapOrderHeader(['Id' => '800002', 'Date' => '2026.10.05 10:00:00', 'Lang' => 'SK', 'Currency' => 'EUR', 'SumPriceGross' => '99'], 'EUR');
+$t->assertSame('sk', $eurOrder['shop'], 'Lang is lower-cased');
+$t->assertNull($eurOrder['unas_exchange_value'], 'EUR (base) order has no exchange value');
+$t->assertSame('1.000000', $eurOrder['exchange_rate_to_base'], 'EUR (base) order rate is 1');
+$t->assertNull($eurOrder['grand_total_net'], 'no items -> grand_total_net null');
+$t->assertNull($eurOrder['referer'], 'no Referer -> null');
+
+$noFx = $mapper->mapOrderHeader(['Id' => '800003', 'Date' => '2026.10.05 10:00:00', 'Currency' => 'HUF', 'SumPriceGross' => '1000'], 'EUR');
+$t->assertNull($noFx['unas_exchange_value'], 'HUF order without ExchangeValue -> null, not guessed');
+$t->assertNull($noFx['shop'], 'no Lang -> shop null, not guessed');
+
+$net = $mapper->mapMerchandiseItem(['Id' => '1', 'Sku' => 'X-1', 'Quantity' => '2', 'PriceGross' => '127', 'PriceNet' => '100']);
+$t->assertSame('100', $net['unit_price_net'], 'maps item <PriceNet> to unit_price_net');
+
 exit($t->summary() ? 0 : 1);

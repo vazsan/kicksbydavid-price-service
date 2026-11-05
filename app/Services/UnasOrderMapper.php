@@ -103,13 +103,20 @@ final class UnasOrderMapper
         }
 
         $payment = is_array($order['Payment'] ?? null) ? $order['Payment'] : [];
+        $shipping = is_array($order['Shipping'] ?? null) ? $order['Shipping'] : [];
+        $utm = is_array($order['UTM'] ?? null) ? $order['UTM'] : [];
+        $currency = $this->scalarOrNull($order['Currency'] ?? null) ?: $fallbackCurrency;
+        $fx = $this->exchangeValue($order, $currency, $fallbackCurrency);
 
         return [
             'unas_order_id' => (string) $unasOrderId,
             'unas_order_key' => $this->scalarOrNull($order['Key'] ?? null),
             'order_date' => $orderDate,
             'unas_date_mod' => $this->parseUnasDate($order['DateMod'] ?? null),
-            'currency' => $this->scalarOrNull($order['Currency'] ?? null) ?: $fallbackCurrency,
+            'currency' => $currency,
+            'shop' => $this->shop($order),
+            'unas_exchange_value' => $fx,
+            'exchange_rate_to_base' => $fx !== null ? number_format(1 / (float) $fx, 6, '.', '') : '1.000000',
             'status' => $this->scalarOrNull($order['Status'] ?? null) ?? 'unknown',
             'status_id' => $this->scalarOrNull($order['StatusID'] ?? null),
             'status_type' => $this->scalarOrNull($order['StatusType'] ?? null),
@@ -117,13 +124,85 @@ final class UnasOrderMapper
             'payment_status' => $this->scalarOrNull($payment['Status'] ?? null),
             'payment_amount_paid' => isset($payment['Paid']) && is_numeric($payment['Paid']) ? (string) $payment['Paid'] : null,
             'grand_total' => isset($order['SumPriceGross']) && is_numeric($order['SumPriceGross']) ? (string) $order['SumPriceGross'] : '0',
+            'grand_total_net' => $this->netTotal($order),
+            'shipping_method' => $this->truncate($this->scalarOrNull($shipping['Name'] ?? null), 60),
+            'referer' => $this->truncate($this->scalarOrNull($order['Referer'] ?? null), 255),
+            'utm_source' => $this->truncate($this->scalarOrNull($utm['Source'] ?? null), 255),
+            'utm_medium' => $this->truncate($this->scalarOrNull($utm['Medium'] ?? null), 255),
+            'utm_campaign' => $this->truncate($this->scalarOrNull($utm['Campaign'] ?? null), 255),
+            'utm_term' => $this->truncate($this->scalarOrNull($utm['Term'] ?? null), 255),
+            'utm_content' => $this->truncate($this->scalarOrNull($utm['Content'] ?? null), 255),
             'raw_payload' => json_encode($order, JSON_UNESCAPED_UNICODE) ?: '{}',
         ];
     }
 
     /**
+     * Shop face from UNAS <Lang> ("hu" = kicksbydavid.hu, "sk" =
+     * kicksbydavid.sk - one UNAS shop, two language faces). Confirmed
+     * values in the fleet's order exports: hu, sk. Anything else is kept
+     * lower-cased as-is (never mapped to hu/sk by guessing); missing -> null.
+     */
+    public function shop(array $order): ?string
+    {
+        $lang = strtolower(trim((string) $this->scalarOrNull($order['Lang'] ?? null)));
+        return $lang !== '' ? substr($lang, 0, 8) : null;
+    }
+
+    /**
+     * UNAS <ExchangeValue> = order-currency units per 1 base-currency unit
+     * at order time (confirmed on HUF orders: 364.934 .. 370 HUF per EUR;
+     * absent on EUR orders). Returns null for base-currency orders, and
+     * for a non-base order without a usable value (the caller then keeps
+     * the 1.0 default and the dashboard flags it via the null).
+     */
+    public function exchangeValue(array $order, string $currency, string $baseCurrency): ?string
+    {
+        if (strtoupper($currency) === strtoupper($baseCurrency)) {
+            return null;
+        }
+        $value = $this->scalarOrNull($order['ExchangeValue'] ?? null);
+        if ($value === null || !is_numeric($value) || (float) $value <= 0) {
+            return null;
+        }
+        return (string) $value;
+    }
+
+    /**
+     * SUM(PriceNet * Quantity) over every <Item> (merchandise and
+     * synthetic alike), i.e. the net counterpart of SumPriceGross. Null
+     * when there are no items or a row lacks a numeric PriceNet.
+     */
+    public function netTotal(array $order): ?string
+    {
+        $items = $this->normalizeToList($order['Items']['Item'] ?? null);
+        if ($items === []) {
+            return null;
+        }
+        $sum = 0.0;
+        foreach ($items as $item) {
+            if (!is_numeric($item['PriceNet'] ?? null)) {
+                return null;
+            }
+            $sum += (float) $item['PriceNet'] * (is_numeric($item['Quantity'] ?? null) ? (float) $item['Quantity'] : 1.0);
+        }
+        return number_format($sum, 4, '.', '');
+    }
+
+    private function truncate(?string $value, int $max): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+        return mb_substr($value, 0, $max);
+    }
+
+    /**
      * @param array<string, mixed> $item
-     * @return array{unas_item_id: ?string, sku: string, product_name: string, quantity: int, unit_price_gross: string, raw_payload: string}
+     * @return array{unas_item_id: ?string, sku: string, product_name: string, quantity: int, unit_price_gross: string, unit_price_net: ?string, raw_payload: string}
      */
     public function mapMerchandiseItem(array $item): array
     {
@@ -150,6 +229,7 @@ final class UnasOrderMapper
             // ARCHITECTURE.md "Order line item financial model": this
             // matches the reconciliation formula PriceGross * Quantity.
             'unit_price_gross' => (string) $priceGross,
+            'unit_price_net' => is_numeric($item['PriceNet'] ?? null) ? (string) $item['PriceNet'] : null,
             'raw_payload' => json_encode($item, JSON_UNESCAPED_UNICODE) ?: '{}',
         ];
     }

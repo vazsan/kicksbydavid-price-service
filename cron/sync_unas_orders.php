@@ -46,23 +46,27 @@ declare(strict_types=1);
  * processed in their own try/catch; failures are counted and logged,
  * and processing continues.
  *
- * Incremental sync: DateStart is read from a `settings` watermark
- * (`unas_sync.orders_last_synced_to`) left by the previous successful
- * run, with a small overlap buffer so nothing right at the boundary is
- * missed (safe - re-syncing an already-synced order is just a no-op
- * update). First run (no watermark yet) defaults to the last 30 days;
- * override with --since=YYYY-MM-DD.
+ * Window: by default every run re-fetches a ROLLING window of the last
+ * ROLLING_DAYS days (not just "since the last run"), because an order's
+ * status keeps changing for days after it is placed (in transit ->
+ * closed / failed) and the profit numbers depend on it. Re-syncing an
+ * already-synced order is a no-op update. Override with --since/--until.
  *
- * UNCONFIRMED: the exact date format /getOrder expects for
- * DateStart/DateEnd. This script sends plain "Y-m-d" as the most common
- * REST/XML API convention; if UNAS rejects or ignores it, that will show
- * up directly in this run's console output and sync_logs.error_message.
+ * Fetching (2026-11-05 rewrite): /getOrder is called with DateStart/
+ * DateEnd in UNAS's "Y.m.d" format and LimitNum=500, one window of at
+ * most --window-days days per call. This matches the fleet's confirmed
+ * read-only usage (agents/samu orders_window_*.py): UNAS returns at most
+ * 500 orders per call and has NO working LimitStart paging for orders,
+ * so the previous LimitStart loop could re-read the same page up to
+ * 200 times. A window that comes back with 500 orders is split in half
+ * (down to a single day). Calls are strictly serial with --sleep seconds
+ * between them: the UNAS rate limit is shared with the dropship jobs.
  *
  * Usage:
- *   php cron/sync_unas_orders.php                  Incremental sync (or last 30 days on first run)
- *   php cron/sync_unas_orders.php --since=2026-01-01 [--until=2026-08-17]
+ *   php cron/sync_unas_orders.php                  Rolling window (last 14 days)
+ *   php cron/sync_unas_orders.php --since=2026-10-01 [--until=2026-11-05]
+ *   php cron/sync_unas_orders.php --window-days=7 --sleep=15
  *   php cron/sync_unas_orders.php --dry-run         Fetch and print what would happen, write nothing
- *   php cron/sync_unas_orders.php --limit-pages=5   Safety cap on how many pages to fetch (default 200)
  */
 
 require __DIR__ . '/../app/Core/Autoloader.php';
@@ -81,8 +85,8 @@ use App\Services\UnasOrderMapper;
 
 const JOB_NAME = 'sync_unas_orders';
 const WATERMARK_KEY = 'unas_sync.orders_last_synced_to';
-const PAGE_SIZE = 50;
-const OVERLAP_BUFFER_HOURS = 1;
+const UNAS_MAX_PER_CALL = 500;
+const ROLLING_DAYS = 14;
 // Reconciliation tolerance is currency-specific - see OrderReconciler::TOLERANCE_MAP.
 
 if (php_sapi_name() !== 'cli') {
@@ -100,11 +104,11 @@ function line(string $message): void
 
 /**
  * @param array<int, string> $argv
- * @return array{dry_run: bool, since: ?string, until: ?string, limit_pages: int}
+ * @return array{dry_run: bool, since: ?string, until: ?string, window_days: int, sleep: int}
  */
 function parseArgs(array $argv): array
 {
-    $options = ['dry_run' => false, 'since' => null, 'until' => null, 'limit_pages' => 200];
+    $options = ['dry_run' => false, 'since' => null, 'until' => null, 'window_days' => 7, 'sleep' => 10];
 
     foreach (array_slice($argv, 1) as $arg) {
         if ($arg === '--dry-run') {
@@ -113,8 +117,10 @@ function parseArgs(array $argv): array
             $options['since'] = substr($arg, strlen('--since='));
         } elseif (str_starts_with($arg, '--until=')) {
             $options['until'] = substr($arg, strlen('--until='));
-        } elseif (str_starts_with($arg, '--limit-pages=')) {
-            $options['limit_pages'] = max(1, (int) substr($arg, strlen('--limit-pages=')));
+        } elseif (str_starts_with($arg, '--window-days=')) {
+            $options['window_days'] = max(1, min(31, (int) substr($arg, strlen('--window-days='))));
+        } elseif (str_starts_with($arg, '--sleep=')) {
+            $options['sleep'] = max(0, min(120, (int) substr($arg, strlen('--sleep='))));
         }
     }
 
@@ -233,19 +239,24 @@ if ($activeRun !== null) {
     exit(0);
 }
 
-$now = new DateTimeImmutable();
-$dateEnd = $options['until'] ?? $now->format('Y-m-d');
-
-if ($options['since'] !== null) {
-    $dateStart = $options['since'];
-} else {
-    $watermark = $settings->get(WATERMARK_KEY);
-    $dateStart = $watermark !== null
-        ? (new DateTimeImmutable($watermark))->modify('-' . OVERLAP_BUFFER_HOURS . ' hours')->format('Y-m-d')
-        : $now->modify('-30 days')->format('Y-m-d');
+$now = new DateTimeImmutable('today');
+$validDate = static function (?string $v): ?DateTimeImmutable {
+    if ($v === null) {
+        return null;
+    }
+    $d = DateTimeImmutable::createFromFormat('!Y-m-d', $v);
+    return ($d && $d->format('Y-m-d') === $v) ? $d : null;
+};
+$until = $validDate($options['until']) ?? $now;
+$since = $validDate($options['since']) ?? $until->modify('-' . (ROLLING_DAYS - 1) . ' days');
+if ($since > $until) {
+    line('FATAL: --since is after --until.');
+    exit(1);
 }
+$dateStart = $since->format('Y-m-d');
+$dateEnd = $until->format('Y-m-d');
 
-line('Date range: ' . $dateStart . ' .. ' . $dateEnd . ' (format unconfirmed - see file header comment)');
+line('Date range: ' . $dateStart . ' .. ' . $dateEnd . ' (windows of ' . $options['window_days'] . ' day(s), ' . $options['sleep'] . ' s between calls)');
 
 $runId = $options['dry_run'] ? null : $syncLogs->start(JOB_NAME);
 $seen = 0;
@@ -257,6 +268,7 @@ $adjustmentsTotal = 0;
 $itemFailuresTotal = 0;
 $reconciledTotal = 0;
 $unreconciledTotal = 0;
+$seenIds = [];
 
 try {
     $unas = new UnasApiService(
@@ -266,27 +278,55 @@ try {
     );
     $baseCurrency = (string) App::config('app.base_currency');
 
-    do {
-        $limitStart = $page * PAGE_SIZE;
+    // Work queue of [from, to] windows; a truncated (500) window is split.
+    $queue = [];
+    for ($d = $since; $d <= $until; $d = $d->modify('+' . $options['window_days'] . ' days')) {
+        $end = $d->modify('+' . ($options['window_days'] - 1) . ' days');
+        $queue[] = [$d, $end > $until ? $until : $end];
+    }
+
+    while ($queue !== []) {
+        [$wFrom, $wTo] = array_shift($queue);
+        if ($page > 0 && $options['sleep'] > 0) {
+            sleep($options['sleep']);
+        }
+        $page++;
         $response = $unas->getOrders([
-            'DateStart' => $dateStart,
-            'DateEnd' => $dateEnd,
-            'LimitNum' => PAGE_SIZE,
-            'LimitStart' => $limitStart,
+            'DateStart' => $wFrom->format('Y.m.d'),
+            'DateEnd' => $wTo->format('Y.m.d'),
+            'LimitNum' => UNAS_MAX_PER_CALL,
         ]);
 
         $pageOrders = $mapper->normalizeToList($response['Order'] ?? null);
         $pageCount = count($pageOrders);
-        line('Page ' . ($page + 1) . ': ' . $pageCount . ' order(s).');
+        line('Window ' . $wFrom->format('Y-m-d') . '..' . $wTo->format('Y-m-d') . ': ' . $pageCount . ' order(s).');
+
+        if ($pageCount >= UNAS_MAX_PER_CALL) {
+            if ($wFrom == $wTo) {
+                throw new RuntimeException('A single day returned ' . $pageCount . ' orders (UNAS cap) - cannot split further, stopping.');
+            }
+            $days = (int) $wFrom->diff($wTo)->days;
+            $mid = $wFrom->modify('+' . intdiv($days, 2) . ' days');
+            array_unshift($queue, [$wFrom, $mid], [$mid->modify('+1 day'), $wTo]);
+            line('  window hit the UNAS cap, splitting it.');
+            continue;
+        }
 
         foreach ($pageOrders as $rawOrder) {
+            $rawId = is_scalar($rawOrder['Id'] ?? null) ? (string) $rawOrder['Id'] : null;
+            if ($rawId !== null && isset($seenIds[$rawId])) {
+                continue; // Same order returned by two windows - process once.
+            }
+            if ($rawId !== null) {
+                $seenIds[$rawId] = true;
+            }
             $seen++;
             try {
                 $mapped = $mapper->mapOrderHeader($rawOrder, $baseCurrency);
                 $localOrderId = null;
 
                 if ($options['dry_run']) {
-                    line('  [DRY RUN] would upsert order ' . $mapped['unas_order_id'] . ' (' . $mapped['status'] . ', ' . $mapped['grand_total'] . ' ' . $mapped['currency'] . ')');
+                    line('  [DRY RUN] would upsert order ' . $mapped['unas_order_id'] . ' (' . ($mapped['shop'] ?? '?') . ', ' . $mapped['status'] . ', ' . $mapped['grand_total'] . ' ' . $mapped['currency'] . ', fx ' . ($mapped['unas_exchange_value'] ?? '-') . ')');
                 } else {
                     $localOrderId = $orders->upsertHeader($mapped);
                 }
@@ -332,16 +372,14 @@ try {
                 line('  FAILED to map/store one order (see storage/logs/sync_unas_orders-*.log): ' . $e->getMessage());
             }
         }
-
-        $page++;
-    } while ($pageCount === PAGE_SIZE && $page < $options['limit_pages']);
+    }
 
     if (!$options['dry_run']) {
         $settings->set(WATERMARK_KEY, $dateEnd, 'sync', 'Last DateEnd successfully used by cron/sync_unas_orders.php.');
         $syncLogs->finish($runId, $failed > 0 && $upserted === 0 ? 'ERROR' : 'SUCCESS', $upserted, $failed, null);
     }
 
-    line('=== Done: ' . $seen . ' order(s) seen, ' . $upserted . ' upserted, ' . $failed . ' order failure(s), ' . $page . ' page(s). ===');
+    line('=== Done: ' . $seen . ' order(s) seen, ' . $upserted . ' upserted, ' . $failed . ' order failure(s), ' . $page . ' API call(s). ===');
     line('Items: ' . $merchandiseTotal . ' merchandise, ' . $adjustmentsTotal . ' adjustment(s) (shipping/discount/handling/gift/unknown), ' . $itemFailuresTotal . ' item failure(s).');
     line('Reconciliation: ' . $reconciledTotal . ' order(s) matched SumPriceGross within their currency-specific tolerance (see OrderReconciler::TOLERANCE_MAP), ' . $unreconciledTotal . ' did not (see warnings above / storage/logs/sync_unas_orders-*.log).');
     exit($failed > 0 && $upserted === 0 ? 1 : 0);

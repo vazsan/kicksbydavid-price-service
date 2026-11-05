@@ -43,6 +43,7 @@ declare(strict_types=1);
  *   php cron/sync_unas_products.php --limit-pages=5          Safety cap on pages fetched THIS RUN (default 200)
  *   php cron/sync_unas_products.php --start-page=200          Resume after 200 already-completed pages (= --start-offset=10000 at PAGE_SIZE=50)
  *   php cron/sync_unas_products.php --start-offset=10000        Resume from an exact UNAS LimitStart value
+ *   php cron/sync_unas_products.php --sleep=3                    Pause N seconds between pages (shared UNAS rate limit)
  *
  * --start-page/--start-offset exist because the safety page cap can be
  * reached before the real end of the catalog (confirmed production case:
@@ -82,7 +83,7 @@ function line(string $message): void
 
 /**
  * @param array<int, string> $argv
- * @return array{dry_run: bool, status_base: ?string, limit_pages: int, start_page: ?int, start_offset: ?int}
+ * @return array{dry_run: bool, status_base: ?string, limit_pages: int, start_page: ?int, start_offset: ?int, sleep: int}
  */
 function parseArgs(array $argv): array
 {
@@ -92,6 +93,7 @@ function parseArgs(array $argv): array
         'limit_pages' => 200,
         'start_page' => null,
         'start_offset' => null,
+        'sleep' => 0,
     ];
 
     foreach (array_slice($argv, 1) as $arg) {
@@ -105,6 +107,10 @@ function parseArgs(array $argv): array
             $options['start_page'] = (int) substr($arg, strlen('--start-page='));
         } elseif (str_starts_with($arg, '--start-offset=')) {
             $options['start_offset'] = (int) substr($arg, strlen('--start-offset='));
+        } elseif (str_starts_with($arg, '--sleep=')) {
+            // Pause between pages: the UNAS rate limit is shared with the
+            // dropship jobs on the same account (daily cron uses --sleep=3).
+            $options['sleep'] = max(0, min(60, (int) substr($arg, strlen('--sleep='))));
         }
     }
 
@@ -219,6 +225,9 @@ try {
             $filters['StatusBase'] = $options['status_base'];
         }
 
+        if ($localPageIndex > 0 && $options['sleep'] > 0) {
+            sleep($options['sleep']);
+        }
         $response = $unas->getProducts($filters);
 
         $pageProducts = normalizeToList($response['Product'] ?? null);

@@ -38,6 +38,9 @@ final class OrderRepository
      *     payment_status: ?string,
      *     payment_amount_paid: ?string,
      *     grand_total: string,
+     *     shop?: ?string, exchange_rate_to_base?: string, unas_exchange_value?: ?string,
+     *     grand_total_net?: ?string, shipping_method?: ?string, referer?: ?string,
+     *     utm_source?: ?string, utm_medium?: ?string, utm_campaign?: ?string, utm_term?: ?string, utm_content?: ?string,
      *     raw_payload: string
      * } $data
      * @return int Local orders.id (existing row's id if this was an update).
@@ -46,19 +49,34 @@ final class OrderRepository
     {
         $stmt = Database::connection()->prepare(
             'INSERT INTO orders (
-                unas_order_id, unas_order_key, order_date, unas_date_mod,
-                currency, status, status_id, status_type,
+                unas_order_id, unas_order_key, shop, order_date, unas_date_mod,
+                currency, exchange_rate_to_base, unas_exchange_value,
+                status, status_id, status_type,
                 payment_method, payment_status, payment_amount_paid,
-                grand_total, raw_payload, imported_at, created_at, updated_at
+                shipping_method, referer, utm_source, utm_medium, utm_campaign, utm_term, utm_content,
+                grand_total, grand_total_net, raw_payload, imported_at, created_at, updated_at
              ) VALUES (
-                :unas_order_id, :unas_order_key, :order_date, :unas_date_mod,
-                :currency, :status, :status_id, :status_type,
+                :unas_order_id, :unas_order_key, :shop, :order_date, :unas_date_mod,
+                :currency, :exchange_rate_to_base, :unas_exchange_value,
+                :status, :status_id, :status_type,
                 :payment_method, :payment_status, :payment_amount_paid,
-                :grand_total, :raw_payload, NOW(), NOW(), NOW()
+                :shipping_method, :referer, :utm_source, :utm_medium, :utm_campaign, :utm_term, :utm_content,
+                :grand_total, :grand_total_net, :raw_payload, NOW(), NOW(), NOW()
              )
              ON DUPLICATE KEY UPDATE
                 id = LAST_INSERT_ID(id),
                 unas_order_key = VALUES(unas_order_key),
+                shop = VALUES(shop),
+                exchange_rate_to_base = VALUES(exchange_rate_to_base),
+                unas_exchange_value = VALUES(unas_exchange_value),
+                shipping_method = VALUES(shipping_method),
+                referer = VALUES(referer),
+                utm_source = VALUES(utm_source),
+                utm_medium = VALUES(utm_medium),
+                utm_campaign = VALUES(utm_campaign),
+                utm_term = VALUES(utm_term),
+                utm_content = VALUES(utm_content),
+                grand_total_net = VALUES(grand_total_net),
                 order_date = VALUES(order_date),
                 unas_date_mod = VALUES(unas_date_mod),
                 currency = VALUES(currency),
@@ -76,6 +94,17 @@ final class OrderRepository
         $stmt->execute([
             'unas_order_id' => $data['unas_order_id'],
             'unas_order_key' => $data['unas_order_key'],
+            'shop' => $data['shop'] ?? null,
+            'exchange_rate_to_base' => $data['exchange_rate_to_base'] ?? '1.000000',
+            'unas_exchange_value' => $data['unas_exchange_value'] ?? null,
+            'shipping_method' => $data['shipping_method'] ?? null,
+            'referer' => $data['referer'] ?? null,
+            'utm_source' => $data['utm_source'] ?? null,
+            'utm_medium' => $data['utm_medium'] ?? null,
+            'utm_campaign' => $data['utm_campaign'] ?? null,
+            'utm_term' => $data['utm_term'] ?? null,
+            'utm_content' => $data['utm_content'] ?? null,
+            'grand_total_net' => $data['grand_total_net'] ?? null,
             'order_date' => $data['order_date'],
             'unas_date_mod' => $data['unas_date_mod'],
             'currency' => $data['currency'],
@@ -128,12 +157,12 @@ final class OrderRepository
         $stmt = Database::connection()->prepare(
             'INSERT INTO order_items (
                 order_id, unas_item_id, product_variant_id, sku, product_name,
-                quantity, list_price_per_unit, actual_price_per_unit,
+                quantity, list_price_per_unit, actual_price_per_unit, unit_price_net,
                 discount_amount, line_total, currency, raw_payload,
                 created_at, updated_at
              ) VALUES (
                 :order_id, :unas_item_id, :product_variant_id, :sku, :product_name,
-                :quantity, :list_price, :actual_price,
+                :quantity, :list_price, :actual_price, :unit_price_net,
                 0, :line_total, :currency, :raw_payload,
                 NOW(), NOW()
              )
@@ -145,6 +174,7 @@ final class OrderRepository
                 quantity = VALUES(quantity),
                 list_price_per_unit = VALUES(list_price_per_unit),
                 actual_price_per_unit = VALUES(actual_price_per_unit),
+                unit_price_net = VALUES(unit_price_net),
                 line_total = VALUES(line_total),
                 currency = VALUES(currency),
                 raw_payload = VALUES(raw_payload)'
@@ -159,6 +189,7 @@ final class OrderRepository
             'quantity' => $data['quantity'],
             'list_price' => $data['unit_price_gross'],
             'actual_price' => $data['unit_price_gross'],
+            'unit_price_net' => $data['unit_price_net'] ?? null,
             'line_total' => $lineTotal,
             'currency' => $data['currency'],
             'raw_payload' => $data['raw_payload'],
