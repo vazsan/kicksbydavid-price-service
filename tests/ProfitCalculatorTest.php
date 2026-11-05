@@ -15,6 +15,7 @@ $near = static fn (float $a, float $b): bool => abs($a - $b) < 0.005;
 $settings = [
     'fx.huf_per_eur_display' => '370',
     'shipping.sk.parcel_eur' => '2.98',
+    'shipping.sk.home_parcel_eur' => '2.98',
     'shipping.sk.security_fee_eur' => '0.45',
     'shipping.sk.fuel_surcharge_pct' => '',
     'shipping.sk.cod_fee_eur' => '7.30',
@@ -48,6 +49,17 @@ $t->assertTrue($hu['cost'] === null && $hu['missing'] === true, 'HU (Packeta) co
 // --- payment fees ---
 $t->assertSame(['cost' => 0.0, 'missing' => false], $c->paymentFee(['payment_method' => 'cod'], 100), 'COD has no separate provider fee');
 $t->assertSame(['cost' => null, 'missing' => true], $c->paymentFee(['payment_method' => 'card'], 100), 'card fee not provided -> missing');
+$t->assertSame(['cost' => null, 'missing' => true], $c->paymentFee(['payment_method' => 'bankcard', 'payment_name' => 'Stripe-Biztonságos Bankkártyás fizetés'], 100), 'live Stripe "bankcard" is a card payment, not a bank transfer');
+$t->assertSame(['cost' => 0.0, 'missing' => false], $c->paymentFee(['payment_method' => 'transfer', 'payment_name' => 'Banki átutalás'], 100), 'bank transfer uses payment.transfer_eur');
+$t->assertSame(['cost' => null, 'missing' => true], $c->paymentFee(['payment_method' => 'other', 'payment_name' => 'Valami új'], 100), 'unknown method -> missing');
+
+// --- COD by payment name (live: Type "other", Name "Utánvét (+1.100 ft)") and home delivery ---
+$t->assertTrue($c->isCod(['payment_method' => 'other', 'payment_name' => 'Utánvét (+1.100 ft)']), 'COD detected from the payment name');
+$t->assertTrue(!$c->isCod(['payment_method' => 'bankcard', 'payment_name' => 'Stripe-Biztonságos Bankkártyás fizetés']), 'Stripe card is not COD');
+$t->assertTrue($c->isHomeDelivery(['shipping_method' => 'DPD HÁZHOZSZÁLLITÁS']), 'DPD home delivery detected');
+$t->assertTrue(!$c->isHomeDelivery(['shipping_method' => 'DPD csomagpontok']), 'DPD pickup point is not home delivery');
+$noHome = new ProfitCalculator(['shipping.sk.parcel_eur' => '2.98', 'shipping.sk.home_parcel_eur' => ''], 'EUR');
+$t->assertSame(['cost' => null, 'missing' => true], $noHome->shippingCost(['shop' => 'sk', 'shipping_method' => 'DPD HÁZHOZSZÁLLITÁS']), 'home delivery without its own price -> missing');
 
 // --- aggregation ---
 $orders = [

@@ -226,7 +226,7 @@ For every synced order (with at least one parsed `<Item>`): `difference = SumPri
 
 Order sync now imports header + merchandise line items + adjustments + reconciliation in one pass; product sync is unchanged from the previous pass. Both scripts are thin orchestration - the actual field mapping (`UnasOrderMapper`) and reconciliation math (`OrderReconciler`) are separate, dependency-free Services, unit tested in `tests/` without a database or live API call (classifier, mapper, and reconciler: 47 assertions across normal merchandise, shipping-cost, discount-percent, gift, an unrecognized synthetic row, and a full mixed order both reconciling and deliberately mismatched). The full write pipeline (header → items → adjustments → aggregates → reconciliation, including a second run to check idempotency) was additionally verified end-to-end against a local MariaDB instance - a real bug (a SQL prepared statement reusing the same named placeholder twice, which native/non-emulated MySQL prepares reject) was caught and fixed by this testing, underscoring why "verified" here means "actually executed against a database", not just "type-checked". The one thing that could not be tested in this sandbox is the actual live pagination/date-filter behavior against `api.unas.eu` - see "Still NOT confirmed" above.
 
-**`cron/recalculate_profit.php` is still intentionally not built** - per the project owner's explicit instruction, it waits until reconciliation has been proven against real production order data (this pass only proved it against synthetic fixtures shaped like the real examples), not just against a synthetic test suite.
+**`cron/recalculate_profit.php` now exists (2026-11-05)** - reconciliation was run against 64 real orders (2026-08-01..11-05: 61 matched, 3 SK orders off by -0.10 EUR, left flagged); see "Profit dashboard (F0/F1)" below.
 
 ## Turum integration status
 
@@ -272,3 +272,31 @@ UNAS sellable SKUs (`FZ4625-100-11`) do not equal Turum's `product.sku` (`FZ4625
 Makes at most 5 API calls (login, account/me, products-full-list once, reservations-list, one reservation detail - skipped if none exist), no retries, no DB writes beyond the existing `api_logs` trail. Verified against a local MariaDB instance: correctly aborts after the single login attempt on network failure or missing credentials (this sandbox has no route to `api.b2b.turum.pl`, same situation as `api.unas.eu` earlier), and never writes the username/password/token to `api_logs` or any log file. The redaction/extraction logic (product field allow-list; account/reservation keyword-based redaction) was unit-verified against synthetic data shaped like the confirmed field examples before being wired into the live script - see the assertions listed in this session's summary.
 
 **Next step**: run the diagnostic on a machine with real Turum credentials and network access, then share back `storage/logs/turum_sample_{account,products,reservation}.json` so Phase 2 (real field mapping, matching hierarchy, and only then a migration for the "current supplier price" columns) can be built against confirmed data instead of guesses.
+
+## Profit dashboard (F0/F1, 2026-11-05)
+
+- **Orders** now carry `shop` (UNAS `<Lang>`: hu / sk - one UNAS shop, ShopId 26121, two
+  language faces), `unas_exchange_value` (UNAS `<ExchangeValue>`, HUF per EUR at order time;
+  absent on EUR orders), `exchange_rate_to_base` = 1 / ExchangeValue (was always 1.0 before, so
+  HUF amounts were read as EUR), `grand_total_net`, `referer`, `utm_*`, `shipping_method`
+  (`<Shipping><Name>`). Migration 008, applied with `scripts/migrate.php`.
+- **Order fetch**: `DateStart`/`DateEnd` as `Y.m.d`, `LimitNum=500` per call, windows split
+  on the cap; UNAS has no working `LimitStart` paging for orders. Rolling 14-day re-sync every
+  30 minutes, because statuses keep changing after the order.
+- **COGS v1**: `turum_prices` is filled from the dropship jobs' shared Turum list cache (no
+  extra Turum calls). Each order item gets the Turum price snapshotted once, the first time it
+  is matched (`order_items.turum_unit_cost`). For orders imported after the fact that is
+  *today's* price, not the historical purchase price - the dashboard says so. Pairing:
+  Unas SKU == UPPER(Turum sku + "-" + size, "." -> "-"); unmatched items stay uncosted and the
+  coverage % is shown. Historical reservation prices (FIFO) are still F4.
+- **daily_profit** is one row per (day, shop), rebuilt for the last 45 days on each run by
+  `cron/recalculate_profit.php` using `App\Services\ProfitCalculator` (pure, unit tested).
+  Failed / cancelled / failed-payment orders are excluded from revenue and counted apart.
+  Missing cost inputs (HU Packeta, card fees, fuel surcharge) are counted per order and never
+  replaced by 0; the profit is then labelled an upper bound, and the profit of the fully
+  Turum-costed orders is shown separately.
+- **Cost inputs** live in `settings` (group `profit_costs`), see DPD.md "Price list".
+- **Display currency**: EUR (per-order UNAS rate), HUF x `fx.huf_per_eur_display` (370), or
+  HUF at the period's effective UNAS rate (sum of HUF revenue / its EUR value).
+- **Not yet**: ad spend (F2: Meta / Google), DPD parcel states (F3), real shipping invoices,
+  refunds/returns, historical Turum purchase prices (F4).

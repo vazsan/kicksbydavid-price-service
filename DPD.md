@@ -104,3 +104,37 @@ The web button and the CLI script run the exact same flow
   (`storage/logs/dpd_soap_last.xml`, written only on failure).
 - One parcel per order, default weight `DPD_DEFAULT_PARCEL_WEIGHT_KG` when the
   order carries none. Multi-parcel splitting is not implemented.
+
+## Price list used by the profit dashboard (cost estimate)
+
+Source: the owner's DPD Polska discount cards (`store/kutatas/dpd-arak/dpd_1..6.pdf`
+in the fleet workspace; dpd_1 = DPD Pickup Export, dpd_5 = DPD Pickup Import,
+the others are signed copies of the same two cards for KICKS BY DAVID s.r.o.).
+Valid from 2026-04-01, EUR, **excluding VAT**, invoiced in PLN at the NBP
+average rate of the shipping day.
+
+| Card | Destination | <1 kg | 1-3 kg | 3-6 kg | 6-10 kg | 10-20 kg |
+|---|---|---|---|---|---|---|
+| Pickup Export (PL -> country) | Slovakia (SK) | 2.52 | 2.98 | 3.41 | 4.03 | 6.12 |
+| Pickup Export | Hungary (HU) | 2.24 | 2.72 | 3.10 | 3.72 | 6.12 |
+| Pickup Import (country -> PL, e.g. returns) | Slovakia | 2.80 | 3.41 | 4.62 | 5.60 | 7.03 |
+| Pickup Import | Hungary | 2.52 | 3.10 | 4.29 | 5.25 | 6.66 |
+
+Extra fees on the Export card: COD service 7.30 EUR per COD parcel; security
+fee ("opłata bezpieczeństwa") 0.45 EUR per parcel; non-standard parcel /
+over technical limits 45 EUR; no zone surcharge for SK/HU. A **fuel
+surcharge** is added to every parcel per the monthly table on dpd.com.pl -
+not in the card, so it is a setting left empty (shown as missing). DPD may
+also add energy/road/seasonal fees (not modelled).
+
+How the dashboard uses it (`settings`, group `profit_costs`, editable
+without a deploy; empty = not provided, never treated as 0):
+
+- `shipping.sk.parcel_eur` = 2.98 (1-3 kg tier: a boxed pair of sneakers;
+  tier choice is an assumption), `shipping.sk.security_fee_eur` = 0.45,
+  `shipping.sk.cod_fee_eur` = 7.30, `shipping.sk.fuel_surcharge_pct` = empty.
+- `shipping.sk.home_parcel_eur` = 2.98 **provisional**: SK orders also use
+  "DPD HÁZHOZSZÁLLITÁS" (home delivery), whose DPD Classic Export price is
+  not among the PDFs.
+- HU ships with Packeta: `shipping.hu.*` are empty until the owner provides
+  the Packeta prices.

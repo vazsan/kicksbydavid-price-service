@@ -74,13 +74,24 @@ Visit the site URL - you should land on `/login`. Sign in with the account from 
 
 ## 9. Cron Jobs
 
-Not yet applicable in this first commit - `cron/` currently has no job scripts (the UNAS sync jobs are the next build step; see ARCHITECTURE.md). Once they exist, wire them up in cPanel > Cron Jobs pointing at e.g.:
+Live since 2026-11-05 (minutes chosen to avoid the dropship jobs' minutes on
+the same account; every job is wrapped in `flock` and writes only its LAST
+run's output to `storage/logs/cron_*.out` - run history is in `sync_logs`):
 
 ```
-/usr/local/bin/php /home/<cpanel-user>/profit-analytics/cron/sync_unas_orders.php >> /dev/null 2>&1
+14,46 * * * *  orders: cron/sync_unas_orders.php --window-days=14 --sleep=10, then cron/recalculate_profit.php
+26 5 * * *     Turum prices: cron/sync_turum_prices.php, then cron/recalculate_profit.php
+53 3 * * *     products: cron/sync_unas_products.php --sleep=3 --limit-pages=400
 ```
 
-(Use the full path to the PHP CLI binary your cPanel account provides - check with `which php` over SSH, or MultiPHP INI Editor's "PHP CLI" note if unsure. Redirect output to `/dev/null` since the scripts will do their own logging to `storage/logs/` and `sync_logs`.)
+`-d log_errors=0` keeps the CLI's startup warnings out of the shared
+`error_log`; real errors still reach the `.out` file and `storage/logs/`.
+
+Schema changes from 008 on are applied with `php scripts/migrate.php <file>`
+(records them in `schema_migrations`); back up first with
+`php scripts/db_backup.php <label> <tables...>` (gzip, `storage/backups/`,
+keeps the newest 6). There is no shell on the host: one-off commands are run
+through a temporary cPanel cron entry that is removed afterwards.
 
 ## Troubleshooting
 

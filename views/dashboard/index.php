@@ -202,13 +202,15 @@ $shopLabels = ['hu' => 'HU', 'sk' => 'SK', 'both' => 'Együtt'];
         <li><strong>Szállítás SK</strong>: DPD Pickup Export kedvezménykártya (2026.04.01-től, ÁFA nélkül), Szlovákia sor:
             <?= e($setting('shipping.sk.parcel_eur') ?? 'nincs megadva') ?> EUR/csomag (1-3 kg sáv) + <?= e($setting('shipping.sk.security_fee_eur') ?? '0') ?> EUR biztonsági díj,
             utánvétnél + <?= e($setting('shipping.sk.cod_fee_eur') ?? 'nincs megadva') ?> EUR COD-díj.
-            Üzemanyag-pótlék: <?= $setting('shipping.sk.fuel_surcharge_pct') !== null ? e($setting('shipping.sk.fuel_surcharge_pct')) . '%' : '<strong>nincs megadva</strong> (havonta változik, dpd.com.pl)' ?>.</li>
+            Üzemanyag-pótlék: <?= $setting('shipping.sk.fuel_surcharge_pct') !== null ? e($setting('shipping.sk.fuel_surcharge_pct')) . '%' : '<strong>nincs megadva</strong> (havonta változik, dpd.com.pl)' ?>.
+            DPD házhozszállítás: <?= $setting('shipping.sk.home_parcel_eur') !== null ? e($setting('shipping.sk.home_parcel_eur')) . ' EUR/csomag, <strong>ideiglenesen a Pickup kártya ára</strong> (a DPD Classic árlista nincs meg)' : '<strong>nincs megadva</strong>' ?>.</li>
         <li><strong>Szállítás HU (Packeta)</strong>: <?= $setting('shipping.hu.parcel_eur') !== null ? e($setting('shipping.hu.parcel_eur')) . ' EUR/csomag' : '<strong>HIÁNYZIK</strong> - a Packeta díjai még nincsenek megadva, ezért a HU profitból nincs levonva szállítási költség' ?>.</li>
         <li><strong>Fizetési díjak</strong>: kártyás díj <?= $setting('payment.card_pct') !== null ? e($setting('payment.card_pct')) . '%' : '<strong>nincs megadva</strong>' ?>, átutalás <?= e($setting('payment.transfer_eur') ?? 'nincs megadva') ?> EUR; utánvétnél a díj a futár COD-díjában van.</li>
         <li><strong>Hirdetési költés</strong>: még nincs bekötve (Meta és Google Ads: F2 fázis).</li>
     </ul>
 </section>
 
+<?php ini_set('serialize_precision', '-1'); // shortest float repr in the JSON below ?>
 <script>
     window.__dashboardSeries = <?= json_encode(array_map(static fn ($r) => [
         'label' => $r['label'],

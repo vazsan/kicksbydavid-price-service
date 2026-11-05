@@ -105,6 +105,13 @@ final class ProfitCalculator
         if ($parcel === null) {
             return ['cost' => null, 'missing' => true];
         }
+        if ($this->isHomeDelivery($order)) {
+            // Home delivery has its own (optional) setting; empty = missing.
+            $parcel = $this->num("shipping.$shop.home_parcel_eur");
+            if ($parcel === null) {
+                return ['cost' => null, 'missing' => true];
+            }
+        }
         $cost = $parcel + ($this->num("shipping.$shop.security_fee_eur") ?? 0.0);
         $fuel = $this->num("shipping.$shop.fuel_surcharge_pct");
         if ($fuel !== null) {
@@ -122,15 +129,33 @@ final class ProfitCalculator
         return ['cost' => $cost, 'missing' => $missing];
     }
 
+    /**
+     * COD detection. Confirmed live (2026-10/11 orders): most COD orders
+     * come with Payment Type "other" and Name "Utánvét (+1.100 ft)", only
+     * some with Type "cod" - so the name is checked too.
+     */
     public function isCod(array $order): bool
     {
-        return strtolower((string) ($order['payment_method'] ?? '')) === 'cod';
+        if (strtolower((string) ($order['payment_method'] ?? '')) === 'cod') {
+            return true;
+        }
+        $name = mb_strtolower((string) ($order['payment_name'] ?? ''));
+        return str_contains($name, 'utánvét') || str_contains($name, 'utanvet') || str_contains($name, 'dobierk');
+    }
+
+    /** Shipping method names seen live: "DPD HÁZHOZSZÁLLITÁS", "Packeta- Házhozszállítás" vs "... csomagpont(ok)". */
+    public function isHomeDelivery(array $order): bool
+    {
+        $name = mb_strtolower((string) ($order['shipping_method'] ?? ''));
+        return str_contains($name, 'házhoz') || str_contains($name, 'hazhoz') || str_contains($name, 'kuriér') || str_contains($name, 'na adresu');
     }
 
     /**
      * Payment provider fee in EUR. COD has no separate provider fee (the
-     * carrier's COD fee is in shippingCost()). Bank transfer uses
-     * payment.transfer_eur; anything else is treated as card/online.
+     * carrier's COD fee is in shippingCost()). Live payment methods
+     * (2026-10/11): "bankcard" = "Stripe-Biztonságos Bankkártyás fizetés"
+     * (card fee), "other"/"cod" = "Utánvét" (COD). A bank transfer uses
+     * payment.transfer_eur. Anything unrecognized is counted as missing.
      *
      * @return array{cost: ?float, missing: bool}
      */
@@ -140,23 +165,29 @@ final class ProfitCalculator
             return ['cost' => 0.0, 'missing' => false];
         }
         $method = strtolower((string) ($order['payment_method'] ?? ''));
-        if (str_contains($method, 'transfer') || str_contains($method, 'bank') || str_contains($method, 'utal')) {
+        $name = mb_strtolower((string) ($order['payment_name'] ?? ''));
+        $isCard = str_contains($method, 'card') || str_contains($name, 'kártya') || str_contains($name, 'karta')
+            || str_contains($name, 'stripe') || str_contains($name, 'paypal') || str_contains($name, 'barion');
+        if ($isCard) {
+            $pct = $this->num('payment.card_pct');
+            $fixed = $this->num('payment.card_fixed_eur');
+            if ($pct === null && $fixed === null) {
+                return ['cost' => null, 'missing' => true];
+            }
+            return ['cost' => $revenueBase * ($pct ?? 0.0) / 100 + ($fixed ?? 0.0), 'missing' => false];
+        }
+        if ($method === 'transfer' || str_contains($name, 'átutal') || str_contains($name, 'prevod') || str_contains($name, 'transfer')) {
             $fee = $this->num('payment.transfer_eur');
             return ['cost' => $fee, 'missing' => $fee === null];
         }
-        $pct = $this->num('payment.card_pct');
-        $fixed = $this->num('payment.card_fixed_eur');
-        if ($pct === null && $fixed === null) {
-            return ['cost' => null, 'missing' => true];
-        }
-        return ['cost' => $revenueBase * ($pct ?? 0.0) / 100 + ($fixed ?? 0.0), 'missing' => false];
+        return ['cost' => null, 'missing' => true];
     }
 
     /**
      * @param iterable<array<string, mixed>> $orders Rows with: order_date, shop, currency,
      *     unas_exchange_value, exchange_rate_to_base, grand_total, grand_total_net,
      *     subtotal, shipping_fee_charged, discount_total, handling_total, status_type,
-     *     status, payment_method, units_total, units_matched, cogs_matched (EUR).
+     *     status, payment_method, payment_name, shipping_method, units_total, units_matched, cogs_matched (EUR).
      * @return array<string, array<string, float|int|string>> keyed "Y-m-d|shop"
      */
     public function aggregate(iterable $orders): array

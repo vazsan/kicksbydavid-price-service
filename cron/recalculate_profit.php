@@ -61,7 +61,8 @@ try {
     $stmt = $db->prepare(
         "SELECT o.id, o.order_date, o.shop, o.currency, o.unas_exchange_value, o.exchange_rate_to_base,
                 o.grand_total, o.grand_total_net, o.subtotal, o.shipping_fee_charged, o.discount_total,
-                o.status_type, o.status, o.payment_method,
+                o.status_type, o.status, o.payment_method, o.shipping_method,
+                JSON_UNQUOTE(JSON_EXTRACT(o.raw_payload, '$.Payment.Name')) payment_name,
                 COALESCE(i.units_total, 0) units_total, COALESCE(i.units_matched, 0) units_matched,
                 COALESCE(i.cogs_matched, 0) cogs_matched, COALESCE(a.handling_total, 0) handling_total
          FROM orders o
