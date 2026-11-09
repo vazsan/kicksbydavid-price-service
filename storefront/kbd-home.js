@@ -100,7 +100,7 @@
   } : {
     /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Ingyenes szállítás 46 250 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere" */
     /* 2026-11-09 (David TG 4110, main msg 3929): second message = Nov/Dec orders returnable or exchangeable until 15 January */
-    bar: ['<a class="kbd-bar__sale" href="/akcios-termekek">Őszi leárazás: <b>akár -50% kedvezmény</b></a>', 'Mert Black Friday van: párok <b class="kbd-bar__hl">-50%-ig</b>, a készlet erejéig', 'A novemberi és decemberi rendelések <b class="kbd-bar__hl">január&nbsp;15-ig</b> visszaküldhetők vagy másik méretre cserélhetők.'],
+    bar: ['Mert Black Friday van: párok <b class="kbd-bar__hl">-50%-ig</b>, a készlet erejéig', 'A novemberi és decemberi rendelések <b class="kbd-bar__hl">január&nbsp;15-ig</b> visszaküldhetők vagy másik méretre cserélhetők.'],
     phone: "+36 20 556 4258",
     ey: "Eredeti sneakerek európai raktárakból",
     h1: "Eredeti sneakerek, kedvezőbb áron",
