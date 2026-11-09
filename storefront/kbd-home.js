@@ -45,7 +45,7 @@
   var T = SK ? {
     /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Doprava zadarmo nad 120 €", "Platba aj na dobierku", "Výmena a vrátenie zadarmo do 30 dní" */
     /* 2026-11-09 (David TG 4110, main msg 3929): second message = Nov/Dec orders returnable or exchangeable until 15 January */
-    bar: ['<a class="kbd-bar__sale" href="/akcie">Jesenný výpredaj: <b>až -50 % zľava</b></a>', 'Objednávky z novembra a decembra môžeš do 15.&nbsp;januára vrátiť alebo vymeniť za inú veľkosť.'],
+    bar: ['<a class="kbd-bar__sale" href="/akcie">Jesenný výpredaj: <b>až -50 % zľava</b></a>', 'Objednávky z novembra a decembra môžeš <b class="kbd-bar__hl">do 15.&nbsp;januára</b> vrátiť alebo vymeniť za inú veľkosť.'],
     phone: "+421 910 252 548",
     ey: "Originálne tenisky z európskych skladov",
     h1: "Originálne tenisky za výhodnejšie ceny",
@@ -100,7 +100,7 @@
   } : {
     /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Ingyenes szállítás 46 250 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere" */
     /* 2026-11-09 (David TG 4110, main msg 3929): second message = Nov/Dec orders returnable or exchangeable until 15 January */
-    bar: ['<a class="kbd-bar__sale" href="/akcios-termekek">Őszi leárazás: <b>akár -50% kedvezmény</b></a>', 'A novemberi és decemberi rendelések január&nbsp;15-ig visszaküldhetők vagy másik méretre cserélhetők.'],
+    bar: ['<a class="kbd-bar__sale" href="/akcios-termekek">Őszi leárazás: <b>akár -50% kedvezmény</b></a>', 'A novemberi és decemberi rendelések <b class="kbd-bar__hl">január&nbsp;15-ig</b> visszaküldhetők vagy másik méretre cserélhetők.'],
     phone: "+36 20 556 4258",
     ey: "Eredeti sneakerek európai raktárakból",
     h1: "Eredeti sneakerek, kedvezőbb áron",
@@ -185,23 +185,34 @@
   var H = "#ud_shop_start ";
   var css = ""
     /* infosáv – minden oldalon */
-    + "#kbd-bar{background:" + INK + ";color:#fff;font-size:12.5px;line-height:1;font-weight:600;letter-spacing:.01em}"
-    + "#kbd-bar .kbd-bar__in{max-width:1440px;margin:0 auto;padding:0 20px;height:34px;display:flex;align-items:center;justify-content:center;gap:18px;position:relative}"
-    + "#kbd-bar .kbd-bar__msg{display:flex;align-items:center;gap:18px;white-space:nowrap}"
-    + "#kbd-bar .kbd-bar__note{text-transform:none!important;letter-spacing:.01em!important}"
-    + "#kbd-bar .kbd-bar__msg span+span:before{content:'•';opacity:.45;margin-right:18px}"
-    + "#kbd-bar .kbd-bar__ph{position:absolute;right:20px;color:#fff!important;text-decoration:none!important;opacity:.9}"
-    /* sale line: white text, the discount in an action-red #E10600 pill (white on #E10600 = 4.97:1, AA) */
-    + "#kbd-bar a.kbd-bar__sale{color:#fff!important;text-decoration:none!important;text-transform:none!important;letter-spacing:.01em!important;white-space:nowrap}"
-    + "#kbd-bar a.kbd-bar__sale b{background:#E10600;color:#fff;font-weight:800;border-radius:999px;padding:2px 9px;margin-left:2px}"
-    + "#kbd-bar a.kbd-bar__sale:hover{text-decoration:underline!important}"
+    /* 2026-11-09 v3 (David TG 4130, main msg 3951): sticky bar, one continuous right-to-left ticker (paused on hover/focus), one font size,
+       the discount (red pill) and the January 15 date highlighted; prefers-reduced-motion: no movement, the whole text wrapped (class kbd-still) */
+    + "#kbd-bar{position:sticky;top:0;z-index:1040;background:#000;color:#fff;font-size:12px;line-height:1;font-weight:600;letter-spacing:.01em}"
+    + "#kbd-bar .kbd-bar__in{max-width:1440px;margin:0 auto;padding:0 20px;height:34px;display:flex;align-items:center;gap:18px;box-sizing:border-box}"
+    + "#kbd-bar .kbd-bar__vp{flex:1 1 auto;min-width:0;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent)}"
+    + "#kbd-bar .kbd-bar__trk{display:flex;width:max-content;white-space:nowrap;will-change:transform;animation:kbd-mq 40s linear infinite}"
+    + "#kbd-bar .kbd-bar__vp:hover .kbd-bar__trk,#kbd-bar .kbd-bar__vp:focus-within .kbd-bar__trk{animation-play-state:paused}"
+    + "#kbd-bar .kbd-bar__grp,#kbd-bar .kbd-bar__set{display:flex;align-items:center;flex:none}"
+    + "#kbd-bar .kbd-bar__it{text-transform:none!important;letter-spacing:.01em!important;white-space:nowrap}"
+    + "#kbd-bar .kbd-bar__sep{opacity:.45;padding:0 22px}"
+    + "#kbd-bar .kbd-bar__hl{font-weight:800;color:#FF5A50}"
+    + "@keyframes kbd-mq{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}"
+    + "#kbd-bar .kbd-bar__ph{flex:none;color:#fff!important;text-decoration:none!important;opacity:.9}"
     + "@media(max-width:1100px){#kbd-bar .kbd-bar__ph{display:none}}"
-    /* 2026-11-09: one message at a time (class kbd-rot, set by buildBar when the messages do not fit in one line), switching every 4 s */
-    + "#kbd-bar.kbd-rot .kbd-bar__msg{position:relative;width:100%;height:34px;display:block}"
-    + "#kbd-bar.kbd-rot .kbd-bar__msg span{position:absolute;left:0;right:0;top:0;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;opacity:0;visibility:hidden;transition:none}"
-    + "#kbd-bar.kbd-rot .kbd-bar__msg span.on{opacity:1;visibility:visible;transition:opacity .45s}#kbd-bar.kbd-rot .kbd-bar__msg span+span:before{display:none}"
-    + "@media(max-width:767.98px){#kbd-bar{font-size:11.5px}#kbd-bar .kbd-bar__in{height:30px;padding:0 12px}#kbd-bar.kbd-rot .kbd-bar__msg{height:30px}"
-    + "#kbd-bar.kbd-rot .kbd-bar__note{white-space:normal;font-size:10.5px;line-height:12px;letter-spacing:0!important}}"
+    + "@media(max-width:767.98px){#kbd-bar .kbd-bar__in{height:30px;padding:0 8px}#kbd-bar .kbd-bar__vp{-webkit-mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent);mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent)}}"
+    /* sale line: white text, the discount in an action-red #E10600 pill (white on #E10600 = 4.97:1, AA); date #FF5A50 on black = 6.8:1 */
+    + "#kbd-bar a.kbd-bar__sale{color:#fff!important;text-decoration:none!important;text-transform:none!important;letter-spacing:.01em!important;white-space:nowrap}"
+    + "#kbd-bar a.kbd-bar__sale b{background:#E10600;color:#fff;font-weight:800;font-size:inherit;border-radius:999px;padding:2px 8px;margin-left:2px}"
+    + "#kbd-bar a.kbd-bar__sale:hover{text-decoration:underline!important}"
+    + "@media(prefers-reduced-motion:reduce){#kbd-bar .kbd-bar__trk{animation:none}}"
+    + "#kbd-bar.kbd-still .kbd-bar__in{height:auto;min-height:34px;padding-top:6px;padding-bottom:6px}"
+    + "#kbd-bar.kbd-still .kbd-bar__vp{-webkit-mask-image:none;mask-image:none}"
+    + "#kbd-bar.kbd-still .kbd-bar__trk{animation:none;width:auto;white-space:normal}"
+    + "#kbd-bar.kbd-still .kbd-bar__grp,#kbd-bar.kbd-still .kbd-bar__set{flex:1 1 auto;flex-wrap:wrap;justify-content:center;row-gap:5px;text-align:center}"
+    + "#kbd-bar.kbd-still .kbd-bar__it{white-space:normal;line-height:1.35}#kbd-bar.kbd-still .kbd-bar__sep:last-child{display:none}"
+    + "@media(max-width:767.98px){#kbd-bar.kbd-still .kbd-bar__in{min-height:30px}#kbd-bar.kbd-still .kbd-bar__sep{display:none}#kbd-bar.kbd-still .kbd-bar__it{flex:1 1 100%}}"
+    /* the shop header sticks right below the bar */
+    + "html.header-with-sticky-behavior #header{top:var(--kbd-bar-h,0px)!important}"
     /* menü: 1200 px felett ne törjön két sorba */
     + "@media(min-width:1200px){#navbar--main{flex-wrap:nowrap!important}#navbar--main>.nav-item--menu>.nav-link{padding-left:10px!important;padding-right:10px!important}}"
 
@@ -405,7 +416,7 @@
 
   /* ---------- 1c) 2026-10-20 dizájn-irány B: streetwear-prémium (sötét sávok, nagy képek, overlay-feliratú kategóriacsempék) ---------- */
   var css3 = ""
-    + "#kbd-bar{background:#000;letter-spacing:.04em;text-transform:uppercase;font-size:11.5px}"
+    + "#kbd-bar{background:#000;letter-spacing:.04em;text-transform:uppercase}"
     + "#kbd-tick{background:#111111;color:#fff;border:0}#kbd-tick span+span:before{opacity:.35}"
     + "#ud_shop_start #kbd-hero{background:#111111;color:#fff;grid-template-columns:minmax(0,5fr) minmax(0,7fr)}"
     + "#ud_shop_start .kbd-hero__txt{padding:40px 40px 40px max(24px,calc((100vw - 1320px)/2));gap:14px;color:#fff;position:relative;z-index:3}"
@@ -503,31 +514,49 @@
     b.id = "kbd-bar";
     b.setAttribute("role", "region");
     b.setAttribute("aria-label", T.uspLabel);
-    var msg = "";
-    for (var i = 0; i < T.bar.length; i++) msg += '<span class="' + ((i ? "" : "on ") + (/^<a /.test(T.bar[i]) ? "" : "kbd-bar__note")).trim() + '">' + T.bar[i] + "</span>";
-    b.innerHTML = '<div class="kbd-bar__in"><div class="kbd-bar__msg">' + msg + '</div><a class="kbd-bar__ph" href="tel:' + T.phone.replace(/\s/g, "") + '">' + T.phone + "</a></div>";
+    b.innerHTML = '<div class="kbd-bar__in"><div class="kbd-bar__vp"><div class="kbd-bar__trk"></div></div><a class="kbd-bar__ph" href="tel:' + T.phone.replace(/\s/g, "") + '">' + T.phone + "</a></div>";
+    var hs = document.createElement("style");
+    hs.id = "kbd-bar-hh";
+    (document.head || document.documentElement).appendChild(hs);
     hd.parentNode.insertBefore(b, hd);
-    /* 2026-11-09: all messages in one line if they fit (clear of the phone when it shows), else one at a time, switching every 4 s */
-    var k = 0, iv = 0, sp = b.querySelectorAll(".kbd-bar__msg > span");
-    if (sp.length < 2) return;
-    function tick() {
-      if (b.className !== "kbd-rot") return;
-      sp[k].className = sp[k].className.replace(/\bon\b/, "").trim();
-      k = (k + 1) % sp.length;
-      sp[k].className = (sp[k].className + " on").trim();
+    /* 2026-11-09 v3 (main msg 3951): one continuous ticker. Group A = the text n times (enough to fill the bar), group B = the same again;
+       the track moves by one group (-50%), so it never ends. Copies after the first are hidden from screen readers and the keyboard. */
+    var vp = b.firstChild.firstChild, trk = vp.firstChild, RM = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null, lastW = -1, lastN = 0;
+    function set(hid) {
+      var h = "";
+      for (var i = 0; i < T.bar.length; i++) h += '<span class="kbd-bar__it">' + (hid ? T.bar[i].replace("<a ", '<a tabindex="-1" ') : T.bar[i]) + '</span><span class="kbd-bar__sep" aria-hidden="true">•</span>';
+      return '<span class="kbd-bar__set"' + (hid ? ' aria-hidden="true"' : "") + ">" + h + "</span>";
     }
-    function fit() {
-      var inn = b.firstChild, m = inn.firstChild, ph = inn.lastChild;
-      b.className = "";
-      var w = m.scrollWidth, room = inn.clientWidth - 40, pw = ph.offsetWidth;
-      if (pw) room = inn.clientWidth - 2 * (pw + 38);
-      if (!(w > 0) || w > room) { b.className = "kbd-rot"; if (!iv) iv = setInterval(tick, 4000); }
-      else if (iv) { clearInterval(iv); iv = 0; }
+    /* bar height for the header offset; theme --header-height + bar height for the theme's own sticky elements and the menu height */
+    function hh() {
+      var h = b.offsetHeight, hi = $id("header__inner") || $id("header");
+      if (!h) return;
+      document.documentElement.style.setProperty("--kbd-bar-h", h + "px");
+      if (hi && hi.offsetHeight) hs.textContent = "html{--header-height:" + (h + hi.offsetHeight) + "px!important}";
     }
-    fit();
+    function build(force) {
+      var w = vp.clientWidth, still = !!(RM && RM.matches);
+      if (!force && w === lastW) return;
+      lastW = w; b.className = still ? "kbd-still" : "";
+      trk.style.animationDuration = "";
+      trk.innerHTML = '<div class="kbd-bar__grp">' + set(false) + "</div>";
+      var sw = trk.firstChild.firstChild.offsetWidth;
+      if (still || !(sw > 0) || !(w > 0)) { lastN = 0; hh(); return; }
+      var n = Math.max(1, Math.ceil(w / sw)), a = set(false), c = "";
+      for (var i = 0; i < n; i++) { if (i) a += set(true); c += set(true); }
+      trk.innerHTML = '<div class="kbd-bar__grp">' + a + '</div><div class="kbd-bar__grp" aria-hidden="true">' + c + "</div>";
+      trk.style.animationDuration = (n * sw / (window.innerWidth < 768 ? 40 : 50)).toFixed(1) + "s";
+      lastN = n; hh();
+    }
+    /* after web fonts load: rebuild only if the text got too short to fill the bar (a rebuild restarts the ticker) */
+    function check() { var f = trk.querySelector(".kbd-bar__set"); if (!lastN || !f || lastN * f.offsetWidth < vp.clientWidth) build(true); else hh(); }
+    build(true);
     var rt = 0;
-    window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(fit, 150); });
-    window.addEventListener("load", fit);
+    window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { build(false); hh(); }, 150); });
+    if (RM) { var rc = function () { build(true); }; if (RM.addEventListener) RM.addEventListener("change", rc); else if (RM.addListener) RM.addListener(rc); }
+    window.addEventListener("load", check);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
+    if (window.ResizeObserver) { var ro = new ResizeObserver(hh); ro.observe(b); ro.observe($id("header__inner") || hd); }
   }
 
   /* ---------- 3) hero ---------- */
