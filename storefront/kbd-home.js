@@ -45,7 +45,7 @@
   var T = SK ? {
     /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Doprava zadarmo nad 120 €", "Platba aj na dobierku", "Výmena a vrátenie zadarmo do 30 dní" */
     /* 2026-11-09 (David TG 4110, main msg 3929): second message = Nov/Dec orders returnable or exchangeable until 15 January */
-    bar: ['<a class="kbd-bar__sale" href="/akcie">Jesenný výpredaj: <b>až -50 % zľava</b></a>', 'Objednávky z novembra a decembra môžete do 15.&nbsp;januára vrátiť alebo vymeniť za inú veľkosť.'],
+    bar: ['<a class="kbd-bar__sale" href="/akcie">Jesenný výpredaj: <b>až -50 % zľava</b></a>', 'Objednávky z novembra a decembra môžeš do 15.&nbsp;januára vrátiť alebo vymeniť za inú veľkosť.'],
     phone: "+421 910 252 548",
     ey: "Originálne tenisky z európskych skladov",
     h1: "Originálne tenisky za výhodnejšie ceny",
