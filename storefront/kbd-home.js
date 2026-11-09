@@ -187,7 +187,7 @@
     /* infosáv – minden oldalon */
     /* 2026-11-09 v3 (David TG 4130, main msg 3951): sticky bar, one continuous right-to-left ticker (paused on hover/focus), one font size,
        the discount (red pill) and the January 15 date highlighted; prefers-reduced-motion: no movement, the whole text wrapped (class kbd-still) */
-    + "#kbd-bar{position:sticky;top:0;z-index:1040;background:#000;color:#fff;font-size:12px;line-height:1;font-weight:600;letter-spacing:.01em}"
+    + "#kbd-bar{position:sticky;top:0;z-index:1040;background:#000;color:#fff;font-family:Montserrat,Montserrat-fallback,fallback,sans-serif;font-size:12px;line-height:1;font-weight:900;letter-spacing:.01em}"
     + "#kbd-bar .kbd-bar__in{max-width:1440px;margin:0 auto;padding:0 20px;height:34px;display:flex;align-items:center;gap:18px;box-sizing:border-box}"
     + "#kbd-bar .kbd-bar__vp{flex:1 1 auto;min-width:0;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent)}"
     + "#kbd-bar .kbd-bar__trk{display:flex;width:max-content;white-space:nowrap;will-change:transform;animation:kbd-mq 40s linear infinite}"
@@ -195,14 +195,14 @@
     + "#kbd-bar .kbd-bar__grp,#kbd-bar .kbd-bar__set{display:flex;align-items:center;flex:none}"
     + "#kbd-bar .kbd-bar__it{text-transform:none!important;letter-spacing:.01em!important;white-space:nowrap}"
     + "#kbd-bar .kbd-bar__sep{opacity:.45;padding:0 22px}"
-    + "#kbd-bar .kbd-bar__hl{font-weight:800;color:#FF5A50}"
+    + "#kbd-bar .kbd-bar__it,#kbd-bar .kbd-bar__it *,#kbd-bar .kbd-bar__ph{font-family:inherit!important;font-weight:900!important}"
     + "@keyframes kbd-mq{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}"
-    + "#kbd-bar .kbd-bar__ph{flex:none;color:#fff!important;text-decoration:none!important;opacity:.9}"
+    + "#kbd-bar .kbd-bar__ph{flex:none;letter-spacing:.01em;color:#fff!important;text-decoration:none!important;opacity:.9}"
     + "@media(max-width:1100px){#kbd-bar .kbd-bar__ph{display:none}}"
     + "@media(max-width:767.98px){#kbd-bar .kbd-bar__in{height:30px;padding:0 8px}#kbd-bar .kbd-bar__vp{-webkit-mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent);mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent)}}"
-    /* sale line: white text, the discount in an action-red #E10600 pill (white on #E10600 = 4.97:1, AA); date #FF5A50 on black = 6.8:1 */
+    /* sale line: white text, the discount in an action-red #E10600 pill (white on #E10600 = 4.97:1, AA); the January 15 date in the same pill (David TG 4136) */
     + "#kbd-bar a.kbd-bar__sale{color:#fff!important;text-decoration:none!important;text-transform:none!important;letter-spacing:.01em!important;white-space:nowrap}"
-    + "#kbd-bar a.kbd-bar__sale b{background:#E10600;color:#fff;font-weight:800;font-size:inherit;border-radius:999px;padding:2px 8px;margin-left:2px}"
+    + "#kbd-bar a.kbd-bar__sale b,#kbd-bar .kbd-bar__hl{background:#E10600;color:#fff;font-weight:900;font-size:inherit;border-radius:999px;padding:2px 8px;margin:0 2px;white-space:nowrap;-webkit-box-decoration-break:clone;box-decoration-break:clone}"
     + "#kbd-bar a.kbd-bar__sale:hover{text-decoration:underline!important}"
     + "@media(prefers-reduced-motion:reduce){#kbd-bar .kbd-bar__trk{animation:none}}"
     + "#kbd-bar.kbd-still .kbd-bar__in{height:auto;min-height:34px;padding-top:6px;padding-bottom:6px}"
