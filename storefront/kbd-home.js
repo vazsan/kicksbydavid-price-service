@@ -44,7 +44,8 @@
   /* ---------- 0) szövegek ---------- */
   var T = SK ? {
     /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Doprava zadarmo nad 120 €", "Platba aj na dobierku", "Výmena a vrátenie zadarmo do 30 dní" */
-    bar: ['<a class="kbd-bar__sale" href="/akcie">Jesenný výpredaj: <b>až -50 % zľava</b></a>'],
+    /* 2026-11-09 (David TG 4110, main msg 3929): second message = Nov/Dec orders returnable or exchangeable until 15 January */
+    bar: ['<a class="kbd-bar__sale" href="/akcie">Jesenný výpredaj: <b>až -50 % zľava</b></a>', 'Objednávky z novembra a decembra môžete do 15.&nbsp;januára vrátiť alebo vymeniť za inú veľkosť.'],
     phone: "+421 910 252 548",
     ey: "Originálne tenisky z európskych skladov",
     h1: "Originálne tenisky za výhodnejšie ceny",
@@ -98,7 +99,8 @@
     eyb: { tiles: "Rýchly vstup", rev: "Hodnotenia", sh: "Značka", rv: "Pokračuj", sizes: "Podľa veľkosti", blog: "Magazín", brands: "Značky" }
   } : {
     /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Ingyenes szállítás 46 250 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere" */
-    bar: ['<a class="kbd-bar__sale" href="/akcios-termekek">Őszi leárazás: <b>akár -50% kedvezmény</b></a>'],
+    /* 2026-11-09 (David TG 4110, main msg 3929): second message = Nov/Dec orders returnable or exchangeable until 15 January */
+    bar: ['<a class="kbd-bar__sale" href="/akcios-termekek">Őszi leárazás: <b>akár -50% kedvezmény</b></a>', 'A novemberi és decemberi rendelések január&nbsp;15-ig visszaküldhetők vagy másik méretre cserélhetők.'],
     phone: "+36 20 556 4258",
     ey: "Eredeti sneakerek európai raktárakból",
     h1: "Eredeti sneakerek, kedvezőbb áron",
@@ -185,7 +187,8 @@
     /* infosáv – minden oldalon */
     + "#kbd-bar{background:" + INK + ";color:#fff;font-size:12.5px;line-height:1;font-weight:600;letter-spacing:.01em}"
     + "#kbd-bar .kbd-bar__in{max-width:1440px;margin:0 auto;padding:0 20px;height:34px;display:flex;align-items:center;justify-content:center;gap:18px;position:relative}"
-    + "#kbd-bar .kbd-bar__msg{display:flex;align-items:center;gap:18px}"
+    + "#kbd-bar .kbd-bar__msg{display:flex;align-items:center;gap:18px;white-space:nowrap}"
+    + "#kbd-bar .kbd-bar__note{text-transform:none!important;letter-spacing:.01em!important}"
     + "#kbd-bar .kbd-bar__msg span+span:before{content:'•';opacity:.45;margin-right:18px}"
     + "#kbd-bar .kbd-bar__ph{position:absolute;right:20px;color:#fff!important;text-decoration:none!important;opacity:.9}"
     /* sale line: white text, the discount in an action-red #E10600 pill (white on #E10600 = 4.97:1, AA) */
@@ -193,10 +196,12 @@
     + "#kbd-bar a.kbd-bar__sale b{background:#E10600;color:#fff;font-weight:800;border-radius:999px;padding:2px 9px;margin-left:2px}"
     + "#kbd-bar a.kbd-bar__sale:hover{text-decoration:underline!important}"
     + "@media(max-width:1100px){#kbd-bar .kbd-bar__ph{display:none}}"
-    + "@media(max-width:767.98px){#kbd-bar{font-size:11.5px}#kbd-bar .kbd-bar__in{height:30px;padding:0 12px}"
-    + "#kbd-bar .kbd-bar__msg{position:relative;width:100%;height:30px;display:block}"
-    + "#kbd-bar .kbd-bar__msg span{position:absolute;left:0;right:0;top:0;line-height:30px;text-align:center;opacity:0;transition:none}"
-    + "#kbd-bar .kbd-bar__msg span.on{opacity:1;transition:opacity .45s}#kbd-bar .kbd-bar__msg span+span:before{display:none}}"
+    /* 2026-11-09: one message at a time (class kbd-rot, set by buildBar when the messages do not fit in one line), switching every 4 s */
+    + "#kbd-bar.kbd-rot .kbd-bar__msg{position:relative;width:100%;height:34px;display:block}"
+    + "#kbd-bar.kbd-rot .kbd-bar__msg span{position:absolute;left:0;right:0;top:0;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;opacity:0;visibility:hidden;transition:none}"
+    + "#kbd-bar.kbd-rot .kbd-bar__msg span.on{opacity:1;visibility:visible;transition:opacity .45s}#kbd-bar.kbd-rot .kbd-bar__msg span+span:before{display:none}"
+    + "@media(max-width:767.98px){#kbd-bar{font-size:11.5px}#kbd-bar .kbd-bar__in{height:30px;padding:0 12px}#kbd-bar.kbd-rot .kbd-bar__msg{height:30px}"
+    + "#kbd-bar.kbd-rot .kbd-bar__note{white-space:normal;font-size:10.5px;line-height:12px;letter-spacing:0!important}}"
     /* menü: 1200 px felett ne törjön két sorba */
     + "@media(min-width:1200px){#navbar--main{flex-wrap:nowrap!important}#navbar--main>.nav-item--menu>.nav-link{padding-left:10px!important;padding-right:10px!important}}"
 
@@ -499,18 +504,30 @@
     b.setAttribute("role", "region");
     b.setAttribute("aria-label", T.uspLabel);
     var msg = "";
-    for (var i = 0; i < T.bar.length; i++) msg += "<span" + (i ? "" : ' class="on"') + ">" + T.bar[i] + "</span>";
+    for (var i = 0; i < T.bar.length; i++) msg += '<span class="' + ((i ? "" : "on ") + (/^<a /.test(T.bar[i]) ? "" : "kbd-bar__note")).trim() + '">' + T.bar[i] + "</span>";
     b.innerHTML = '<div class="kbd-bar__in"><div class="kbd-bar__msg">' + msg + '</div><a class="kbd-bar__ph" href="tel:' + T.phone.replace(/\s/g, "") + '">' + T.phone + "</a></div>";
     hd.parentNode.insertBefore(b, hd);
-    /* mobilon egyszerre egy üzenet, 4 mp-enként váltva */
-    var k = 0, sp = b.querySelectorAll(".kbd-bar__msg span");
-    if (sp.length < 2 || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
-    setInterval(function () {
-      if (!MQ.matches) return;
-      sp[k].className = "";
+    /* 2026-11-09: all messages in one line if they fit (clear of the phone when it shows), else one at a time, switching every 4 s */
+    var k = 0, iv = 0, sp = b.querySelectorAll(".kbd-bar__msg > span");
+    if (sp.length < 2) return;
+    function tick() {
+      if (b.className !== "kbd-rot") return;
+      sp[k].className = sp[k].className.replace(/\bon\b/, "").trim();
       k = (k + 1) % sp.length;
-      sp[k].className = "on";
-    }, 4000);
+      sp[k].className = (sp[k].className + " on").trim();
+    }
+    function fit() {
+      var inn = b.firstChild, m = inn.firstChild, ph = inn.lastChild;
+      b.className = "";
+      var w = m.scrollWidth, room = inn.clientWidth - 40, pw = ph.offsetWidth;
+      if (pw) room = inn.clientWidth - 2 * (pw + 38);
+      if (!(w > 0) || w > room) { b.className = "kbd-rot"; if (!iv) iv = setInterval(tick, 4000); }
+      else if (iv) { clearInterval(iv); iv = 0; }
+    }
+    fit();
+    var rt = 0;
+    window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(fit, 150); });
+    window.addEventListener("load", fit);
   }
 
   /* ---------- 3) hero ---------- */
