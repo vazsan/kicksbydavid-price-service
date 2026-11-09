@@ -45,7 +45,7 @@
   var T = SK ? {
     /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Doprava zadarmo nad 120 €", "Platba aj na dobierku", "Výmena a vrátenie zadarmo do 30 dní" */
     /* 2026-11-09 (David TG 4110, main msg 3929): second message = Nov/Dec orders returnable or exchangeable until 15 January */
-    bar: ['<a class="kbd-bar__sale" href="/akcie">Jesenný výpredaj: <b>až -50 % zľava</b></a>', 'Objednávky z novembra a decembra môžeš <b class="kbd-bar__hl">do 15.&nbsp;januára</b> vrátiť alebo vymeniť za inú veľkosť.'],
+    bar: ['<a class="kbd-bar__sale" href="/akcie">Jesenný výpredaj: <b>až -50 % zľava</b></a>', 'Lebo je Black Friday: páry <b class="kbd-bar__hl">až -50&nbsp;%</b>, do vypredania zásob', 'Objednávky z novembra a decembra môžeš <b class="kbd-bar__hl">do 15.&nbsp;januára</b> vrátiť alebo vymeniť za inú veľkosť.'],
     phone: "+421 910 252 548",
     ey: "Originálne tenisky z európskych skladov",
     h1: "Originálne tenisky za výhodnejšie ceny",
@@ -100,7 +100,7 @@
   } : {
     /* 2026-10-30 (David TG 3006, main msg 2834): the bar shows only the autumn sale line; old messages: "Ingyenes szállítás 46 250 Ft felett", "Utánvéttel is fizethetsz", "30 nap ingyenes csere" */
     /* 2026-11-09 (David TG 4110, main msg 3929): second message = Nov/Dec orders returnable or exchangeable until 15 January */
-    bar: ['<a class="kbd-bar__sale" href="/akcios-termekek">Őszi leárazás: <b>akár -50% kedvezmény</b></a>', 'A novemberi és decemberi rendelések <b class="kbd-bar__hl">január&nbsp;15-ig</b> visszaküldhetők vagy másik méretre cserélhetők.'],
+    bar: ['<a class="kbd-bar__sale" href="/akcios-termekek">Őszi leárazás: <b>akár -50% kedvezmény</b></a>', 'Mert Black Friday van: párok <b class="kbd-bar__hl">-50%-ig</b>, a készlet erejéig', 'A novemberi és decemberi rendelések <b class="kbd-bar__hl">január&nbsp;15-ig</b> visszaküldhetők vagy másik méretre cserélhetők.'],
     phone: "+36 20 556 4258",
     ey: "Eredeti sneakerek európai raktárakból",
     h1: "Eredeti sneakerek, kedvezőbb áron",
