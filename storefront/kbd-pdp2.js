@@ -1202,7 +1202,7 @@
   var SK = /\.sk$/i.test(location.hostname) || (h.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0;
   var CMLBL = SK ? "Dĺžka chodidla (cm)" : "Lábhossz (cm)";   /* the column names tag 119331 already uses */
   var FOOT = SK ? /^dĺžka chodidla$/i : /^talphossz$/i;
-  var COL = { EU: "EU", UK: "UK", US: "US", US_M: "US M", US_W: "US W", CM: CMLBL };
+  var COL = { EU: "EU", UK: "UK", US: "US", US_M: "US M", US_W: "US W", CM: CMLBL, SIZE: SK ? "Veľkosť" : "Méret", HEADCM: "cm", HEADIN: SK ? "Palce" : "Inch" };
   var AUD = { "férfi": "men", "női": "women", "gyerek": "kids", "unisex": "unisex", "pánske": "men", "dámske": "women", "detské": "kids", "muži": "men", "ženy": "women", "deti": "kids" };
   function txt(e) { return e ? (e.textContent || "").replace(/\s+/g, " ").trim() : ""; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -1222,14 +1222,24 @@
   }
   var chart = null;
   function pick(data) {
-    var type = param(["terméktípus", "typ produktu"]).toLowerCase();
-    if (/ruh|oble|kieg|dopln/.test(type)) return null;
+    var type = param(["terméktípus", "typ produktu"]).toLowerCase(), shoe = !/ruh|oble|kieg|dopln/.test(type);
     var brand = param(["márka", "značka"]), aud = AUD[param(["kinek", "pre koho"]).toLowerCase()];
-    var id = brand && aud && data.map[brand + "|" + aud];
+    var id = shoe && brand && aud && data.map[brand + "|" + aud];
+    /* no chart of the brand (main msg 4217): shoes -> the Nike chart of the audience, fitted caps -> Nike hat chart, socks -> Nike sock chart,
+       marked with their source; only on products with a real size choice (not ONE SIZE). These only fill a missing button, they never replace one. */
+    if (!(id && data.charts[id])) {
+      id = null;
+      var nm = ((d.querySelector(".artdet__name") || d.querySelector("h1") || {}).textContent || "").toLowerCase();
+      var sized = Array.prototype.some.call(d.querySelectorAll("#artdet__type .product-type__option-name"), function (e) { return !/one\s*size|uni\b/i.test(txt(e)); });
+      if (!sized || /deszk|skateboard|\bdeck\b|doska/.test(nm)) return null;   /* a deck size (8.25) is a width, no chart */
+      if (/sapk|čiapk|šiltovk|\bcap\b|\bhat\b|beanie/.test(nm)) id = "nike_hats";
+      else if (/zokni|ponož|sock/.test(nm)) id = "nike_socks";
+      else if (shoe) id = "generic_" + (aud || "men");
+    }
     var c = id && data.charts[id];
     if (!c) return null;
     c.id = id;
-    var ic = c.cols.indexOf("CM");
+    var ic = c.generic ? -1 : c.cols.indexOf("CM");
     if (ic >= 0) {
       var map = {};
       c.rows.forEach(function (r) { var e = num(r[0]), v = parseFloat(String(r[ic]).replace(",", ".")); if (e != null && !isNaN(v)) map[e] = v; });
@@ -1245,11 +1255,12 @@
   function cur() { var a = d.querySelector("#artdet__type .product-type__value.is-active .product-type__value-link"); return a ? num(a.getAttribute("aria-label") || txt(a)) : null; }
   function dateTxt(s) { var p = s.split("-"); return SK ? (+p[2]) + ". " + (+p[1]) + ". " + p[0] : p[0] + ". " + p[1] + ". " + p[2] + "."; }
   function tableHtml() {
-    var c = chart, me = h.classList.contains("kbd-nosize") ? null : cur();
+    var c = chart, ns = h.classList.contains("kbd-nosize"), me = ns ? null : cur(), meTxt = "";
+    if (!ns && me == null) { var a = d.querySelector("#artdet__type .product-type__value.is-active .product-type__value-link"); meTxt = a ? (a.getAttribute("aria-label") || txt(a)).replace(/^EU\s+/i, "").trim().toUpperCase() : ""; }
     var head = "<tr>" + c.cols.map(function (k) { return '<th scope="col">' + esc(COL[k] || k) + "</th>"; }).join("") + "</tr>";
     var body = c.rows.map(function (r) {
-      var on = me != null && num(r[0]) === me;
-      return "<tr" + (on ? ' class="kbd-sc__me"' : "") + ">" + r.map(function (v, i) { return (i ? "<td>" : '<th scope="row">') + esc(v === "" ? "–" : String(v).replace(/^(\d+)\.(\d+)$/, "$1,$2")) + (i ? "</td>" : "</th>"); }).join("") + "</tr>";
+      var on = me != null ? num(r[0]) === me : !!meTxt && String(r[0]).toUpperCase() === meTxt;   /* letter sizes (socks M) by text */
+      return "<tr" + (on ? ' class="kbd-sc__me" data-me="1"' : "") + ">" + r.map(function (v, i) { return (i ? "<td>" : '<th scope="row">') + esc(v === "" ? "–" : String(v).replace(/^(\d+)\.(\d+)$/, "$1,$2")) + (i ? "</td>" : "</th>"); }).join("") + "</tr>";
     }).join("");
     var src = '<p class="kbd-sc-src">' + esc((w.KBDSC && w.KBDSC.T.src) || (SK ? "Zdroj" : "Forrás")) + ': <a href="' + esc(c.src) + '" target="_blank" rel="noopener nofollow">' + esc(c.short) + "</a>, " + esc(dateTxt(c.date)) + "</p>";
     return '<div class="kbd-sc-off"><table><thead>' + head + "</thead><tbody>" + body + "</tbody></table>" + src + "</div>";
@@ -1262,7 +1273,7 @@
     if (K.__kbdOff) return true;
     var orig = K.open;
     K.open = function (title, sub, body) {
-      if (chart && title === K.T.btn) {
+      if (chart && !chart.generic && title === K.T.btn) {
         orig.call(K, title, sub, tableHtml());
         if (h.classList.contains("kbd-nosize")) clearMe();
         /* the chosen size row in view (the table runs from the smallest to the largest size) */
@@ -1272,6 +1283,10 @@
       }
       orig.apply(K, arguments);
       if (h.classList.contains("kbd-nosize")) clearMe();
+      else Array.prototype.forEach.call(d.querySelectorAll("#kbd-sc tr[data-me]"), function (tr) {   /* own mark kept (the window's matcher only reads EU) */
+        tr.classList.add("kbd-sc__me"); var c0 = tr.firstElementChild;
+        if (c0 && !c0.querySelector(".kbd-sc__me-tag")) c0.insertAdjacentHTML("beforeend", '<span class="kbd-sc__me-tag">' + esc(K.T.yours) + "</span>");
+      });
     };
     K.__kbdOff = true;
     return true;
@@ -1301,7 +1316,7 @@
   function addButton() {
     var K = w.KBDSC;
     if (!chart || !K || !K.button || d.querySelector(".kbd-sc-open")) return;
-    K.placeButton(K.button(function () { K.open(K.T.btn, K.productName(), "<div></div>"); }));
+    K.placeButton(K.button(function () { K.open(K.T.btn, K.productName(), chart.generic ? tableHtml() : "<div></div>"); }));
   }
   w.addEventListener("load", function () { hook(); if (chart) { footRows(); setTimeout(addButton, 400); } });
   setTimeout(function () { if (chart) { footRows(); addButton(); } }, 2500);
