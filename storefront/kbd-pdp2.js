@@ -1249,7 +1249,7 @@
   }
   function domReady() { return new Promise(function (res) { if (d.readyState !== "loading") res(); else d.addEventListener("DOMContentLoaded", res); }); }
   w.__kbdScReady = Promise.all([fetch(SRC.replace(/kbd-pdp2\.js.*$/, "sizecharts.json")).then(function (r) { if (!r.ok) throw 0; return r.json(); }), domReady()])
-    .then(function (a) { chart = pick(a[0]); if (chart) { h.classList.add("kbd-sc-official"); footRows(); } return chart; })
+    .then(function (a) { chart = pick(a[0]); if (chart) { h.classList.add("kbd-sc-official"); footRows(); hook(); addButton(); } return chart; })
     .catch(function () { return null; });
 
   function cur() { var a = d.querySelector("#artdet__type .product-type__value.is-active .product-type__value-link"); return a ? num(a.getAttribute("aria-label") || txt(a)) : null; }
@@ -1316,7 +1316,13 @@
   function addButton() {
     var K = w.KBDSC;
     if (!chart || !K || !K.button || d.querySelector(".kbd-sc-open")) return;
-    K.placeButton(K.button(function () { K.open(K.T.btn, K.productName(), chart.generic ? tableHtml() : "<div></div>"); }));
+    var b = K.button(function () { K.open(K.T.btn, K.productName(), chart.generic ? tableHtml() : "<div></div>"); });
+    /* next to the sizes, like the other pages (kbd-pdp.js placeSizeChartBtn: ruler icon + label in the size head); #kbd-size-help is hidden in the r2 layout */
+    var right = d.querySelector("#kbd-size-head .kbd-size-right");
+    if (right) {
+      b.innerHTML = '<svg class="kbd-ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17L17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/></svg><span>' + esc(K.T.btn) + "</span>";
+      b.setAttribute("data-kbd", "1"); right.appendChild(b);
+    } else K.placeButton(b);
   }
   w.addEventListener("load", function () { hook(); if (chart) { footRows(); setTimeout(addButton, 400); } });
   setTimeout(function () { if (chart) { footRows(); addButton(); } }, 2500);
