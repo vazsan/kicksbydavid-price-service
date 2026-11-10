@@ -1036,3 +1036,146 @@
     }
   }
 })();
+
+/* ============================================================================
+   No preselected size (David TG 4345, main msg 4200, Nora 2026-11-10 #1).
+   The Unas base product of a size group is itself one size (e.g. Shox TL AR3566-002 = EU 44.5), so the
+   base URL (the one listings, ads and the feed point to) opened with that size active and the cart
+   buttons put it in the cart. On the base URL, until the visitor taps a size: the size label and the
+   cart buttons read "Válassz méretet" / "Vyber veľkosť", the active tile looks unselected, and a press
+   on a cart button scrolls to the sizes instead of adding to the cart. A size URL (not the base) keeps
+   its size: that size was chosen. Pages with one size or without a cart button are unchanged.
+   Off switch: ?kbdnosize=0 (localStorage, this browser only), ?kbdnosize=1 turns it back on.
+   ============================================================================ */
+(function () {
+  "use strict";
+  var d = document, h = d.documentElement, w = window;
+  if (!h.classList.contains("kbd-pdp") || w.__kbdNoSize) return;
+  w.__kbdNoSize = true;
+  try {
+    var q0 = location.search;
+    if (/[?&]kbdnosize=0/.test(q0)) w.localStorage.setItem("kbdnosize", "0");
+    if (/[?&]kbdnosize=1/.test(q0)) w.localStorage.removeItem("kbdnosize");
+    if (w.localStorage.getItem("kbdnosize") === "0") return;
+  } catch (e) {}
+  var SK = /\.sk$/i.test(location.hostname) || (h.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0;
+  var LABEL = SK ? "Vyber veľkosť" : "Válassz méretet";   /* approved strings (David TG 4345) */
+  var KEY = "kbdSizePick", picked = false;
+  var BTNS = "#artdet__cart .artdet__cart-btn, #artdet__fixed-cart .fixed-cart__btn, #artdet__cart .artdet__quick-order-btn, .artdet__quick-order-btn";
+  function path(u) { try { return decodeURIComponent(new URL(u, location.href).pathname).toLowerCase(); } catch (e) { return ""; } }
+  function pickedHere() {
+    if (picked) return true;
+    try { return w.sessionStorage.getItem(KEY) === path(location.href); } catch (e) { return false; }
+  }
+  function remember(href) { try { w.sessionStorage.setItem(KEY, path(href || location.href)); } catch (e) {} }
+  function tiles() { return Array.prototype.slice.call(d.querySelectorAll("#artdet__type .product-type__value--text")); }
+  function shouldAsk() {
+    var t = tiles();
+    if (t.length < 2) return false;
+    var act = d.querySelector("#artdet__type .product-type__value--text.is-active");
+    if (!act || !act.classList.contains("is-base")) return false;
+    if (!d.querySelector("#artdet__cart .artdet__cart-btn")) return false;
+    return !pickedHere();
+  }
+
+  var css = d.createElement("style");
+  css.id = "kbd-nosize-css";
+  /* the r2 layer (r2.css) uses html body:not(#d1):not(#d2):not(#d3) (3 ids): one more id here so these rules win */
+  var N = "html.kbd-pdp.kbd-nosize body:not(#d1):not(#d2):not(#d3):not(#d4) ", L = JSON.stringify(LABEL);
+  css.textContent = [
+    /* the active (base) tile looks like any other tile until it is tapped (r2: 1.5px var(--line), white) */
+    N + "#artdet__type .product-type__value.is-active:not(.kbd-oos){border:1.5px solid var(--line,#D8D2C8)!important;background:#fff!important;box-shadow:none!important}",
+    N + "#artdet__type .product-type__value.is-active:not(.kbd-oos) .product-type__value-link{color:var(--ink,#171717)!important}",
+    /* size label: "Vyber veľkosť" instead of "Veľkosť (EU): 44,5" (r2: 16px / 800) */
+    N + "#kbd-size-head .kbd-size-label{font-size:0!important;letter-spacing:0!important}",
+    N + "#kbd-size-head .kbd-size-label>*{display:none!important}",
+    N + "#kbd-size-head .kbd-size-label::before{content:" + L + ";font-size:16px;font-weight:800;letter-spacing:-.2px}",
+    /* cart buttons (main + sticky bar): the label only, no size and no price (r2: 17px / 15px) */
+    N + "#artdet__cart .artdet__cart-btn," + N + "#artdet__fixed-cart .fixed-cart__btn{font-size:0!important;letter-spacing:0!important}",
+    N + "#artdet__cart .artdet__cart-btn>*," + N + "#artdet__fixed-cart .fixed-cart__btn>*{display:none!important}",
+    N + "#artdet__cart .artdet__cart-btn::after{content:" + L + ";font-size:17px;line-height:1;letter-spacing:-.1px}",
+    N + "#artdet__fixed-cart .fixed-cart__btn::after{content:" + L + ";font-size:15px;line-height:1}",
+    /* the current-size highlight in the size tables waits for the pick too */
+    N + ".kbd2-size-r .kbd2-cur{background:transparent!important;color:inherit!important;font-weight:inherit!important}",
+    N + ".r2-sz .cur{background:#fff!important;border-color:var(--line,#D8D2C8)!important}",
+    N + ".r2-sz .cur b{color:var(--ink,#171717)!important}" + N + ".r2-sz .cur small{color:var(--soft,#6B6963)!important}",
+    /* after a press without a size: the free tiles and the label turn brown for 2.4 s */
+    "html.kbd-pdp.kbd-nosize body:not(#d1):not(#d2):not(#d3):not(#d4) .kbd-nosize-hit #artdet__type .product-type__value:not(.kbd-oos){border-color:var(--kbd-brown,#A3481F)!important}",
+    "html.kbd-pdp body:not(#d1):not(#d2):not(#d3):not(#d4) .kbd-nosize-hit #kbd-size-head .kbd-size-label::before{color:var(--kbd-brown,#A3481F)}",
+    ".kbd-nosize-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}"
+  ].join("\n");
+  (d.head || h).appendChild(css);
+
+  var saved = [];
+  function setAria(on) {
+    Array.prototype.forEach.call(d.querySelectorAll(BTNS), function (b) {
+      if (on) {
+        if (!b.hasAttribute("data-kbd-ns")) { b.setAttribute("data-kbd-ns", b.getAttribute("aria-label") || ""); }
+        b.setAttribute("aria-label", LABEL);
+      } else if (b.hasAttribute("data-kbd-ns")) {
+        var o = b.getAttribute("data-kbd-ns"); b.removeAttribute("data-kbd-ns");
+        if (o) b.setAttribute("aria-label", o); else b.removeAttribute("aria-label");
+      }
+    });
+  }
+  var asking = false;
+  function sync() {
+    var on = shouldAsk();
+    if (on !== asking || on) {
+      asking = on;
+      h.classList.toggle("kbd-nosize", on);
+      setAria(on);
+    }
+  }
+  function live(msg) {
+    var r = d.getElementById("kbd-nosize-live");
+    if (!r) { r = d.createElement("div"); r.id = "kbd-nosize-live"; r.className = "kbd-nosize-sr"; r.setAttribute("aria-live", "assertive"); d.body.appendChild(r); }
+    r.textContent = ""; setTimeout(function () { r.textContent = msg; }, 30);
+  }
+  var hitT = 0;
+  function askForSize() {
+    var box = d.querySelector(".r2-step") || d.getElementById("kbd-size-head") || d.getElementById("artdet__type");
+    var grid = d.getElementById("artdet__type");
+    var calm = w.matchMedia && w.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var tgt = d.getElementById("kbd-size-head") || grid;
+    if (tgt && tgt.scrollIntoView) { try { tgt.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "center" }); } catch (e) { tgt.scrollIntoView(); } }
+    if (box) { box.classList.add("kbd-nosize-hit"); clearTimeout(hitT); hitT = setTimeout(function () { box.classList.remove("kbd-nosize-hit"); }, 2400); }
+    if (kbdPress) { var first = grid && grid.querySelector(".product-type__value--text:not(.kbd-oos) .product-type__value-link"); if (first) { try { first.focus({ preventScroll: true }); } catch (e) {} } }
+    live(LABEL);
+    try { (w.dataLayer = w.dataLayer || []).push({ event: "kbd_size_prompt", kbd_lang: SK ? "sk" : "hu" }); } catch (e) {}
+  }
+  var kbdPress = false;   /* focus moves to the first free size only when the button was pressed from the keyboard */
+  /* capture phase on window: runs before the Unas inline onclick (checkVariants + cart_add) and before every page script */
+  function onPress(ev) {
+    var t = ev.target;
+    if (!t || !t.closest) return;
+    var tile = t.closest("#artdet__type .product-type__value--text");
+    if (tile) {
+      if (tile.classList.contains("kbd-oos")) return;   /* sold-out size: the notify sheet handles it */
+      var a = tile.querySelector(".product-type__value-link");
+      remember(a ? a.getAttribute("href") : "");
+      if (tile.classList.contains("is-active")) { picked = true; if (asking) { ev.preventDefault(); sync(); } }
+      return;
+    }
+    if (!asking) return;
+    if (t.closest(BTNS)) {
+      kbdPress = ev.detail === 0 && ev.isTrusted;
+      ev.preventDefault(); ev.stopImmediatePropagation(); ev.stopPropagation();
+      askForSize();
+    }
+  }
+  w.addEventListener("click", onPress, true);
+  /* keyboard on a tile link (Enter/Space) also counts as a pick */
+  w.addEventListener("keydown", function (ev) {
+    if (ev.key !== "Enter" && ev.key !== " ") return;
+    var t = ev.target, tile = t && t.closest && t.closest("#artdet__type .product-type__value--text.is-active");
+    if (tile && asking) { ev.preventDefault(); picked = true; remember(location.href); sync(); }
+  }, true);
+
+  sync();
+  if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", sync);
+  w.addEventListener("load", sync);
+  w.addEventListener("pageshow", sync);
+  if (w.jQuery) w.jQuery(d).on("ajaxComplete", function () { setTimeout(sync, 60); });
+  var n = 0, iv = setInterval(function () { sync(); if (++n > 30) clearInterval(iv); }, 250);
+})();
