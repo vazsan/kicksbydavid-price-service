@@ -191,7 +191,10 @@
     + "#kbd-bar .kbd-bar__in{max-width:1440px;margin:0 auto;padding:0 20px;height:34px;display:flex;align-items:center;gap:18px;box-sizing:border-box}"
     + "#kbd-bar .kbd-bar__vp{flex:1 1 auto;min-width:0;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent);mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 20px),transparent)}"
     + "#kbd-bar .kbd-bar__trk{display:flex;width:max-content;white-space:nowrap;will-change:transform;animation:kbd-mq 40s linear infinite}"
-    + "#kbd-bar .kbd-bar__vp:hover .kbd-bar__trk,#kbd-bar .kbd-bar__vp:focus-within .kbd-bar__trk{animation-play-state:paused}"
+    /* 2026-11-10 (David TG 4345, main msg 4200 #5, WCAG 2.2.2): pause on tap (tap again = run), on keyboard focus and, with a mouse, on hover */
+    + "#kbd-bar .kbd-bar__vp.is-paused .kbd-bar__trk,#kbd-bar .kbd-bar__vp:focus-within .kbd-bar__trk{animation-play-state:paused}"
+    + "@media(hover:hover){#kbd-bar .kbd-bar__vp:hover .kbd-bar__trk{animation-play-state:paused}}"
+    + "#kbd-bar .kbd-bar__vp:focus{outline:none}#kbd-bar .kbd-bar__vp:focus-visible{outline:2px solid #fff;outline-offset:-2px}"
     + "#kbd-bar .kbd-bar__grp,#kbd-bar .kbd-bar__set{display:flex;align-items:center;flex:none}"
     + "#kbd-bar .kbd-bar__it{text-transform:none!important;letter-spacing:.01em!important;white-space:nowrap}"
     + "#kbd-bar .kbd-bar__sep{opacity:.45;padding:0 22px}"
@@ -522,6 +525,10 @@
     /* 2026-11-09 v3 (main msg 3951): one continuous ticker. Group A = the text n times (enough to fill the bar), group B = the same again;
        the track moves by one group (-50%), so it never ends. Copies after the first are hidden from screen readers and the keyboard. */
     var vp = b.firstChild.firstChild, trk = vp.firstChild, RM = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null, lastW = -1, lastN = 0;
+    /* tap / click / Enter / Space pauses the ticker, again = runs (a link in the text still opens); keyboard focus pauses it too */
+    vp.setAttribute("tabindex", "0"); vp.setAttribute("role", "marquee");
+    vp.addEventListener("click", function (e) { if (e.target.closest && e.target.closest("a")) return; var on = vp.classList.toggle("is-paused"); if (!on && document.activeElement === vp) vp.blur(); });
+    vp.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); vp.classList.toggle("is-paused"); } });
     function set(hid) {
       var h = "";
       for (var i = 0; i < T.bar.length; i++) h += '<span class="kbd-bar__it">' + (hid ? T.bar[i].replace("<a ", '<a tabindex="-1" ') : T.bar[i]) + '</span><span class="kbd-bar__sep" aria-hidden="true">•</span>';
