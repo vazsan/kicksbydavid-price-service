@@ -1179,3 +1179,131 @@
   if (w.jQuery) w.jQuery(d).on("ajaxComplete", function () { setTimeout(sync, 60); });
   var n = 0, iv = setInterval(function () { sync(); if (++n > 30) clearInterval(iv); }, 250);
 })();
+
+/* ============================================================================
+   Official brand size charts (David TG 4345, main msg 4200 #3). The "Mérettáblázat" / "Tabuľka veľkostí" window of shoes shows the brand's own
+   chart for the product's audience (Márka + Kinek: Nike/Jordan men, women, kids, unisex; adidas; New Balance; ASICS; Puma; Saucony; Converse;
+   Timberland women), with the source page and the date it was read. Data: sizecharts.json next to this file (same pinned commit), built by
+   agents/samu/scripts/sizechart_build.py from the brands' pages. No chart for the product = the old table stays. The size helper below the
+   description (kbd-pdp2-body.js) and the foot-length rows take the cm from the same chart (window.__kbdScCm). Off: ?kbdsc=0 (this browser).
+   ============================================================================ */
+(function () {
+  "use strict";
+  var d = document, h = d.documentElement, w = window;
+  if (!h.classList.contains("kbd-pdp") || w.__kbdOffSC) return;
+  w.__kbdOffSC = true;
+  try {
+    if (/[?&]kbdsc=0/.test(location.search)) w.localStorage.setItem("kbdsc", "0");
+    if (/[?&]kbdsc=1/.test(location.search)) w.localStorage.removeItem("kbdsc");
+    if (w.localStorage.getItem("kbdsc") === "0") return;
+  } catch (e) {}
+  var SRC = (d.currentScript && d.currentScript.src) || "";
+  if (!/kbd-pdp2\.js/.test(SRC) || !w.fetch) return;
+  var SK = /\.sk$/i.test(location.hostname) || (h.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0;
+  var CMLBL = SK ? "Dĺžka chodidla (cm)" : "Lábhossz (cm)";   /* the column names tag 119331 already uses */
+  var FOOT = SK ? /^dĺžka chodidla$/i : /^talphossz$/i;
+  var COL = { EU: "EU", UK: "UK", US: "US", US_M: "US M", US_W: "US W", CM: CMLBL };
+  var AUD = { "férfi": "men", "női": "women", "gyerek": "kids", "unisex": "unisex", "pánske": "men", "dámske": "women", "detské": "kids", "muži": "men", "ženy": "women", "deti": "kids" };
+  function txt(e) { return e ? (e.textContent || "").replace(/\s+/g, " ").trim() : ""; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function num(s) {
+    s = String(s || "").replace(/^EU\s+/i, "").replace(/½/g, ".5").replace(",", ".").trim();
+    var m = s.match(/^(\d+)(?:\s+(\d)\/(\d))?(?:\.(\d+))?$/);
+    if (!m) return null;
+    return Math.round((parseInt(m[1], 10) + (m[2] ? m[2] / m[3] : 0) + (m[4] ? parseFloat("0." + m[4]) : 0)) * 100) / 100;
+  }
+  function param(names) {
+    var out = "";
+    Array.prototype.forEach.call(d.querySelectorAll("#pane-data .data__item"), function (it) {
+      var t = txt(it), i = t.indexOf(":");
+      if (i > 0 && names.indexOf(t.slice(0, i).trim().toLowerCase()) >= 0) out = t.slice(i + 1).trim();
+    });
+    return out;
+  }
+  var chart = null;
+  function pick(data) {
+    var type = param(["terméktípus", "typ produktu"]).toLowerCase();
+    if (/ruh|oble|kieg|dopln/.test(type)) return null;
+    var brand = param(["márka", "značka"]), aud = AUD[param(["kinek", "pre koho"]).toLowerCase()];
+    var id = brand && aud && data.map[brand + "|" + aud];
+    var c = id && data.charts[id];
+    if (!c) return null;
+    c.id = id;
+    var ic = c.cols.indexOf("CM");
+    if (ic >= 0) {
+      var map = {};
+      c.rows.forEach(function (r) { var e = num(r[0]), v = parseFloat(String(r[ic]).replace(",", ".")); if (e != null && !isNaN(v)) map[e] = v; });
+      w.__kbdScCm = map; w.__kbdScCmLbl = CMLBL;   /* the official cm is the foot length: the size helper row is named after it */
+    }
+    return c;
+  }
+  function domReady() { return new Promise(function (res) { if (d.readyState !== "loading") res(); else d.addEventListener("DOMContentLoaded", res); }); }
+  w.__kbdScReady = Promise.all([fetch(SRC.replace(/kbd-pdp2\.js.*$/, "sizecharts.json")).then(function (r) { if (!r.ok) throw 0; return r.json(); }), domReady()])
+    .then(function (a) { chart = pick(a[0]); if (chart) { h.classList.add("kbd-sc-official"); footRows(); } return chart; })
+    .catch(function () { return null; });
+
+  function cur() { var a = d.querySelector("#artdet__type .product-type__value.is-active .product-type__value-link"); return a ? num(a.getAttribute("aria-label") || txt(a)) : null; }
+  function dateTxt(s) { var p = s.split("-"); return SK ? (+p[2]) + ". " + (+p[1]) + ". " + p[0] : p[0] + ". " + p[1] + ". " + p[2] + "."; }
+  function tableHtml() {
+    var c = chart, me = h.classList.contains("kbd-nosize") ? null : cur();
+    var head = "<tr>" + c.cols.map(function (k) { return '<th scope="col">' + esc(COL[k] || k) + "</th>"; }).join("") + "</tr>";
+    var body = c.rows.map(function (r) {
+      var on = me != null && num(r[0]) === me;
+      return "<tr" + (on ? ' class="kbd-sc__me"' : "") + ">" + r.map(function (v, i) { return (i ? "<td>" : '<th scope="row">') + esc(v === "" ? "–" : String(v).replace(/^(\d+)\.(\d+)$/, "$1,$2")) + (i ? "</td>" : "</th>"); }).join("") + "</tr>";
+    }).join("");
+    var src = '<p class="kbd-sc-src">' + esc((w.KBDSC && w.KBDSC.T.src) || (SK ? "Zdroj" : "Forrás")) + ': <a href="' + esc(c.src) + '" target="_blank" rel="noopener nofollow">' + esc(c.short) + "</a>, " + esc(dateTxt(c.date)) + "</p>";
+    return '<div class="kbd-sc-off"><table><thead>' + head + "</thead><tbody>" + body + "</tbody></table>" + src + "</div>";
+  }
+  /* the rows of the selected size get the "kiválasztva / vybraná" tag from the window itself; without a pick (base URL) no row is marked */
+  function clearMe() { Array.prototype.forEach.call(d.querySelectorAll("#kbd-sc .kbd-sc__me"), function (tr) { tr.classList.remove("kbd-sc__me"); var t = tr.querySelector(".kbd-sc__me-tag"); if (t) t.parentNode.removeChild(t); }); }
+  function hook() {
+    var K = w.KBDSC;
+    if (!K || !K.open) return false;
+    if (K.__kbdOff) return true;
+    var orig = K.open;
+    K.open = function (title, sub, body) {
+      if (chart && title === K.T.btn) {
+        orig.call(K, title, sub, tableHtml());
+        if (h.classList.contains("kbd-nosize")) clearMe();
+        /* the chosen size row in view (the table runs from the smallest to the largest size) */
+        var me = d.querySelector("#kbd-sc .kbd-sc__me"), bx = d.querySelector("#kbd-sc .kbd-sc__body");
+        if (me && bx) setTimeout(function () { bx.scrollTop = Math.max(0, me.offsetTop - bx.clientHeight / 2); }, 80);
+        return;
+      }
+      orig.apply(K, arguments);
+      if (h.classList.contains("kbd-nosize")) clearMe();
+    };
+    K.__kbdOff = true;
+    return true;
+  }
+  /* foot-length rows (Unas parameter Talphossz / Dĺžka chodidla and the same row in the description data table): the official cm of the
+     shown size; on the base URL before a pick the row is hidden (its value belongs to the base size only) */
+  function footRows() {
+    var map = w.__kbdScCm, me = cur();
+    if (!map) return;
+    var v = me != null && map[me] != null ? String(map[me]).replace(".", ",") + " cm" : null;
+    var rows = Array.prototype.slice.call(d.querySelectorAll("#pane-data .data__item")).map(function (r) { return [r, r.querySelector(".param-name"), r.querySelector(".artdet__param-value")]; })
+      .concat(Array.prototype.slice.call(d.querySelectorAll("tr")).map(function (r) { return [r, r.querySelector("th"), r.querySelector("td")]; }));
+    rows.forEach(function (x) {
+      var row = x[0], lab = x[1], val = x[2];
+      if (!lab || !val || !FOOT.test(txt(lab).replace(/:\s*$/, "")) || !/^\d+([.,]\d+)?\s*cm$/i.test(txt(val))) return;
+      if (!row.hasAttribute("data-kbd-cm0")) row.setAttribute("data-kbd-cm0", txt(val));
+      if (v) { val.textContent = v; row.classList.add("kbd-sc-foot"); }
+    });
+  }
+  var css = d.createElement("style");
+  css.id = "kbd-sc-off-css";
+  css.textContent = "#kbd-sc .kbd-sc-src{margin:12px 0 0;font-size:12px;color:#6B6963}#kbd-sc .kbd-sc-src a{color:inherit;text-decoration:underline}"
+    + "html.kbd-nosize .kbd-sc-foot{display:none!important}";
+  (d.head || h).appendChild(css);
+  var n = 0, iv = setInterval(function () { if (hook() || ++n > 80) clearInterval(iv); }, 250);
+  /* a product without the 1st tab table had no size-chart button at all: with an official chart it gets one (same button and window) */
+  function addButton() {
+    var K = w.KBDSC;
+    if (!chart || !K || !K.button || d.querySelector(".kbd-sc-open")) return;
+    K.placeButton(K.button(function () { K.open(K.T.btn, K.productName(), "<div></div>"); }));
+  }
+  w.addEventListener("load", function () { hook(); if (chart) { footRows(); setTimeout(addButton, 400); } });
+  setTimeout(function () { if (chart) { footRows(); addButton(); } }, 2500);
+  setTimeout(function () { if (chart) footRows(); }, 6000);
+})();

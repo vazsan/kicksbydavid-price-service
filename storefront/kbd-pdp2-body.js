@@ -75,7 +75,12 @@
     return e;
   }
   function wrap(inner) { return '<div class="kbd2-w">' + inner + "</div>"; }
-  function num(s) { return parseFloat(String(s).replace(/½/g, ".5").replace(",", ".").replace(/[^\d.]/g, "")); }
+  function num(s) {   /* "44,5" / "EU 44.5" / adidas "40 2/3" -> 44.5 / 40.67 (the old version read "40 2/3" as 4023) */
+    s = String(s).replace(/½/g, ".5").replace(",", ".");
+    var f = s.match(/(\d+)\s+(\d)\/(\d)/);
+    if (f) return Math.round((parseInt(f[1], 10) + f[2] / f[3]) * 100) / 100;
+    return parseFloat(s.replace(/[^\d.]/g, ""));
+  }
   function fmt(n) { return String(n).replace(".", ","); }
 
   /* ========================= CSS ========================= */
@@ -292,12 +297,19 @@
     fetch(location.origin + location.pathname, { credentials: "same-origin", cache: "force-cache" })
       .then(function (r) { if (!r.ok) throw 0; return r.text(); })
       .then(function (html) {
-        var map = chartMap(html);
+        /* the brand's official chart first (kbd-pdp2.js, window.__kbdScCm, main msg 4200 #3), the 1st tab table only without it */
+        var off = window.__kbdScReady;
+        return (off && off.then ? Promise.race([off, new Promise(function (r) { setTimeout(r, 1500); })]) : Promise.resolve()).then(function () { return html; });
+      })
+      .then(function (html) {
+        var om = window.__kbdScCm, map = null;
+        if (om && sizes.filter(function (s) { return om[s.n] != null; }).length >= 2) map = om;
+        else map = chartMap(html);
         if (!map) return;
         var have = sizes;
         if (sizes.filter(function (s) { return map[s.n] != null; }).length < 2) return;
         var head = "<tr><th scope=\"col\" style=\"text-align:left;padding-left:14px\">" + esc(TX.sizeEu) + "</th>" + have.map(function (s) { return '<th scope="col">' + esc(s.label) + "</th>"; }).join("") + "</tr>";
-        var row = '<tr><th scope="row">' + esc(TX.sizeCm) + "</th>" + have.map(function (s) { return "<td" + (s.cur ? ' class="kbd2-cur"' : "") + ">" + (map[s.n] != null ? esc(fmt(map[s.n])) : "–") + "</td>"; }).join("") + "</tr>";
+        var row = '<tr><th scope="row">' + esc(map === om && window.__kbdScCmLbl ? window.__kbdScCmLbl : TX.sizeCm) + "</th>" + have.map(function (s) { return "<td" + (s.cur ? ' class="kbd2-cur"' : "") + ">" + (map[s.n] != null ? esc(fmt(map[s.n])) : "–") + "</td>"; }).join("") + "</tr>";
         var ask = el("button", "", "kbd2-ask", esc(TX.sizeAsk));
         ask.type = "button";
         ask.addEventListener("click", function () { var q = $("#page_artdet_func_question"); if (q) q.click(); else location.href = "mailto:" + TXT.hu.mail; });
