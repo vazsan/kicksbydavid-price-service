@@ -1260,7 +1260,7 @@
     var head = "<tr>" + c.cols.map(function (k) { return '<th scope="col">' + esc(COL[k] || k) + "</th>"; }).join("") + "</tr>";
     var body = c.rows.map(function (r) {
       var on = me != null ? num(r[0]) === me : !!meTxt && String(r[0]).toUpperCase() === meTxt;   /* letter sizes (socks M) by text */
-      return "<tr" + (on ? ' class="kbd-sc__me" data-me="1"' : "") + ">" + r.map(function (v, i) { return (i ? "<td>" : '<th scope="row">') + esc(v === "" ? "–" : String(v).replace(/^(\d+)\.(\d+)$/, "$1,$2")) + (i ? "</td>" : "</th>"); }).join("") + "</tr>";
+      return "<tr" + (on ? ' class="kbd-sc__me" data-me="1"' : "") + ">" + r.map(function (v, i) { return (i ? "<td>" : '<th scope="row">') + esc(v === "" ? "–" : String(v).replace(/(\d)\.(\d)/g, "$1,$2")) + (i ? "</td>" : "</th>"); }).join("") + "</tr>";
     }).join("");
     var src = '<p class="kbd-sc-src">' + esc((w.KBDSC && w.KBDSC.T.src) || (SK ? "Zdroj" : "Forrás")) + ': <a href="' + esc(c.src) + '" target="_blank" rel="noopener nofollow">' + esc(c.short) + "</a>, " + esc(dateTxt(c.date)) + "</p>";
     return '<div class="kbd-sc-off"><table><thead>' + head + "</thead><tbody>" + body + "</tbody></table>" + src + "</div>";
