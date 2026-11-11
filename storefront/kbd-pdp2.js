@@ -1346,7 +1346,7 @@
   var SRC = (d.currentScript && d.currentScript.src) || "";
   if (!/kbd-pdp2\.js/.test(SRC) || !w.fetch) return;
   var SK = /\.sk$/i.test(location.hostname) || (h.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0;
-  var PILOT = ["IH7332-001-10", "IB6716-600-9-5", "HJ7284-072-7", "1168890-MBRS-10", "U7402Y9-5", "JR0892-7", "1171390-CHE-5", "1171530-CHE-5", "HQ4310-200-9-5", "IB6208-200-12"];
+  var PILOT = ["*"];   /* full rollout (David TG 4458, main msg 4270); pilot was 10 main SKUs, d5b5423 */
   var LIVE = { hu: true, sk: true };
   var prev = false;
   try {
