@@ -1328,3 +1328,95 @@
   setTimeout(function () { if (chart) { footRows(); addButton(); } }, 2500);
   setTimeout(function () { if (chart) footRows(); }, 6000);
 })();
+
+/* ============================================================================
+   PDP four points (David TG 4449, main msg 4259; data: store/pdp-pontok/gen_pontok.py -> pontok.json next to this file):
+   1) the fit sentence at the bottom of the size step (.r2-step), only where a brand-sourced one exists (AF1, Jordan 4, P-6000, Lowmel);
+   2) a "Kényelem" + "Ápolás" card before #kbd4-ship (flex order 10; without it before #kbd4-cards);
+   3) the authenticity tip under the visible .kbd2-sku (manufacturer code).
+   pontok.json: s = sentence id -> text, p = MAIN product SKU -> [[HU comfort, fit, authentic, care], [SK ...]], 0 = none. Size pages use the
+   main SKU (the is-base tile's data-sku). PILOT = main SKUs where it shows ("*" = every product). SK only after Zara's review (LIVE.sk);
+   until then ?kbdpp=1 shows it in this browser for preview (any product, both languages), ?kbdpp=0 removes it. No data = page unchanged.
+   ============================================================================ */
+(function () {
+  "use strict";
+  var d = document, h = d.documentElement, w = window;
+  if (!h.classList.contains("kbd-pdp") || w.__kbdPP) return;
+  w.__kbdPP = true;
+  var SRC = (d.currentScript && d.currentScript.src) || "";
+  if (!/kbd-pdp2\.js/.test(SRC) || !w.fetch) return;
+  var SK = /\.sk$/i.test(location.hostname) || (h.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0;
+  var PILOT = ["IH7332-001-10", "IB6716-600-9-5", "HJ7284-072-7", "1168890-MBRS-10", "U7402Y9-5", "JR0892-7", "1171390-CHE-5", "1171530-CHE-5", "HQ4310-200-9-5", "IB6208-200-12"];
+  var LIVE = { hu: true, sk: true };
+  var prev = false;
+  try {
+    if (/[?&]kbdpp=1/.test(location.search)) w.localStorage.setItem("kbdpp", "1");
+    if (/[?&]kbdpp=0/.test(location.search)) w.localStorage.removeItem("kbdpp");
+    prev = w.localStorage.getItem("kbdpp") === "1";
+  } catch (e) {}
+  if (!LIVE[SK ? "sk" : "hu"] && !prev) return;
+  var L = SK ? { k: "Pohodlie", a: "Starostlivosť" } : { k: "Kényelem", a: "Ápolás" };
+  /* fit sentences inline (435 main SKUs, from pontok.json): they sit above the cart button, so they must be there before the box shows */
+  var FIT = {"HQ4054-001":[23,24],"IF6199-001":[23,24],"HV2521-400":[23,24],"HV5064-702":[23,24],"IB4455-900":[23,24],"IB3485-001":[23,24],"HV5064-003":[23,24],"HV5064-600":[23,24],"II6063-001":[25,26],"1169493-SKP-12":[42,44],"1144032-BLK-9":[42,44],"1170750-BLK-10":[42,44],"1170750-BOMS-12":[42,44],"1144032-CHE-5":[42,44],"1170750-CHE-9":[42,44],"1170750-DWD-11":[42,44],"1144032-DYR-5":[42,44],"1168890-BLK-5":[42,44],"1169493-BLK-8":[42,44],"1168890-CHE-10":[42,44],"1168890-JSM-5":[42,44],"1169493-MDSD-8":[42,44],"1168890-MBRS-10":[42,44],"1181071-FDJ-5":[42,44],"1144032-RYK-5":[42,44],"1144032-SAN-9":[42,44],"1187485-CHE-5":[42,44],"IO9974-010-4":[51,52],"HQ0261-001-8":[51,52],"IH1698-003-10":[51,52],"IM6485-121-6":[51,52],"IB6842-002-7-5":[51,52],"IM5751-001-8":[51,52],"HQ2037-101-8":[51,52],"IF6205-400-14":[51,52],"II9807-002-7":[51,52],"IM5751-200-9-5":[51,52],"HQ1966-200-12-5":[51,52],"II9807-200-7":[51,52],"IO2077-030-8-5":[51,52],"IV6028-100-8-5":[51,52],"FV3654-111-6-5":[51,52],"IH1943-002-8":[51,52],"DV3808-110-6":[51,52],"DC9486-112-5-5":[51,52],"DV3808-108-7-5":[51,52],"IB8865-221-6":[51,52],"IQ0275-030-5-5":[51,52],"IO4842-100-9":[51,52],"IO4842-500-9":[51,52],"IV5102-100-9":[51,52],"IO4837-100-6":[51,52],"FJ4146-128-8":[51,52],"IQ7575-010-6":[51,52],"IV5823-100-4-5":[51,52],"IR0952-001-11":[51,52],"AV3042-001-8":[51,52],"IB7675-001-7-5":[51,52],"DM7926-200-9":[51,52],"CQ4018-001-8":[51,52],"CQ4018-002-9":[51,52],"IF6158-077-6":[51,52],"DD8959-001-5-5":[51,52],"CW2288-001-9":[51,52],"FZ0627-010-8":[51,52],"CT2302-002-10":[51,52],"IV5732-003-11-5":[51,52],"IV5732-002-7":[51,52],"IV5732-100-12":[51,52],"HQ3822-001-7":[51,52],"FZ4627-800-12":[51,52],"HJ5336-500":[51,52],"DJ9942-103-8-5":[51,52],"IR8637-001-6":[51,52],"IR8637-600-5":[51,52],"IR8637-100-9-5":[51,52],"HJ9122-100-6-5":[51,52],"DX5883-100":[51,52],"HV0843-085-6-5":[51,52],"DM0211-001-4-5":[51,52],"DM0211-100-12-5":[51,52],"HQ3827-002-7":[51,52],"FJ4801-300-6":[51,52],"FD9763-101-10-5":[51,52],"IM6002-084-9-5":[51,52],"IR1475-100-8":[51,52],"II9807-001-8":[51,52],"IW3476-001-10":[51,52],"HQ2037-006-7":[51,52],"HQ2037-006-13":[51,52],"IQ0292-010-11-5":[51,52],"HQ4987-010":[51,52],"HQ2037-005-7":[51,52],"FQ8714-200-7-5":[51,52],"HV6526-200-8":[51,52],"IB6843-001":[51,52],"IB6843-001-10-5":[51,52],"IB6388-003-12-5":[51,52],"HQ1966-001-10-5":[51,52],"IM5752-001-8":[51,52],"HJ4465-200-11-5":[51,52],"HQ1967-200-10-5":[51,52],"IM6002-030-8":[51,52],"IM6001-121-7":[51,52],"FZ5225-100-6":[51,52],"IQ0407-100-10":[51,52],"HV9509-100-12":[51,52],"IB6847-100-8-5":[51,52],"HQ2037-100-10-5":[51,52],"DZ2708-102-5":[51,52],"HV4406-400-12":[51,52],"HV4406-200-6":[51,52],"IQ0293-030-8":[51,52],"HM0721-002-7-5":[51,52],"DC9486-110-5":[51,52],"HQ3905-001-6":[51,52],"HV4406-100-7":[51,52],"IR5450-001-9-5":[51,52],"IR5450-100-8":[51,52],"IH4461-100-12":[51,52],"IM8056-220-6-5":[51,52],"HF4263-133-7-5":[51,52],"II7398-100-6":[51,52],"IF0498-101-6":[51,52],"HQ1497-099-11-5":[51,52],"IB6388-300-7-5":[51,52],"DD8959-002-5-5":[51,52],"IH7332-001-10":[51,52],"IB6834-300-14":[51,52],"CJ9179-001-12":[51,52],"DD8959-100-7":[51,52],"HM9483-101-7":[51,52],"IQ7593-100-8":[51,52],"CT2302-100-9":[51,52],"CW2288-111-7-5":[51,52],"IR0872-101-8-5":[51,52],"IU7557-100-8-5":[51,52],"IB7167-103-7":[51,52],"HF2016-100-8-5":[51,52],"FV0951-100-10":[51,52],"DV0788-001-11-5":[51,52],"FJ4146-133-8-5":[51,52],"AR0639-100":[51,52],"IM6001-475-12-5":[51,52],"IB7677-101-12-5":[51,52],"HV6356-200-8-5":[51,52],"IH7351-010-8-5":[51,52],"HF2886-001-6":[51,52],"IR0186-010-4":[51,52],"IH4480-100-7":[51,52],"HV1204-002":[51,52],"HF2898-100-11":[51,52],"IB7695-200-6-5":[51,52],"IR5596-900-8":[51,52],"II7650-121-9-5":[51,52],"IB7677-100-7-5":[51,52],"IO0442-001-5-5":[51,52],"IO0442-200-7":[51,52],"FV9918-100-1":[51,52],"CZ8065-800-4":[51,52],"CZ8065-800-4-5":[51,52],"CZ8065-100-18":[51,52],"CZ8065-500-4":[51,52],"CZ8065-600-15":[51,52],"CZ8065-101-5-5":[51,52],"HJ4323-100-7":[51,52],"IO7958-001-4":[51,52],"CJ9179-200-9":[51,52],"HV3959-010":[51,52],"CK2630-201-10":[51,52],"CK2630-004-11":[51,52],"HV5953-001-7-5":[51,52],"HV5953-300-8":[51,52],"IB4025-100-11":[51,52],"IB0018-500-8":[51,52],"IB0018-003-7":[51,52],"IB0018-301-7":[51,52],"IB0018-004-7":[51,52],"IB0018-600-7":[51,52],"IB0018-101-7-5":[51,52],"IB0018-005-4-5":[51,52],"IO4610-100-4":[51,52],"IB0018-100-8":[51,52],"FV5948-102":[51,52],"FV5951-001-1":[51,52],"DH2920-001-5-5":[51,52],"FV5951-111-1":[51,52],"DH2920-111-6":[51,52],"845053-201-5-5":[51,52],"IB8845-001-4-5":[51,52],"HQ1911-300-6":[51,52],"HQ1911-002-4":[51,52],"IM5750-001-7-5":[51,52],"HQ7476-700-7":[51,52],"DD1525-100-8":[51,52],"IF3201-001-6":[51,52],"IF3201-002-6-5":[51,52],"II7650-200-6":[51,52],"IB6543-102-5-5":[51,52],"DC9486-101-5":[51,52],"IM5757-400-10-5":[51,52],"IO4489-400-4":[51,52],"IO4489-700-5-5":[51,52],"IQ1119-011-7-5":[51,52],"IQ1143-100-7-5":[51,52],"IO4489-600-7-5":[51,52],"IB4654-661-8-5":[51,52],"DO6394-100-8":[51,52],"DN5463-001-9":[51,52],"HF2893-100-12-5":[51,52],"DN5463-100-6-5":[51,52],"IM0583-400-5":[51,52],"IM1980-400-9-5":[51,52],"II3925-400-7":[51,52],"IH1018-200-9-5":[51,52],"HV9408-700-7":[51,52],"IM0582-700-7":[51,52],"II7062-500-11-5":[51,52],"HF2885-001-11":[51,52],"IM3081-100-12":[51,52],"AO1635-100-5-5":[51,52],"IM3078-002-9":[51,52],"IO9555-202-10-5":[51,52],"IM3078-100":[51,52],"HV2016-001-5-5":[51,52],"IB9949-001-7":[51,52],"IB7688-100-4":[51,52],"FZ4625-100-10-5":[51,52],"HM8517-200-10-5":[51,52],"HM8517-100-10-5":[51,52],"IH4452-100-10-5":[51,52],"IH4452-001-8-5":[51,52],"DZ1847-106-6":[51,52],"CI0919-100-6":[51,52],"HF4084-200-9":[51,52],"HF4084-100-6":[51,52],"DQ4137-200-4-5":[51,52],"DQ4137-300-4":[51,52],"DX5590-001-6":[51,52],"HF5516-001-6":[51,52],"CU9225-001-13":[51,52],"CU9225-100-12":[51,52],"IO9970-638-9-5":[51,52],"IR1940-800-11-5":[51,52],"HQ2037-002-8-5":[51,52],"DM2385-101":[51,52],"IB6836-001-6":[51,52],"IB6836-600-10":[51,52],"IQ9965-001-9-5":[51,52],"HV4403-601-9":[51,52],"BQ5485-700-6":[51,52],"FV5948-101-1-5":[51,52],"DD8959-103-5":[51,52],"CT3839-100":[51,52],"DM2876-100-7":[51,52],"CT3839-107-5":[51,52],"II1549-001-12":[51,52],"II1549-100-6-5":[51,52],"IB0018-102-7-5":[51,52],"HV5979-130":[51,52],"HQ1907-001-4-5":[51,52],"HJ4563-200":[51,52],"IR0952-002-8":[51,52],"BQ5485-004-7":[51,52],"HJ4560-100-4":[51,52],"CT1990-100-6-5":[51,52],"715889-200-6":[51,52],"DR0500-101-9":[51,52],"DD9625-100-7":[51,52],"FV5948-119-5":[51,52],"HQ0261-201-9":[51,52],"HV5032-400-11":[51,52],"FQ7012-100-5":[51,52],"HF7630-100":[51,52],"IF1673-001-2":[51,52],"FV5929-101-5":[51,52],"HM8517-201-11-5":[51,52],"IO8439-100-7":[51,52],"IB6543-101-5":[51,52],"896185-603-7":[51,52],"CU9225-002-4":[51,52],"CU9225-102-4":[51,52],"HM9659-001":[51,52],"FZ5222-001":[51,52],"IB6388-002":[51,52],"IF1686-101":[51,52],"IB7696-100":[51,52],"AV3042-100":[51,52],"IB7675-001-01":[51,52],"HQ3827-002":[51,52],"CZ0270-103":[51,52],"HV2511-100":[51,52],"rope-lace-1":[51,52],"DV3808-500":[51,52],"HV1204-100":[51,52],"CI0919-113":[51,52],"AR5339-100":[51,52],"DZ5394-101":[51,52],"DM0113-005":[51,52],"HF4292-100":[51,52],"HF4987-100":[51,52],"HV0823-101-5":[25,26],"IB4171-010-3-5":[25,26],"IB4388-010-2":[25,26],"FV5029-010-9":[25,26],"IB4387-010-9":[25,26],"FQ8213-006-6":[25,26],"FV5029-006-4-5":[25,26],"AQ9129-500-6":[25,26],"IB4388-200-13":[25,26],"FV5029-200-9":[25,26],"JA1135-100-9-5":[25,26],"HV4385-200-1-5":[25,26],"HV0823-200-9":[25,26],"IM4028-100-1":[25,26],"IM4002-100-4-5":[25,26],"HV0823-100-11-5":[25,26],"FQ1314-151":[25,26],"IB6716-600-9-5":[25,26],"FV5029-500-4-5":[25,26],"FV5029-141":[25,26],"FN7251-001-6":[25,26],"FN7251-200-6":[25,26],"IB4171-200-4":[25,26],"FZ4810-200-12-5":[25,26],"FQ8138-103":[25,26],"FV5029-003-9":[25,26],"IB4171-003":[25,26],"IO2463-102-13":[25,26],"DR5415-100-7":[25,26],"FB9927-200-7-5":[25,26],"DV2262-021-3-5":[25,26],"DV3742-021-11":[25,26],"IB6715-100-2":[25,26],"IB6716-100":[25,26],"FQ8213-600-6":[25,26],"FQ8138-600-11":[25,26],"HV4381-600-2-5":[25,26],"IB7068-100-4-5":[25,26],"IB7069-100-13-5":[25,26],"HV0823-108-5":[25,26],"AQ9129-101-10":[25,26],"IB4171-100-3-5":[25,26],"IB4388-100-10-5":[25,26],"IB4387-100-9":[25,26],"FQ8138-001-10":[25,26],"FQ7939-004-7-5":[25,26],"HV5184-010-8":[25,26],"FQ7939-007":[25,26],"IB4466-025-5":[25,26],"FQ7939-022-9-5":[25,26],"FQ7940-300-6":[25,26],"FQ7939-103-7":[25,26],"HJ9746-004-5":[25,26],"HF4334-004-10-5":[25,26],"IQ8055-100-4":[25,26],"FQ7940-121-12":[25,26],"IB7701-600-8-5":[23,24],"HQ3818-200-10-5":[23,24],"IM5997-060-11":[23,24],"HV5064-019-4-5":[23,24],"CD6404-402-8":[23,24],"CD6404-031-8-5":[23,24],"IH8042-201-10-5":[23,24],"HV5064-012-4":[23,24],"CD6404-002-10":[23,24],"IO3496-002-6":[23,24],"IO1904-010-8":[23,24],"HF1052-010-7":[23,24],"IF6199-003-5-5":[23,24],"IQ0298-010-11-5":[23,24],"IR1477-010-8":[23,24],"IQ0313-010-5":[23,24],"IH8042-001-9":[23,24],"IU7554-100-11-5":[23,24],"IM6648-009-8":[23,24],"CD6404-032-12":[23,24],"IM9013-100-10":[23,24],"IF1787-100-7":[23,24],"IQ0577-025-8-5":[23,24],"IO3496-001-5":[23,24],"IV5761-094-12":[23,24],"IH0246-320-9":[23,24],"BV1021-016-6-5":[23,24],"HJ7284-072-7":[23,24],"IU7549-072-7-5":[23,24],"IV2501-200-6":[23,24],"IO1904-104-8":[23,24],"CD6404-025-5":[23,24],"BV1021-013-7":[23,24],"CN0149-001-13":[23,24],"FD9876-101-7":[23,24],"IH4465-095-8":[23,24],"BV1021-017-6":[23,24],"HV5064-103-4":[23,24],"IQ6590-001-9":[23,24],"IV6029-030-8":[23,24],"IV6035-030-9":[23,24],"HV6353-001-11-5":[23,24],"IB3081-001":[23,24],"HV5064-017-4-5":[23,24],"IH8042-100-8":[23,24],"IH0946-200-8":[23,24],"IH0946-202-8":[23,24],"IF0668-400-7-5":[23,24],"BV1021-020-8":[23,24],"IM5237-100-10-5":[23,24],"IR1215-101-10":[23,24],"IR1215-100-6-5":[23,24],"IF1756-201":[23,24],"HF0015-204-10":[23,24],"IR0923-001-8-5":[23,24],"IM6332-001-11":[23,24],"HF0015-100":[23,24],"IO3370-002-8":[23,24],"IO3370-001-10-5":[23,24],"IM6026-121-11":[23,24],"IR5279-002-9-5":[23,24],"HF0015-002-10-5":[23,24],"HF0015-205-12":[23,24],"FV6603-101-6":[23,24],"BV1021-002-6-5":[23,24],"CD6404-100-7-5":[23,24],"BV1021-106-7-5":[23,24],"BV1021-108-5":[23,24],"BV1021-101-6":[23,24],"IX0353-100-9-5":[23,24],"CD6404-107-7-5":[23,24],"IR1477-121-8":[23,24],"CD6404-105-8":[23,24],"IR5279-100-9":[23,24],"IO3496-100-5-5":[23,24],"HQ3818-400-7":[23,24],"CD6404-033-10":[23,24],"IU7545-012-12":[23,24]};
+  var FITS = {"23":"A Nike szerint a szokásos Nike-méreted jó. Ha két méret között vagy, vagy vastag zoknit hordasz, fél számmal nagyobbat ajánl.","24":"Podľa Nike ti sadne tvoja bežná veľkosť Nike. Ak si medzi dvoma veľkosťami alebo nosíš hrubé ponožky, Nike odporúča o pol čísla väčšiu.","25":"A Nike szerint a Jordan 4 méretre pontos. Ha széles a lábad, fél számmal nagyobbat ajánl.","26":"Podľa Nike Jordan 4 veľkostne sedí. Ak máš širokú nohu, Nike odporúča o pol čísla väčšiu.","42":"Az UGG szerint méretre pontos. Csak egész méretben készül.","44":"Podľa UGG veľkostne sedí. Vyrába sa len v celých veľkostiach.","51":"A Nike szerint az Air Force 1 bővebb: fél számmal kisebbet ajánl, mint a szokásos Nike-méreted. Széles lábra maradj a szokásos méretednél.","52":"Podľa Nike je Air Force 1 voľnejšia, preto Nike odporúča o pol čísla menšiu, než je tvoja bežná veľkosť Nike. Pri širokej nohe zostaň pri svojej bežnej veľkosti."};
+  (function fitEarly() {
+    var n = 0, go = function () {
+      if (d.getElementById("kbd-pp-fit")) return;
+      var ty = d.getElementById("artdet__type"), sku = ty && mainSku(), f = sku && FIT[sku];
+      if (ty && sku) { if (f && f[SK ? 1 : 0] && (prev || PILOT[0] === "*" || PILOT.indexOf(sku) >= 0)) ty.appendChild(el("div", "kbd-pp-fit", "kbd-pp-fit", FITS[f[SK ? 1 : 0]])); return; }
+      if (++n < 300) setTimeout(go, 20);
+    };
+    go();
+  })();
+  var data = fetch(SRC.replace(/kbd-pdp2\.js.*$/, "pontok.json")).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  function txt(e) { return e ? (e.textContent || "").replace(/\s+/g, " ").trim() : ""; }
+  function mainSku() {
+    var act = d.querySelector("#artdet__type .product-type__value--text.is-active"), base = d.querySelector("#artdet__type .product-type__value--text.is-base");
+    if (base && base !== act && base.getAttribute("data-sku")) return base.getAttribute("data-sku");
+    var b = d.querySelector(".artdet__cart-btn[data-sku-id]"); if (b) return b.getAttribute("data-sku-id").split("__unas__").join("-");
+    return txt(d.querySelector(".artdet__sku-value"));
+  }
+  var css = d.createElement("style");
+  css.id = "kbd-pp-css";
+  css.textContent = ".kbd-pp{margin:12px 0;border:1px solid #e6dccf;border-radius:14px;background:#fbf8f3;padding:4px 14px;font-family:Montserrat,Montserrat-fallback,system-ui,sans-serif}"
+    + ".kbd-pp__r{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #eee4d6}.kbd-pp__r:last-child{border-bottom:0}"
+    + ".kbd-pp__i{flex:0 0 24px;height:24px;border-radius:50%;background:#a64a20;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:1px}"
+    + ".kbd-pp__t{font-size:13px;line-height:1.45;color:#2b2b2b}.kbd-pp__t b{font-weight:800;display:block;font-size:13.5px;margin-bottom:1px;color:#111}"
+    + ".kbd-pp-fit{margin:10px 2px 0;padding:9px 12px;border-radius:10px;background:#fbf8f3;border:1px dashed #d9c7b0;font:600 12.5px/1.45 Montserrat,Montserrat-fallback,system-ui,sans-serif;color:#3a2a1c}"
+    + ".kbd-pp-hint{display:block;flex-basis:100%;margin-top:4px;padding:6px 8px;font:500 12px/1.4 Montserrat,Montserrat-fallback,system-ui,sans-serif;color:#6b5a48}";
+  (d.head || h).appendChild(css);
+  function el(tag, cls, id, t) { var e = d.createElement(tag); e.className = cls; e.id = id; if (t != null) e.textContent = t; return e; }
+  function place(S, ids) {
+    var done = true, s = function (i) { return i ? S[i] || "" : ""; };
+    var fit = s(ids[1]), kom = s(ids[0]), ere = s(ids[2]), apo = s(ids[3]);
+    void fit;   /* the fit sentence is placed early from the inline FIT map (fitEarly) */
+    if ((kom || apo) && !d.getElementById("kbd-pp")) {
+      var anchor = d.getElementById("kbd4-ship") || d.getElementById("kbd4-cards");
+      if (anchor) {
+        var c = el("div", "kbd-pp", "kbd-pp"); c.style.order = "10";
+        [[kom, L.k, "☁"], [apo, L.a, "✦"]].forEach(function (r) {
+          if (!r[0]) return;
+          var row = el("div", "kbd-pp__r", ""), ic = el("span", "kbd-pp__i", "", r[2]), tt = el("span", "kbd-pp__t", ""), b = el("b", "", "", r[1]);
+          row.removeAttribute("id"); ic.removeAttribute("id"); tt.removeAttribute("id"); b.removeAttribute("id"); b.removeAttribute("class");
+          ic.setAttribute("aria-hidden", "true"); tt.appendChild(b); tt.appendChild(d.createTextNode(r[0])); row.appendChild(ic); row.appendChild(tt); c.appendChild(row);
+        });
+        anchor.parentNode.insertBefore(c, anchor);
+      } else done = false;
+    }
+    if (ere && !d.getElementById("kbd-pp-hint")) {
+      var sl = Array.prototype.filter.call(d.querySelectorAll(".kbd2-sku"), function (e) { return e.getBoundingClientRect().height > 0; })[0];
+      if (sl) sl.parentNode.insertBefore(el("div", "kbd-pp-hint", "kbd-pp-hint", ere), sl.nextSibling); else done = false;
+    }
+    return done;
+  }
+  data.then(function (D) {
+    if (!D || !D.p || !D.s) return;
+    var n = 0, go = function () {
+      var sku = mainSku(), rec = sku && D.p[sku];
+      if (!rec) { if (++n < 40) setTimeout(go, 150); return; }
+      if (!prev && PILOT[0] !== "*" && PILOT.indexOf(sku) < 0) return;
+      if (!place(D.s, rec[SK ? 1 : 0]) && ++n < 60) setTimeout(go, 150);
+    };
+    if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", go); else go();
+  });
+})();
