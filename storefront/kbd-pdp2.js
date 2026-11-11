@@ -1362,8 +1362,8 @@
   (function fitEarly() {
     var n = 0, go = function () {
       if (d.getElementById("kbd-pp-fit")) return;
-      var ty = d.getElementById("artdet__type"), sku = ty && mainSku(), f = sku && FIT[sku];
-      if (ty && sku) { if (f && f[SK ? 1 : 0] && (prev || PILOT[0] === "*" || PILOT.indexOf(sku) >= 0)) ty.appendChild(el("div", "kbd-pp-fit", "kbd-pp-fit", FITS[f[SK ? 1 : 0]])); return; }
+      var ty = d.getElementById("artdet__type"), sku = ty && recSku(FIT), f = sku && FIT[sku];
+      if (ty && sku && (f || d.readyState !== "loading")) { if (f && f[SK ? 1 : 0] && (prev || PILOT[0] === "*" || PILOT.indexOf(sku) >= 0)) ty.appendChild(el("div", "kbd-pp-fit", "kbd-pp-fit", FITS[f[SK ? 1 : 0]])); return; }
       if (++n < 300) setTimeout(go, 20);
     };
     go();
@@ -1375,6 +1375,14 @@
     if (base && base !== act && base.getAttribute("data-sku")) return base.getAttribute("data-sku");
     var b = d.querySelector(".artdet__cart-btn[data-sku-id]"); if (b) return b.getAttribute("data-sku-id").split("__unas__").join("-");
     return txt(d.querySelector(".artdet__sku-value"));
+  }
+  /* the data is keyed by the main SKU of the export it was built from; when Unas later made another size the base (196 records on
+     2026-11-11), the page's base SKU has no record, so every size of the family is tried, base first. Returns the main SKU when nothing matches. */
+  function recSku(map) {
+    var m = mainSku(), c = [m].concat(Array.prototype.map.call(d.querySelectorAll("#artdet__type .product-type__value--text[data-sku]"), function (e) { return e.getAttribute("data-sku"); }));
+    c.push(txt(d.querySelector(".artdet__sku-value")));
+    for (var i = 0; i < c.length; i++) if (c[i] && map[c[i]]) return c[i];
+    return m;
   }
   var css = d.createElement("style");
   css.id = "kbd-pp-css";
@@ -1412,7 +1420,7 @@
   data.then(function (D) {
     if (!D || !D.p || !D.s) return;
     var n = 0, go = function () {
-      var sku = mainSku(), rec = sku && D.p[sku];
+      var sku = recSku(D.p), rec = sku && D.p[sku];
       if (!rec) { if (++n < 40) setTimeout(go, 150); return; }
       if (!prev && PILOT[0] !== "*" && PILOT.indexOf(sku) < 0) return;
       if (!place(D.s, rec[SK ? 1 : 0]) && ++n < 60) setTimeout(go, 150);
