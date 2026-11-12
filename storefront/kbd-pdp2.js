@@ -933,7 +933,11 @@
     ".kbf-strip .kbf-c.ok span{font-size:12px;padding:6px 8px}" +
     ".kbf-strip .kbf-c:focus-visible{outline:2px solid #FFD400;outline-offset:-4px}" +
     "html.kbd-pdp.kbd-v2 #artdet__main-block .artdet__block-cart-inner>#kbd-coupon{order:3}" +
-    "#artdet__main-block #kbd-bf-cart{max-width:none;margin:2px 0 12px}";
+    "#artdet__main-block #kbd-bf-cart{max-width:none;margin:2px 0 12px}" +
+    /* the product's own price inside the cart box, above the strip (David TG 4562, main msg 4443): the same values the main price block shows, nothing else */
+    "#artdet__main-block #kbd-bf-price{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:4px 0 8px;font-family:Montserrat,Montserrat-fallback,sans-serif;text-transform:none}" +
+    "#artdet__main-block #kbd-bf-price .kbf-now{font-size:28px;font-weight:800;line-height:1.1;color:#191512;letter-spacing:-.01em}" +
+    "#artdet__main-block #kbd-bf-price .kbf-was{font-size:16px;font-weight:400;color:#55554F;text-decoration:line-through}";
   function bfHtml(price, copied) {
     return '<span class="kbf-p" aria-label="' + esc(BT.lbl + " " + BF.code + ": " + price) + '"><b>' + esc(price).replace(/ /g, "\u00a0") + '</b><span>' + esc(BT.w) + '</span></span>' +
       '<button type="button" class="kbf-c' + (copied ? " ok" : "") + '" aria-label="' + esc((copied ? BT.ok : BT.copy) + ": " + BF.code) + '"><span>' + esc(copied ? BT.ok : BF.code) + '</span></button>';
@@ -954,14 +958,27 @@
     var inner = $("#artdet__main-block .artdet__block-cart-inner"), pb = priceBlock(), cart = $("#artdet__main-block #artdet__cart");
     var p = pb ? priceNow(isSale()) : 0, old = d.getElementById("kbd-coupon");
     if (old && !old.classList.contains("kbf-strip") && old.parentNode) old.parentNode.removeChild(old);
-    if (!(inner && pb) || !(p > 0)) { ["kbd-coupon", "kbd-bf-cart"].forEach(function (i) { var x = d.getElementById(i); if (x && x.parentNode) x.parentNode.removeChild(x); }); return; }
+    if (!(inner && pb) || !(p > 0)) { ["kbd-coupon", "kbd-bf-cart", "kbd-bf-price"].forEach(function (i) { var x = d.getElementById(i); if (x && x.parentNode) x.parentNode.removeChild(x); }); return; }
     if (!d.getElementById("kbf-css")) { var s = d.createElement("style"); s.id = "kbf-css"; s.textContent = BF_CSS; (d.head || h).appendChild(s); }
     var html = bfHtml(money(bfPrice(p)), Date.now() < copiedUntil);
     bfPut("kbd-coupon", html, null, pb);
     /* inside the black-framed cart box, right above the cart button (Adonio pattern, David TG 4553 via main msg 4438): same parent as #artdet__cart
        (R2 wraps it in .r2-buy), same CSS order, inserted just before it */
     /* R2 moves the cart button into .r2-buy right before kbd-ready: wait for that (or for R2 to give up), so the strip never moves after the page shows */
-    if (cart && cart.parentNode && (cart.closest(".r2-buy") || window.__kbdR2Done)) { bfPut("kbd-bf-cart", html, cart, null); var bc = d.getElementById("kbd-bf-cart"), o = getComputedStyle(cart).order; if (bc && bc.style.order !== o) bc.style.order = o; }
+    if (cart && cart.parentNode && (cart.closest(".r2-buy") || window.__kbdR2Done)) {
+      bfPut("kbd-bf-cart", html, cart, null); var bc = d.getElementById("kbd-bf-cart"), o = getComputedStyle(cart).order; if (bc && bc.style.order !== o) bc.style.order = o;
+      /* price row above the strip: current price (sale price when the main block shows one) + the struck price exactly as the main block shows it */
+      var sale = isSale(), now = $(sale ? "#artdet__main-block .artdet__price-discount .price-gross-format" : "#artdet__main-block .artdet__price-base-value .price-gross-format"),
+        was = sale ? $("#artdet__main-block .artdet__price-base-value.text-line-through .price-gross-format") : null;
+      var nt = now ? txt(now) : "", wt = was ? txt(was) : "";
+      if (nt) {
+        var ph = '<span class="kbf-now">' + esc(nt).replace(/ /g, "\u00a0") + '</span>' + (wt ? '<span class="kbf-was">' + esc(wt).replace(/ /g, "\u00a0") + '</span>' : "");
+        var pe = d.getElementById("kbd-bf-price"); if (!pe) { pe = d.createElement("div"); pe.id = "kbd-bf-price"; }
+        if (pe.getAttribute("data-k") !== ph) { pe.innerHTML = ph; pe.setAttribute("data-k", ph); }
+        if (pe.nextElementSibling !== bc || pe.parentNode !== bc.parentNode) bc.parentNode.insertBefore(pe, bc);
+        if (pe.style.order !== o) pe.style.order = o;
+      }
+    }
     if (!bfMo && window.MutationObserver) {
       bfMo = new MutationObserver(function () { var c = d.querySelector(".r2-buy #artdet__cart"), s = d.getElementById("kbd-bf-cart"); if (c && (!s || s.nextElementSibling !== c)) bfRender(); });
       bfMo.observe(inner, { childList: true, subtree: true });
@@ -980,8 +997,8 @@
   function coupon() {
     if (bfOn()) { bfRender(); return; }
     if (BF && BF.after === "none" && bfForce !== "0" && Date.now() >= Date.parse(BF.end)) {
-      ["kbd-bf-cart", "kbd-coupon"].forEach(function (i) { var x = d.getElementById(i); if (x && x.parentNode) x.parentNode.removeChild(x); }); return; }
-    ["kbd-bf-cart"].forEach(function (i) { var x = d.getElementById(i); if (x && x.parentNode) x.parentNode.removeChild(x); });
+      ["kbd-bf-cart", "kbd-coupon", "kbd-bf-price"].forEach(function (i) { var x = d.getElementById(i); if (x && x.parentNode) x.parentNode.removeChild(x); }); return; }
+    ["kbd-bf-cart", "kbd-bf-price"].forEach(function (i) { var x = d.getElementById(i); if (x && x.parentNode) x.parentNode.removeChild(x); });
     var e0 = d.getElementById("kbd-coupon"); if (e0 && e0.classList.contains("kbf-strip") && e0.parentNode) e0.parentNode.removeChild(e0);
     var inner = $("#artdet__main-block .artdet__block-cart-inner"), pb = priceBlock(), e = d.getElementById("kbd-coupon");
     var sale = isSale(), c = sale ? CS : C, p = pb ? priceNow(sale) : 0, ok = !!(inner && pb) && p > 0 && withCode(p, c) > 0;
