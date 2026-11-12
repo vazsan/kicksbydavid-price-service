@@ -22,6 +22,12 @@
     fam: { minCards: 3 },
     /* kuponblokk az ár alatt (kbd-pdp2-coupon.js; akciós terméken a KBD10, az akciós árból számolva) + elfogyott-méret értesítő (csak a ?kbdnotify=1 süti-kapu mögött, nem küld sehova) */
     coupon: { enabled: true },
+    /* Black Friday BF15 (David TG 4517, main msg 4362/4409): while on, the coupon box gives way to a black-yellow "price with the code" strip under the price
+       and the same strip right above the cart button. Off by itself after "end" (Europe/Bratislava). ?kbdbf=1 / =0 forces it on / off in one browser (preview). */
+    bf: { on: true, code: "BF15", pct: 15, end: "2026-11-30T23:59:59+01:00", round: "round", after: "none" },
+    /* bf.after: what the coupon spot shows after the end. "none" = nothing (KBD5/KBD10 are switched off at the BF go-live); "kbd" = the old KBD box again. */
+    /* bf.round: the Unas cart rounds the DISCOUNT to a whole unit (David's SK cart, TG 4526: 139 EUR -> "-21 EUR" for 20.85). Half-up or up is not
+       known yet, so "ceil" (main msg 4433): the strip never shows more than the cart; "round" once a cart test shows half-up. */
     cod: { hu: "1 073 Ft" },                        /* utánvét felára, HU; az SK érték a v11 szótárából jön */
     /* Trustindex: kis jelvény (a hero-ban) és nagy vélemény-widget (a lap alján, a 6. lépésben) */
     trustindex: {
@@ -908,7 +914,75 @@
   });
   d.addEventListener("keydown", function (e) { if (e.key === "Escape") $$(".kbdc-i[aria-expanded=true]").forEach(function (x) { x.setAttribute("aria-expanded", "false"); x.focus(); }); });
   var copiedUntil = 0;
+  /* ---- Black Friday sáv (CFG.bf) ---- */
+  var BF = K2.CFG.bf, bfForce = null;
+  try { var qb = location.search.match(/[?&]kbdbf=([01])(?:&|$)/); if (qb) localStorage.setItem("kbdbf", qb[1]); bfForce = localStorage.getItem("kbdbf"); } catch (e) {}
+  function bfOn() {
+    if (!BF || bfForce === "0") return false;
+    if (bfForce !== "1" && !BF.on) return false;
+    return Date.now() < Date.parse(BF.end);
+  }
+  var BT = SK ? { w: "s kódom", copy: "Kopírovať kód", ok: "Skopírované", lbl: "Cena s kódom" } : { w: "a kóddal", copy: "Kód másolása", ok: "Kimásolva", lbl: "Ár a kóddal" };
+  var BF_CSS = ".kbf-strip,.kbf-strip *{box-sizing:border-box;font-family:Montserrat,Montserrat-fallback,sans-serif;text-transform:none}" +
+    ".kbf-strip{display:flex;align-items:stretch;width:100%;max-width:360px;min-height:44px;margin:10px 0 12px;border-radius:8px;background:#0E0E0E;color:#fff;overflow:hidden}" +
+    ".kbf-strip .kbf-p{flex:1 1 auto;display:flex;align-items:center;gap:7px;padding:0 12px;font-size:14px;font-weight:600;line-height:1.15;white-space:nowrap}" +
+    ".kbf-strip .kbf-p b{color:#FFD400;font-size:20px;font-weight:800;letter-spacing:-.01em}" +
+    ".kbf-strip .kbf-c{flex:0 0 auto;display:flex;align-items:center;margin:0;padding:0 10px 0 22px;border:0;border-radius:0;cursor:pointer;color:#0E0E0E;" +
+    "background:repeating-linear-gradient(-45deg,#FFD400 0 7px,#0E0E0E 7px 14px);-webkit-mask-image:linear-gradient(90deg,transparent,#000 14px);mask-image:linear-gradient(90deg,transparent,#000 14px)}" +
+    ".kbf-strip .kbf-c span{display:inline-block;min-width:62px;padding:4px 10px;border:2px solid #0E0E0E;border-radius:5px;background:#FFD400;font-size:15px;font-weight:800;letter-spacing:.02em;text-align:center;white-space:nowrap}" +
+    ".kbf-strip .kbf-c.ok span{font-size:12px;padding:6px 8px}" +
+    ".kbf-strip .kbf-c:focus-visible{outline:2px solid #FFD400;outline-offset:-4px}" +
+    "html.kbd-pdp.kbd-v2 #artdet__main-block .artdet__block-cart-inner>#kbd-coupon{order:3}" +
+    "#artdet__main-block #kbd-bf-cart{max-width:none;margin:2px 0 12px}";
+  function bfHtml(price, copied) {
+    return '<span class="kbf-p" aria-label="' + esc(BT.lbl + " " + BF.code + ": " + price) + '"><b>' + esc(price).replace(/ /g, "\u00a0") + '</b><span>' + esc(BT.w) + '</span></span>' +
+      '<button type="button" class="kbf-c' + (copied ? " ok" : "") + '" aria-label="' + esc((copied ? BT.ok : BT.copy) + ": " + BF.code) + '"><span>' + esc(copied ? BT.ok : BF.code) + '</span></button>';
+  }
+  function bfPrice(p) {
+    var x = Math.round(p * BF.pct * 100) / 10000, disc = BF.round === "round" ? Math.round(x) : Math.ceil(x);   /* x cut to 4 decimals: 100 x 0.15 = 15.000000000000002 */
+    return Math.round((p - disc) * 100) / 100;
+  }
+  function bfPut(id, html, before, after) {
+    var e = d.getElementById(id);
+    if (!e) { e = d.createElement("div"); e.id = id; e.className = "kbf-strip"; }
+    if (e.getAttribute("data-k") !== html) { e.innerHTML = html; e.setAttribute("data-k", html); }
+    if (after) { if (e.previousElementSibling !== after || e.parentNode !== after.parentNode) after.parentNode.insertBefore(e, after.nextSibling); }
+    else if (before && (e.nextElementSibling !== before || e.parentNode !== before.parentNode)) before.parentNode.insertBefore(e, before);
+  }
+  var bfMo = null;
+  function bfRender() {
+    var inner = $("#artdet__main-block .artdet__block-cart-inner"), pb = priceBlock(), cart = $("#artdet__main-block #artdet__cart");
+    var p = pb ? priceNow(isSale()) : 0, old = d.getElementById("kbd-coupon");
+    if (old && !old.classList.contains("kbf-strip") && old.parentNode) old.parentNode.removeChild(old);
+    if (!(inner && pb) || !(p > 0)) { ["kbd-coupon", "kbd-bf-cart"].forEach(function (i) { var x = d.getElementById(i); if (x && x.parentNode) x.parentNode.removeChild(x); }); return; }
+    if (!d.getElementById("kbf-css")) { var s = d.createElement("style"); s.id = "kbf-css"; s.textContent = BF_CSS; (d.head || h).appendChild(s); }
+    var html = bfHtml(money(bfPrice(p)), Date.now() < copiedUntil);
+    bfPut("kbd-coupon", html, null, pb);
+    /* inside the black-framed cart box, right above the cart button (Adonio pattern, David TG 4553 via main msg 4438): same parent as #artdet__cart
+       (R2 wraps it in .r2-buy), same CSS order, inserted just before it */
+    /* R2 moves the cart button into .r2-buy right before kbd-ready: wait for that (or for R2 to give up), so the strip never moves after the page shows */
+    if (cart && cart.parentNode && (cart.closest(".r2-buy") || window.__kbdR2Done)) { bfPut("kbd-bf-cart", html, cart, null); var bc = d.getElementById("kbd-bf-cart"), o = getComputedStyle(cart).order; if (bc && bc.style.order !== o) bc.style.order = o; }
+    if (!bfMo && window.MutationObserver) {
+      bfMo = new MutationObserver(function () { var c = d.querySelector(".r2-buy #artdet__cart"), s = d.getElementById("kbd-bf-cart"); if (c && (!s || s.nextElementSibling !== c)) bfRender(); });
+      bfMo.observe(inner, { childList: true, subtree: true });
+    }
+  }
+  d.addEventListener("click", function (ev) {
+    var b = ev.target.closest && ev.target.closest(".kbf-strip .kbf-c");
+    if (!b) return;
+    var done = function () { copiedUntil = Date.now() + 2200; bfRender(); setTimeout(bfRender, 2300); try { (window.dataLayer = window.dataLayer || []).push({ event: "kbd_coupon_copy", coupon_code: BF.code }); } catch (e) {} };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(BF.code).then(done, function () { bfCopy(); done(); });
+    else { bfCopy(); done(); }
+  });
+  function bfCopy() {
+    try { var t = d.createElement("textarea"); t.value = BF.code; t.setAttribute("readonly", ""); t.style.cssText = "position:fixed;left:-9999px;top:0"; d.body.appendChild(t); t.select(); d.execCommand("copy"); d.body.removeChild(t); } catch (e) {}
+  }
   function coupon() {
+    if (bfOn()) { bfRender(); return; }
+    if (BF && BF.after === "none" && bfForce !== "0" && Date.now() >= Date.parse(BF.end)) {
+      ["kbd-bf-cart", "kbd-coupon"].forEach(function (i) { var x = d.getElementById(i); if (x && x.parentNode) x.parentNode.removeChild(x); }); return; }
+    ["kbd-bf-cart"].forEach(function (i) { var x = d.getElementById(i); if (x && x.parentNode) x.parentNode.removeChild(x); });
+    var e0 = d.getElementById("kbd-coupon"); if (e0 && e0.classList.contains("kbf-strip") && e0.parentNode) e0.parentNode.removeChild(e0);
     var inner = $("#artdet__main-block .artdet__block-cart-inner"), pb = priceBlock(), e = d.getElementById("kbd-coupon");
     var sale = isSale(), c = sale ? CS : C, p = pb ? priceNow(sale) : 0, ok = !!(inner && pb) && p > 0 && withCode(p, c) > 0;
     if (!ok) { if (e && e.parentNode) e.parentNode.removeChild(e); return; }
