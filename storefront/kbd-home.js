@@ -54,7 +54,7 @@
     menUrl: "/Panske", womenUrl: "/Damske", saleUrl: "/akcie", newUrl: "/novinky", allUrl: "/vsetky-produkty",
     usp: [
       ["shield", "Dvojnásobok peňazí späť, ak je falzifikát", "Nové originálne produkty z overených zdrojov"],
-      ["swap", "Výmena a vrátenie zadarmo", "Do 30 dní, poštovné platíme my"],
+      ["swap", "Výmena veľkosti do 14 dní", "Novú veľkosť posielame my"],
       ["cash", "Dobierka", "Peniaze ostávajú u teba, kým nepríde balík"],
       ["truck", "Dáme ti vedieť, kde je balík", "Informujeme ťa až do odoslania"]
     ],
@@ -71,7 +71,7 @@
     revH: "Čo o nás hovoria zákazníci", revSrc: "Na základe hodnotení z Googlu, Árukereső a Trustindexu", revAll: "Všetky hodnotenia",
     reviews: [],
     /* SK DRAFT (lektorálásra): mobil bizalmi sáv, modellcsempék, polcok, hírlevél-kártya, fizetés/szállítás sor, blog gomb */
-    tick: ["★★★★★ 5,0 · 16 hodnotení na Google", "Výmena a vrátenie zadarmo do 30 dní", "Výrobný kód pri každom produkte"],
+    tick: ["★★★★★ 5,0 · 16 hodnotení na Google", "Výmena veľkosti do 14 dní", "Výrobný kód pri každom produkte"],
     tlH: "Obľúbené modely", tlPrice: "Do 130 €", tlPriceUrl: "/vsetky-produkty?filter=price:29~130",
     tiles: [
       ["Nike Air Force 1", "/shop_search.php?search=Air+Force+1", "CT1990-100-6-5/496x496,r,1792153111/CT1990-100-6-5"],
@@ -109,7 +109,7 @@
     menUrl: "/Ferfi", womenUrl: "/Noi", saleUrl: "/akcios-termekek", newUrl: "/ujdonsagok", allUrl: "/osszes-termek",
     usp: [
       ["shield", "Dupla pénz vissza, ha hamis", "Új, eredeti termékek, ellenőrzött forrásból"],
-      ["swap", "30 nap ingyenes csere", "A cserét és a visszaküldést mi fizetjük"],
+      ["swap", "14 napos méretcsere", "Az új méretet mi küldjük"],
       ["cash", "Utánvét", "A pénzed nálad marad, amíg megjön a csomag"],
       ["truck", "Szólunk, hol tart", "Feladásig értesítünk a csomagodról"]
     ],
@@ -136,7 +136,7 @@
       ["Gergő B.", "2026. április", "Csak ajánlani tudom teljesen megvagyok elégedve a termékkel!!"]
     ],
     /* mobil bizalmi sáv (valós számok: Trustindex 5,0 / 5, 16 Google-értékelés) */
-    tick: ["★★★★★ 5,0 · 16 Google-értékelés", "30 nap ingyenes csere", "Gyári cikkszám minden terméken"],
+    tick: ["★★★★★ 5,0 · 16 Google-értékelés", "14 napos méretcsere", "Gyári cikkszám minden terméken"],
     /* modellcsempék: élő keresés- és szűrő-listák (ellenőrizve 2026-10-20: mind 200, termékekkel); a képek a bolt saját termékképei */
     tlH: "Népszerű modellek", tlPrice: "50 000 Ft alatt", tlPriceUrl: "/osszes-termek?filter=price:29~135",
     tiles: [
