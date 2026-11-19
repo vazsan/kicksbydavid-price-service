@@ -19,17 +19,17 @@
       diff: [
         { ic: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z M9 12l2 2 4-4", t: "Az eredetiség ellenőrizhető", s: "A gyári cikkszám ki van írva. Másold be a keresőbe, és nézd meg, ugyanez a modell jön-e vissza." },
         { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "A cég nevesítve van", s: "KICKS BY DÁVID s. r. o., adószám 2121629928, kiírt cím, felvett telefon és e-mail. Az üzenetekre 1 munkanapon belül válaszolunk." },
-        { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "A kockázatot mi viseljük", s: "Utánvéttel fizethetsz, a csere és a visszaküldés pedig 30 napig a mi költségünk." }
+        { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "Utánvét és méretcsere", s: "Utánvéttel fizethetsz, és ha nem jó a méret, 14 napon belül kicseréljük." }
       ],
       fitTitle: "Kinek és mihez ajánljuk?",
       sizeTitle: "Jó lesz a méreted?",
-      sizeText: "A mérettáblázat a belső talphossz alapján segít választani. Ha mégsem talál, a csere és a visszaküldés 30 napon belül a mi költségünk. Írd meg, milyen cipőt hordasz, és megmondjuk a méreted.",
+      sizeText: "A mérettáblázat a belső talphossz alapján segít választani. Ha mégsem talál, 14 napon belül kicseréljük: az új méretet mi küldjük, csak a visszaküldést fizeted. Írd meg, milyen cipőt hordasz, és megmondjuk a méreted.",
       sizeAsk: "Méretkérdésem van", sizeEu: "EU méret", sizeCm: "Belső talphossz (cm)",
       reviewsTitle: "Vásárlóink véleménye",
       compareTitle: "Miben más a KicksByDavid?", compareBrand: "KicksByDavid", compareCols: ["Resell webshopok", "Nagy webshopok"],
       compareRows: [
         ["Eredetiség ellenőrzése", "Gyári cikkszám kiírva, cégadatok nyilvánosak"],
-        ["Csere és visszaküldés", "A mi költségünk, 30 napig"],
+        ["Méretcsere", "14 napig, az új méretet mi küldjük"],
         ["Fizetés", "Utánvéttel is, a pénz átvételig nálad marad"]
       ],
       faqTitle: "Gyakori kérdések", faqText: "Ami a vásárlás előtt eszedbe juthat. Ha mégsem találsz választ, 1 munkanapon belül válaszolunk.",
@@ -42,17 +42,17 @@
       diff: [
         { ic: "M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z M9 12l2 2 4-4", t: "Originalitu si môžeš overiť", s: "Výrobný kód je uvedený pri produkte. Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model." },
         { ic: "M3 21V7l9-4 9 4v14z M9 21v-6h6v6", t: "Overiteľná firma", s: "KICKS BY DÁVID s. r. o., DIČ 2121629928. Adresa, telefón, ktorý zdvihneme, aj e-mail. Na správy odpovedáme do 1 pracovného dňa." },
-        { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "Riziko berieme na seba", s: "Môžeš platiť na dobierku a výmenu aj vrátenie do 30 dní platíme my." }
+        { ic: "M4 12a8 8 0 0 1 13.5-5.8L20 8 M20 4v4h-4 M20 12a8 8 0 0 1-13.5 5.8L4 16 M4 20v-4h4", t: "Dobierka a výmena veľkosti", s: "Môžeš platiť na dobierku a veľkosť ti do 14 dní vymeníme." }
       ],
       fitTitle: "Komu a k čomu ich odporúčame?",
       sizeTitle: "Bude ti veľkosť sedieť?",
-      sizeText: "Tabuľka veľkostí ti pomôže podľa vnútornej dĺžky topánky. Ak veľkosť predsa nesedí, výmenu aj vrátenie do 30 dní platíme my. Napíš nám, aké topánky nosíš, a povieme ti tvoju veľkosť.",
+      sizeText: "Tabuľka veľkostí ti pomôže podľa vnútornej dĺžky topánky. Ak veľkosť predsa nesedí, do 14 dní ti ju vymeníme: novú ti pošleme my, spätné zaslanie platíš ty. Napíš nám, aké topánky nosíš, a povieme ti tvoju veľkosť.",
       sizeAsk: "Mám otázku k veľkosti", sizeEu: "Veľkosť EU", sizeCm: "Vnútorná dĺžka topánky (cm)",
       reviewsTitle: "Názory našich zákazníkov",
       compareTitle: "Čím sa líši KicksByDavid?", compareBrand: "KicksByDavid", compareCols: ["Resellové e-shopy", "Veľké e-shopy"],
       compareRows: [
         ["Overenie originality", "Kód výrobcu je uvedený, údaje o firme sú verejné"],
-        ["Výmena a vrátenie", "Platíme my, 30 dní"],
+        ["Výmena veľkosti", "Do 14 dní, novú posielame my"],
         ["Platba", "Aj na dobierku, peniaze máš u seba až do prevzatia"]
       ],
       faqTitle: "Časté otázky", faqText: "Čo ti môže pred nákupom napadnúť. Ak odpoveď nenájdeš, odpovieme ti do 1 pracovného dňa.",
