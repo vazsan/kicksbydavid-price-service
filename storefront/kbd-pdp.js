@@ -8,7 +8,7 @@ skuLabel:"Gyári cikkszám", copy:"Másolás", copied:"Másolva",
 skuHint:"Másold be a keresőbe, és nézd meg, ugyanez a modell jön-e vissza.",
 trust:[
 { ic:"shield",b:"Dupla pénz vissza, ha hamis",s:"A független vizsgálatot mi fizetjük"},
-{ ic:"swap",b:"14 napos méretcsere",s:"Egyszer ingyen cserélheted"},
+{ ic:"swap",b:"14 napos méretcsere",s:"Az új méretet mi küldjük"},
 { ic:"ruler",b:"Méretgarancia",s:"Írd meg, mit hordasz, megmondjuk a méreted"},
 { ic:"bell",b:"Szólunk, hol tart",s:"2 munkanap csend után 1 000 Club-pont jár"},
 { ic:"box",b:"Eredeti doboz",s:"Új állapotban érkezik."},
@@ -19,7 +19,7 @@ shipLabel:"Szállítás:", shipOpts:[["Packeta pont / automata","1 089 Ft"],["Pa
 freeFrom:"Ingyenes szállítás 46 250 Ft-tól", missing:"ehhez a párhoz még <b>%X%</b> hiányzik",
 zoom:"Kép nagyítása",
 sizePick:"Méret (EU)",
-sizeHint:"Nem vagy biztos a méretben? 14 napon belül egyszer ingyen cserélheted.",
+sizeHint:"Nem vagy biztos a méretben? 14 napon belül kicseréljük, az új méretet mi küldjük.",
 sizeChart:"Mérettáblázat",
 cartPrefix:"Kosárba", cartNoSize:" teszem",
 delivery:"5–10 munkanapos szállítás · nyomkövetéssel",
@@ -27,7 +27,7 @@ delLabel:"Várható kézbesítés:", delTrack:"nyomkövetéssel", delMin:5, delM
 freeship:"Ehhez a párhoz ingyenes a szállítás",
 fixedNoSize:"Kosárba teszem", fixedPrefix:"Kosárba · ",
 oosWord:"elfogyott", oosTitle:"Ez a méret elfogyott",
-benefits:["100% eredeti termék, ellenőrzött európai forrásból","Ha nem jó a méret, 14 napon belül egyszer ingyen cserélheted","Utánvéttel is fizethetsz, nem kell előre utalnod"],
+benefits:["100% eredeti termék, ellenőrzött európai forrásból","Ha nem jó a méret, 14 napon belül kicseréljük: az új méretet mi küldjük, csak a visszaküldést fizeted","Utánvéttel is fizethetsz, nem kell előre utalnod"],
 more:"Részletes leírás és méretek →",
 payments:["VISA","Mastercard","Utánvét"],
 clarity:"Biztonságos fizetés, utánvéttel is"
@@ -37,7 +37,7 @@ skuLabel:"Kód výrobcu", copy:"Kopírovať", copied:"Skopírované",
 skuHint:"Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model.",
 trust:[
 { ic:"shield",b:"100 % originálny produkt",s:"Z overených európskych zdrojov"},
-{ ic:"swap",b:"Výmena veľkosti zadarmo",s:"Do 14 dní od prevzatia, raz"},
+{ ic:"swap",b:"Výmena veľkosti do 14 dní",s:"Novú veľkosť posielame my"},
 { ic:"lock",b:"Bezpečná platba",s:"Chránená platba kartou"},
 { ic:"chat",b:"Rýchla zákaznícka podpora",s:"Radi vám pomôžeme"},
 { ic:"box",b:"Originálna krabica",s:"Príde v novom stave."},
@@ -48,7 +48,7 @@ shipLabel:"Doprava:", shipOpts:[["DPD výdajné miesto / box","4 €"],["DPD na 
 freeFrom:"Doprava zdarma od 120 €", missing:"k tomuto páru chýba ešte <b>%X%</b>",
 zoom:"Zväčšiť obrázok",
 sizePick:"Veľkosť (EU)",
-sizeHint:"Nie si si istý veľkosťou? Do 14 dní ti ju raz zadarmo vymeníme.",
+sizeHint:"Nie si si istý veľkosťou? Do 14 dní ti ju vymeníme, novú pošleme my.",
 sizeChart:"Tabuľka veľkostí",
 cartPrefix:"Do košíka", cartNoSize:"",
 delivery:"Doručenie za 3-5 pracovných dní · so sledovaním zásielky",
@@ -56,7 +56,7 @@ delLabel:"Predpokladané doručenie:", delTrack:"so sledovaním zásielky", delM
 freeship:"Pri tomto páre je doprava zdarma",
 fixedNoSize:"Pridám do košíka", fixedPrefix:"Do košíka · ",
 oosWord:"vypredané", oosTitle:"Táto veľkosť je vypredaná",
-benefits:["100 % originál z overených európskych zdrojov","Ak ti nesadne veľkosť, do 14 dní ju môžeš raz zadarmo vymeniť","Môžeš platiť na dobierku, nič vopred"],
+benefits:["100 % originál z overených európskych zdrojov","Ak ti nesadne veľkosť, do 14 dní ju vymeníme: novú veľkosť ti pošleme my, zaplatíš len spätné zaslanie","Môžeš platiť na dobierku, nič vopred"],
 more:"Podrobný popis a veľkosti →",
 payments:["VISA","Mastercard","Dobierka"],
 clarity:"Bezpečná platba, aj na dobierku"
@@ -469,7 +469,7 @@ html: '<div style="font-size:15px;line-height:1.7">' +
 H3F + 'Ako dlho trvá doručenie?</h3><p><strong>3–5 pracovných dní</strong> a nemusíš sa nás na nič pýtať: e-mailom ti dáme vedieť, v akom stave je tvoj balík, a po odoslaní dostaneš číslo na sledovanie zásielky.</p>' +
 H3 + 'Prečo nie za 1–2 dni?</h3><p>Páry nakupujeme od overených európskych veľkoobchodných partnerov. Často ide o modely a veľkosti, ktoré u nás už nezoženieš. Táto cesta trvá dlhšie, zato výber aj ceny sú úplne inde.</p>' +
 H3 + 'Dá sa platiť na dobierku?</h3><p>Áno, pri každom spôsobe doručenia. Dobierka stojí 3 € a platíš pri prevzatí, takže peniaze máš u seba, kým balík nedorazí.</p>' +
-H3 + 'Čo ak ti veľkosť nesedí?</h3><p><strong>Veľkosť ti do 14 dní raz zadarmo vymeníme.</strong> Ak chceš tovar vrátiť, môžeš do 14 dní odstúpiť od zmluvy, náklady na vrátenie vtedy platíš ty. Celý postup nájdeš na stránke <a href="/vratenie">Vrátenie tovaru</a>.</p>' +
+H3 + 'Čo ak ti veľkosť nesedí?</h3><p><strong>Veľkosť ti do 14 dní vymeníme.</strong> Novú veľkosť ti pošleme my, spätné zaslanie platíš ty. Ak chceš tovar vrátiť, môžeš do 14 dní odstúpiť od zmluvy, náklady na vrátenie aj vtedy platíš ty. Celý postup nájdeš na stránke <a href="/vratenie">Vrátenie tovaru</a>.</p>' +
 '<p>Do balíka prilož krátku správu so šiestimi údajmi: číslo objednávky, meno, telefónne číslo, e-mail, či ide o vrátenie alebo výmenu, a pri výmene aj novú veľkosť. Topánky pošli nenosené a čisté, v originálnej krabici a vo vonkajšom obale.</p>' +
 H3 + 'Čo ak sa moja veľkosť vypredá?</h3><p>Ozveme sa ti a vrátime ti celú kúpnu cenu. Ku každej objednávke posielame elektronickú faktúru a zákaznícka podpora odpovedá do 1 pracovného dňa.</p></div>'
 },
@@ -479,7 +479,7 @@ html: '<div style="font-size:15px;line-height:1.7">' +
 H3F + 'Ako zistím, že je to originál?</h3><p>Nápis „100 % originál“ nájdeš na každom e-shope, aj na podvodných. U nás preto dôkazom nie je on, ale tieto tri veci:</p>' +
 '<p><strong>1. Kód výrobcu je uvedený.</strong> Nájdeš ho na tejto stránke. Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model.</p>' +
 '<p><strong>2. Firma vystupuje pod svojím menom.</strong> KICKSBYDAVID s.r.o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail, na ktorý odpovedáme do 1 pracovného dňa.</p>' +
-'<p><strong>3. Riziko nesieme my.</strong> Môžeš platiť na dobierku, takže peniaze máš u seba až do prevzatia. Ak ti nesadne veľkosť, do 14 dní ju môžeš raz zadarmo vymeniť.</p>' +
+'<p><strong>3. Riziko nesieme my.</strong> Môžeš platiť na dobierku, takže peniaze máš u seba až do prevzatia. Ak ti nesadne veľkosť, do 14 dní ju vymeníme: novú veľkosť ti pošleme my, zaplatíš len spätné zaslanie.</p>' +
 H3 + 'Odkiaľ páry pochádzajú?</h3><p>Od overených európskych veľkoobchodných partnerov, nové a v originálnej krabici. Často ide o modely a veľkosti, ktoré u nás v obchodoch už nekúpiš.</p>' +
 H3 + 'Ako ich udržať ako nové?</h3>' +
 '<p><strong>Pred prvým nosením:</strong> impregnačný sprej v dvoch tenkých vrstvách urobí viac než akékoľvek neskoršie čistenie.</p>' +

@@ -21,7 +21,7 @@
     menUrl: "/Panske", womenUrl: "/Damske", saleUrl: "/akcie", newUrl: "/novinky", allUrl: "/vsetky-produkty",
     usp: [
       ["shield", "Dvojnásobok peňazí späť, ak je falzifikát", "Nové originálne produkty z overených zdrojov"],
-      ["swap", "Výmena veľkosti zadarmo", "Do 14 dní, raz zadarmo"],
+      ["swap", "Výmena veľkosti do 14 dní", "Novú veľkosť posielame my"],
       ["cash", "Dobierka", "Peniaze ostávajú u teba, kým nepríde balík"],
       ["truck", "Dáme ti vedieť, kde je balík", "Informujeme ťa až do odoslania"]
     ],
@@ -47,7 +47,7 @@
     menUrl: "/Ferfi", womenUrl: "/Noi", saleUrl: "/akcios-termekek", newUrl: "/ujdonsagok", allUrl: "/osszes-termek",
     usp: [
       ["shield", "Dupla pénz vissza, ha hamis", "Új, eredeti termékek, ellenőrzött forrásból"],
-      ["swap", "14 napos méretcsere", "Egyszer ingyen cserélheted"],
+      ["swap", "14 napos méretcsere", "Az új méretet mi küldjük"],
       ["cash", "Utánvét", "A pénzed nálad marad, amíg megjön a csomag"],
       ["truck", "Szólunk, hol tart", "Feladásig értesítünk a csomagodról"]
     ],
