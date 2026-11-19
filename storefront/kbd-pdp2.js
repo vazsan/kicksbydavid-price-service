@@ -78,9 +78,9 @@
       benefits: [
         "Új, eredeti dobozban, ellenőrzött európai nagykereskedőtől",
         "Gyári cikkszám kiírva (%SKU%), a keresőben ellenőrizheted",
-        "30 nap ingyenes csere, utánvéttel is fizethetsz"
+        "14 napos méretcsere, utánvéttel is fizethetsz"
       ],
-      sizeHint: "Nem vagy biztos a méretben? A csere 30 napig ingyenes, és ha megírod, mit hordasz, megmondjuk a méreted.",
+      sizeHint: "Nem vagy biztos a méretben? 14 napon belül egyszer ingyen cserélheted, és ha megírod, mit hordasz, megmondjuk a méreted.",
       last1: "Ebből a méretből ez az utolsó pár",
       saving: { d: "akció kezdete: ", end: "a készlet erejéig", re: /készlet/i },
       cod: "Utánvét felára:",
@@ -92,9 +92,9 @@
         s1: "Szállítási módok", ship: [["Packeta csomagpont / automata", "1 089 Ft", "automatánál csak bankkártya"], ["Packeta házhozszállítás", "2 179 Ft"], ["MPL", "3 800 Ft"]],
         s2: "Fizetés", pay: [["Bankkártya (Visa, Mastercard)", "0 Ft"], ["Utánvét", "+1 100 Ft", "átvételkor fizetsz"]],
         warn: "Utánvéttel fizetnél? Válassz csomagpontot vagy házhozszállítást. Csomagautomatánál csak bankkártyával fizethetsz.",
-        foot: ["Kiszállítás nyomkövetéssel. E-mailben szólunk, hol tart a csomagod.", "↺ 30 napig ingyenes csere és visszaküldés.", "☎ Kérdésed van? %PHONE%"],
-        checks: ["Utánvét", "30 nap ingyenes csere", "Nyomkövetés"],
-        cards: [["truck", "Ingyenes szállítás", "46 250 Ft felett. Utánvét +1 100 Ft."], ["shield", "100% eredeti", "Eredeti dobozban, új állapotban. Dupla pénz vissza, ha hamis."], ["swap", "30 nap csere", "A cserét és a visszaküldést mi fizetjük."], ["ruler", "Méretgarancia", "Írd meg, mit hordasz, megmondjuk a méreted."]]
+        foot: ["Kiszállítás nyomkövetéssel. E-mailben szólunk, hol tart a csomagod.", "↺ 14 napon belül egyszer ingyen méretcsere.", "☎ Kérdésed van? %PHONE%"],
+        checks: ["Utánvét", "14 napos méretcsere", "Nyomkövetés"],
+        cards: [["truck", "Ingyenes szállítás", "46 250 Ft felett. Utánvét +1 100 Ft."], ["shield", "100% eredeti", "Eredeti dobozban, új állapotban. Dupla pénz vissza, ha hamis."], ["swap", "14 napos méretcsere", "Egyszer ingyen cserélheted."], ["ruler", "Méretgarancia", "Írd meg, mit hordasz, megmondjuk a méreted."]]
       }
     },
     /* Szlovák szövegek. Gépi fordítás a meglévő szlovák kifejezések (dobierka, výmena, kód výrobcu) alapján; anyanyelvi átnézés javasolt. */
@@ -116,7 +116,7 @@
         s1: "Spôsoby dopravy", ship: [["DPD Pickup / AlzaBox", "4 €"], ["DPD kuriér na adresu", "5 €"]],
         s2: "Platba", pay: [["Platba kartou (Visa, Mastercard)", "0 €"], ["Dobierka", "+3 €"]],
         warn: null,
-        foot: ["↺ 30 dní výmena a vrátenie zadarmo.", "☎ Máte otázku? %PHONE%"],
+        foot: ["↺ Výmena veľkosti do 14 dní raz zadarmo.", "☎ Máte otázku? %PHONE%"],
         checks: null, cards: null   /* az SK pipás sor és kártyák a meglévő SK szövegekből készülnek (nincs új SK szöveg), lásd skShip() */
       }
     }
