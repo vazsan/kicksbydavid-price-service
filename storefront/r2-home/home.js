@@ -16,8 +16,8 @@
   var L = SK ? {
     base: "/vsetky-produkty", newUrl: "/novinky", saleUrl: "/akcie", tkdur: 24,
     h1: "Tenisky, ktoré<br>práve letia", sub: "Výrobný kód pri každom produkte", btn: "Zobraziť všetko",
-    ticker: ["VÝMENA DO 30 DNÍ ZADARMO", "DOBIERKA", "VÝROBNÝ KÓD", "RATE", "DOPRAVA ZADARMO NAD 120 €"], rate: "GOOGLE",
-    newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesedí veľkosť, výmenu do 30 dní platíme my.",
+    ticker: ["VÝMENA VEĽKOSTI DO 14 DNÍ", "DOBIERKA", "VÝROBNÝ KÓD", "RATE", "DOPRAVA ZADARMO NAD 120 €"], rate: "GOOGLE",
+    newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesadne veľkosť, do 14 dní ju vymeníme: novú veľkosť ti pošleme my, zaplatíš len spätné zaslanie.",
     brandsT: "Obľúbené značky", topT: "Najobľúbenejšie", revT: "Čo o nás hovoria zákazníci", saleT: "Zľavy",
     revBasis: function (n) { return "Na základe " + n + " " + skPl(n); }, gBtn: "Hodnotenia na Google", revLang: "sk",
     tiBig: "6b883db76988873e850692b71b0", tiSmall: "f2ddae483a2767044106f3718af", tiles: "tiles-sk.json", prev: "Predchádzajúce", next: "Ďalšie",
@@ -25,8 +25,8 @@
   } : {
     base: "/osszes-termek", newUrl: "/ujdonsagok", saleUrl: "/akcios-termekek", tkdur: 26,
     h1: "Felkapott<br>sneakerek", sub: "Gyári cikkszám minden terméklapon", btn: "Mutasd az összeset",
-    ticker: ["30 NAP INGYENES CSERE", "UTÁNVÉT", "GYÁRI CIKKSZÁM", "RATE", "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], rate: "GOOGLE",
-    newT: "Most érkezett", all: "Mind", sizeT: "Vásárolj a méretedben", sizeAll: "ÖSSZES", sizeNote: "30 nap ingyenes csere, ha nem jó a méret.",
+    ticker: ["14 NAPOS MÉRETCSERE", "UTÁNVÉT", "GYÁRI CIKKSZÁM", "RATE", "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], rate: "GOOGLE",
+    newT: "Most érkezett", all: "Mind", sizeT: "Vásárolj a méretedben", sizeAll: "ÖSSZES", sizeNote: "Ha nem jó a méret, 14 napon belül kicseréljük: az új méretet mi küldjük, csak a visszaküldést fizeted.",
     brandsT: "Népszerű márkák", topT: "Legnépszerűbb", revT: "Rólunk mondták", saleT: "Akciós",
     revBasis: function (n) { return n + " vélemény alapján"; }, gBtn: "Vélemények a Google-on", revLang: "hu",
     tiBig: "3ba033477a0d031a5f060029c5d", tiSmall: "0d3908782f85181dd586d19e174", tiles: "tiles.json", prev: "Előző", next: "Következő",
