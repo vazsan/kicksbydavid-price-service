@@ -1229,7 +1229,7 @@
   var oosMode = false;
   function oosUi(on) {
     oosMode = on;
-    h.classList.toggle("kbd-nosize-oos", on);
+    if (h.classList.contains("kbd-nosize-oos") !== on) h.classList.toggle("kbd-nosize-oos", on);   /* write only on a change: the observer below sees every class write */
     var cart = d.getElementById("artdet__cart"), b = d.getElementById("kbd-ns-btn"), bb = cart && cart.closest ? cart.closest(".r2-buy") : null;
     if (on) {
       if (!b && cart) {
@@ -1239,10 +1239,10 @@
         b.setAttribute("aria-label", LABEL);   /* the PDP price labeler (kbd-pdp.js) rewrites the text of every .artdet__cart-btn; the accessible name stays ours (Samu msg 5414) */
         b.appendChild(d.createTextNode(LABEL)); col.appendChild(b); cart.insertBefore(col, cart.firstChild);
       }
-      if (bb) bb.classList.remove("r2-buy--oos");   /* keep the buy card frame */
+      if (bb && bb.classList.contains("r2-buy--oos")) bb.classList.remove("r2-buy--oos");   /* keep the buy card frame */
     } else if (b) {
       var c = b.parentNode; if (c && c.parentNode) c.parentNode.removeChild(c);
-      if (bb && cart && !cart.querySelector(".artdet__cart-btn")) bb.classList.add("r2-buy--oos");
+      if (bb && cart && !cart.querySelector(".artdet__cart-btn") && !bb.classList.contains("r2-buy--oos")) bb.classList.add("r2-buy--oos");
     }
   }
   function shouldAsk() {
@@ -1356,6 +1356,15 @@
   }, true);
 
   sync();
+  /* sold-out landing size: apply the state in the same task as the change that enables it (the size marks of kbd-pdp.js, the R2 buy-card
+     wrap), before the browser paints, so the button and the frame never appear one frame late (a 0.061 CLS in 2 of 7 HU mobile test loads) */
+  if (OOS && w.MutationObserver) {
+    /* classList.remove/add/toggle write the attribute even without a change (a mutation record): our own writes are dropped with takeRecords,
+       otherwise sync -> record -> sync loops in microtasks, the 12 s timer never runs and the page hangs (test 2026-11-20 07:15) */
+    var mo = new MutationObserver(function () { if (oosMode || oosAsk()) { sync(); mo.takeRecords(); } });
+    var moRoot = d.getElementById("artdet__main-block") || d.body;
+    if (moRoot) { mo.observe(moRoot, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] }); setTimeout(function () { mo.disconnect(); }, 12000); }
+  }
   if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", sync);
   w.addEventListener("load", sync);
   w.addEventListener("pageshow", sync);
