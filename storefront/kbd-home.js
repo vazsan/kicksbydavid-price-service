@@ -18,7 +18,7 @@
      Bekapcsolva a régi kezdőlap-felső (hős, előnysáv, kategóriák, csempék, fülek, értékelések, polcok) nem épül; a GYIK, blog, hírlevél, lábléc, alapító-blokk és a nemrég megnézett marad. ---------- */
   var R2_LIVE = false;      /* HU */
   var R2_LIVE_SK = false;   /* SK (Dávid TG 2390: a szlovák szövegek OK; élesítés a HU után) */
-  var R2_COMMIT = "3c8d1c00920300c817b567cff363678eb3e4dbf4";
+  var R2_COMMIT = "c49fcd59415b06f9a925f8c22a2634a17eeeb09d";
   var R2 = false;
   (function () {
     /* a kapu elsődleges helye a FEJ-tag (kbd-home-head.js: korai CSS + előbetöltés, nincs villanás); az állapotát a <html> khr-on osztálya mutatja. Ha a fej-tag lefutott (window.KBD_R2H_HEAD), a döntés az övé. */
