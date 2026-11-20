@@ -20,20 +20,20 @@
   var LIST_ID = "kbd_look", MAX_AGE = 48 * 3600000, STK_TTL = 60000;
   var LANG = SK ? "sk" : "hu";
 
-  /* ---------- texts (SK: the header + labels from the approved preview; the lines marked (SK?) still need proofreading) ---------- */
+  /* ---------- texts (SK: header + labels from the approved preview; the 9 status/error lines approved unchanged by David, TG 5554, main msg 5392) ---------- */
   var T = SK ? {
     h: "Kompletné outfity",
     p: "Jedny tenisky a jeden kúsok oblečenia, ktoré sme dali dokopy my. Vyber obe veľkosti a jedným tlačidlom vložíš oboje do košíka.",
     shoe: "Veľkosť topánok", wear: "Veľkosť oblečenia", btn: "Oboje do košíka", tot: "Spolu", hint: "Vyber veľkosť pre oba produkty",
     prev: "Predchádzajúce", next: "Ďalšie", from: function (s) { return "od " + s; },
-    busy: "Vkladám do košíka…",                                                                             /* (SK?) */
-    ok: "Oboje je v košíku.", cart: "Zobraziť košík",                                                        /* (SK?) */
-    soldShoe: "Táto veľkosť tenisiek sa medzitým vypredala. Vyber inú.",                                     /* (SK?) */
-    soldWear: "Táto veľkosť oblečenia sa medzitým vypredala. Vyber inú.",                                    /* (SK?) */
-    fail1: "Tenisky sa nepodarilo vložiť do košíka (táto veľkosť sa vypredala). Oblečenie nebolo pridané.",  /* (SK?) */
-    fail2: "Tenisky sú v košíku. Oblečenie v tejto veľkosti už nie je dostupné, vyber inú.",                 /* (SK?) */
-    err1: "Tenisky sa nepodarilo vložiť do košíka. Skús to znova.",                                          /* (SK?) */
-    err2: "Tenisky sú v košíku, oblečenie sa nepodarilo vložiť. Skús to znova.",                             /* (SK?) */
+    busy: "Vkladám do košíka…",
+    ok: "Oboje je v košíku.", cart: "Zobraziť košík",
+    soldShoe: "Táto veľkosť tenisiek sa medzitým vypredala. Vyber inú.",
+    soldWear: "Táto veľkosť oblečenia sa medzitým vypredala. Vyber inú.",
+    fail1: "Tenisky sa nepodarilo vložiť do košíka (táto veľkosť sa vypredala). Oblečenie nebolo pridané.",
+    fail2: "Tenisky sú v košíku. Oblečenie v tejto veľkosti už nie je dostupné, vyber inú.",
+    err1: "Tenisky sa nepodarilo vložiť do košíka. Skús to znova.",
+    err2: "Tenisky sú v košíku, oblečenie sa nepodarilo vložiť. Skús to znova.",
     alt: function (a, b) { return a + " + " + b; }
   } : {
     h: "Összeillő párok",
