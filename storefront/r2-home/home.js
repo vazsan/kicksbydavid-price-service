@@ -216,7 +216,7 @@
     tk.addEventListener("touchstart", on, { passive: true }); tk.addEventListener("touchend", off, { passive: true }); tk.addEventListener("touchcancel", off, { passive: true });
   }
   /* Klarna switch: off until David's yes (KL_ON); ?kbdklarna=1 / =0 forces it in one browser (the same key as the PDP preview) */
-  var KL_ON = false;
+  var KL_ON = true;   /* ON for everyone: David TG 5512 (main msg 5319), 2026-11-20 */
   function klOn() { var f = null; try { var q = location.search.match(/[?&]kbdklarna=([01])(?:&|$)/); if (q) localStorage.setItem("kbdklarna", q[1]); f = localStorage.getItem("kbdklarna"); } catch (e) {} return f === "1" || (f !== "0" && KL_ON); }
   /* Klarna banner (kanban 8e29caec, David TG 5503 "Mehet fel a banner is árral", main msg 5313): Vera v4 B background (text box baked in) + the card
      flipping from the black KBD card (v4 A) to the pink Klarna card (v4 B) once it scrolls into view (CSS 3D, placement.json, -5deg); reduced motion = pink.
