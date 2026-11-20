@@ -258,11 +258,16 @@
   function stlHtml() { return stlOn() ? '<section class="khr-sec khr-stl" data-k="stl" aria-label="' + L.stlT + '"></section>' : ""; }
   function stlStart(root) {
     var s = $('[data-k="stl"]', root); if (!s || s.getAttribute("data-k2")) return; s.setAttribute("data-k2", "1");
-    lazy(s, function () {
+    function go() {
       if (document.getElementById("khr-stl-js")) return;
       window.KBD_STL = { base: BASE, data: STL_DATA || BASE + "stl/", sk: SK, sec: s };
       var j = mk("script"); j.id = "khr-stl-js"; j.async = true; j.src = BASE + "stl.js"; (document.head || document.documentElement).appendChild(j);
-    }, "800px 0px");
+    }
+    /* the strip must not compete with the LCP image (live Lighthouse 2026-11-20: with an 800 px margin it loaded at ~0.6-1 s, before LCP, incl. 2 model photos):
+       the wide 800 px pre-load starts only after window "load"; before that only a visitor who really reaches it (200 px) triggers it */
+    lazy(s, go, "200px 0px");
+    function arm() { lazy(s, go, "800px 0px"); }
+    if (document.readyState === "complete") arm(); else window.addEventListener("load", arm);
   }
   function skeleton(noHero) {
     var sz = "";
