@@ -22,6 +22,7 @@
       alt: "Odteraz môžeš platiť aj s Klarnou. 3 rovnaké splátky, každých 30 dní. 3 splátky bez úrokov, už od 16,34 € za splátku*. Pozri si tenisky. Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky. *Cena nášho najlacnejšieho páru k 20. 11. 2026, rozdelená na 3 splátky. Platbu na splátky poskytuje Klarna podľa svojich podmienok." },
     newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesadne veľkosť, do 14 dní ju vymeníme: novú veľkosť ti pošleme my, zaplatíš len spätné zaslanie.",
     brandsT: "Obľúbené značky", topT: "Najobľúbenejšie", revT: "Čo o nás hovoria zákazníci", saleT: "Zľavy",
+    stlT: "Kompletné outfity",
     revBasis: function (n) { return "Na základe " + n + " " + skPl(n); }, gBtn: "Hodnotenia na Google", revLang: "sk",
     tiBig: "6b883db76988873e850692b71b0", tiSmall: "f2ddae483a2767044106f3718af", tiles: "tiles-sk.json", prev: "Predchádzajúce", next: "Ďalšie",
     starsAria: function (n) { return n + "/5"; }, alt: "ASICS Gel-NYC Oyster Grey", aria: "KicksByDavid"
@@ -34,6 +35,7 @@
       alt: "Mostantól Klarnával is fizethetsz. 3 egyenlő részlet, 30 naponként. 3 részletben, kamatmentesen, részletenként akár 6 044 Ft-tól*. Böngészd a cipőket. Figyelem! A hitelfelvétel pénzbe kerül. Késedelmes fizetés esetén a hitel költségekkel járhat. *A legolcsóbb párunk ára 2026. november 20-án, 3 részletre osztva. A részletfizetést a Klarna nyújtja, a saját feltételei szerint." },
     newT: "Most érkezett", all: "Mind", sizeT: "Vásárolj a méretedben", sizeAll: "ÖSSZES", sizeNote: "Ha nem jó a méret, 14 napon belül kicseréljük: az új méretet mi küldjük, csak a visszaküldést fizeted.",
     brandsT: "Népszerű márkák", topT: "Legnépszerűbb", revT: "Rólunk mondták", saleT: "Akciós",
+    stlT: "Összeillő párok",
     revBasis: function (n) { return n + " vélemény alapján"; }, gBtn: "Vélemények a Google-on", revLang: "hu",
     tiBig: "3ba033477a0d031a5f060029c5d", tiSmall: "0d3908782f85181dd586d19e174", tiles: "tiles.json", prev: "Előző", next: "Következő",
     starsAria: function (n) { return n + " csillag az 5-ből"; }, alt: "ASICS Gel-NYC Oyster Grey sneaker utcai kövön", aria: "Kezdőlap"
@@ -134,6 +136,7 @@
     + "#khr .khr-szr small{font-size:10px;font-weight:800;color:var(--soft);letter-spacing:.06em;line-height:1}"
     + "#khr .khr-szr b{font-size:16px;font-weight:800;line-height:1.2}"
     + "#khr .khr-szn{margin:10px 0 0;font-size:13px;font-weight:600;color:var(--soft)}"
+    + "#khr .khr-stl:empty{padding:0}"
     /* márkák */
     + "#khr .khr-bl{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}"
     + "#khr .khr-bl a{height:72px;display:grid;place-items:center;border:1.5px solid var(--line);border-radius:14px;background:#fff}"
@@ -246,6 +249,21 @@
     var io = new IntersectionObserver(function (en) { for (var i = 0; i < en.length; i++) if (en[i].isIntersecting) { io.disconnect(); setTimeout(go, 700); } }, { threshold: 0.5 });
     io.observe(s);
   }
+  /* Shop the look strip (STL, Nora): OFF until David's yes (STL_ON); ?kbdstl=1 / =0 forces it in one browser (localStorage "kbdstl").
+     When on, only an empty placeholder section goes into the skeleton (after the size tiles, before the brands); stl.js builds the strip
+     lazily, below the fold. STL_DATA: the data branch on jsDelivr (looks.json + img/, written by Nora's rotation job, hourly cache key in stl.js);
+     if it is empty or the fetch fails, stl.js falls back to the snapshot in this code branch (BASE + "stl/"). Fail-open: no stl.js = the placeholder stays empty (0 px). */
+  var STL_ON = false, STL_DATA = "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-stl-data/";
+  function stlOn() { var f = null; try { var q = location.search.match(/[?&]kbdstl=([01])(?:&|$)/); if (q) localStorage.setItem("kbdstl", q[1]); f = localStorage.getItem("kbdstl"); } catch (e) {} return f === "1" || (f !== "0" && STL_ON); }
+  function stlHtml() { return stlOn() ? '<section class="khr-sec khr-stl" data-k="stl" aria-label="' + L.stlT + '"></section>' : ""; }
+  function stlStart(root) {
+    var s = $('[data-k="stl"]', root); if (!s || s.getAttribute("data-k2")) return; s.setAttribute("data-k2", "1");
+    lazy(s, function () {
+      if (document.getElementById("khr-stl-js")) return;
+      window.KBD_STL = { base: BASE, data: STL_DATA || BASE + "stl/", sk: SK, sec: s };
+      var j = mk("script"); j.id = "khr-stl-js"; j.async = true; j.src = BASE + "stl.js"; (document.head || document.documentElement).appendChild(j);
+    }, "800px 0px");
+  }
   function skeleton(noHero) {
     var sz = "";
     for (var i = 0; i < SIZES.length; i++) sz += '<a data-s="' + SIZES[i] + '" href="' + L.base + '?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
@@ -267,6 +285,7 @@
       + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + klbHtml()
       + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
+      + stlHtml()
       + '<section class="khr-sec" aria-label="' + L.brandsT + '"><div class="khr-sh"><h2>' + L.brandsT + '</h2></div><div class="khr-bl">' + br + "</div></section>"
       + '<section class="khr-sec khr-two"><div data-k="top">' + head(L.topT, L.base) + '<div class="khr-grid type--1 list-type--1">' + ph + "</div></div>"
       + '<div data-k="rev"><div class="khr-sh"><h2>' + L.revT + '</h2></div><div class="khr-revbox"><div class="khr-rvph"></div></div></div></section>'
@@ -500,6 +519,7 @@
     var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
     afterHero(r, function () { tiles(r); lazy(sNew, loadNew, "1200px 0px"); });
     lazy(sRev, loadReviews, "600px 0px");
+    stlStart(r);
     sliderDots(banner);
     return true;
   }
@@ -554,6 +574,7 @@
     /* a hős kép előnyt kap a lassú hálón: a Most érkezett lista (~800 KB HTML) és a tiles.json csak a hős betöltése után (legfeljebb 3,5 mp) indul */
     afterHero(r, function () { tiles(r); lazy(sNew, loadNew, "1200px 0px"); });
     lazy(sRev, loadReviews, "600px 0px");
+    stlStart(r);
     return true;
   }
   /* ami 20 mp alatt sem kapott elég natív kártyát (pl. véget ért az akció), nem marad üres keret */
