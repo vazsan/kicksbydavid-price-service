@@ -1186,6 +1186,11 @@
    on a cart button scrolls to the sizes instead of adding to the cart. A size URL (not the base) keeps
    its size: that size was chosen. Pages with one size or without a cart button are unchanged.
    Off switch: ?kbdnosize=0 (localStorage, this browser only), ?kbdnosize=1 turns it back on.
+   Sold-out landing size (David TG 5578, main msg 5409, Nora): a size page whose own size is sold out (e.g. AF1 White "EU 44" from a listing,
+   an ad or the feed) showed only "Nincs raktáron", with no button and no buy card, although other sizes were in stock. With OOS_ON (or
+   ?kbdoosask=1 in one browser) it gets the same "Válassz méretet" state: the label, a "Válassz méretet" button in the buy card (it only
+   scrolls to the sizes, it never touches the cart), the free sizes outlined; a tap on a free size opens that size page (Kosárba +
+   Gyorsrendelés there). A product with no free size keeps "Nincs raktáron". ?kbdoosask=0 turns it off in one browser.
    ============================================================================ */
 (function () {
   "use strict";
@@ -1201,6 +1206,8 @@
   var SK = /\.sk$/i.test(location.hostname) || (h.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0;
   var LABEL = SK ? "Vyber veľkosť" : "Válassz méretet";   /* approved strings (David TG 4345) */
   var KEY = "kbdSizePick", picked = false;
+  var OOS_ON = false, OOS = false;   /* sold-out landing size: OFF until David's yes; ?kbdoosask=1 / =0 forces it in one browser (localStorage "kbdoosask") */
+  try { var qo = location.search.match(/[?&]kbdoosask=([01])(?:&|$)/); if (qo) w.localStorage.setItem("kbdoosask", qo[1]); var fo = w.localStorage.getItem("kbdoosask"); OOS = fo === "1" || (fo !== "0" && OOS_ON); } catch (e) { OOS = OOS_ON; }
   var BTNS = "#artdet__cart .artdet__cart-btn, #artdet__fixed-cart .fixed-cart__btn, #artdet__cart .artdet__quick-order-btn, .artdet__quick-order-btn";
   function path(u) { try { return decodeURIComponent(new URL(u, location.href).pathname).toLowerCase(); } catch (e) { return ""; } }
   function pickedHere() {
@@ -1209,7 +1216,36 @@
   }
   function remember(href) { try { w.sessionStorage.setItem(KEY, path(href || location.href)); } catch (e) {} }
   function tiles() { return Array.prototype.slice.call(d.querySelectorAll("#artdet__type .product-type__value--text")); }
+  /* the page's own size is sold out (kbd-oos on the active tile), Unas rendered no cart button, and at least one other size is free */
+  function oosAsk() {
+    if (!OOS) return false;
+    var t = tiles();
+    if (t.length < 2) return false;
+    var act = d.querySelector("#artdet__type .product-type__value--text.is-active");
+    if (!act || !act.classList.contains("kbd-oos")) return false;
+    if (!d.querySelector("#artdet__cart .artdet__cart-no-stock") || d.querySelector("#artdet__cart .artdet__cart-btn:not(.kbd-ns-btn)")) return false;
+    return t.some(function (x) { return x !== act && !x.classList.contains("kbd-oos"); });
+  }
+  var oosMode = false;
+  function oosUi(on) {
+    oosMode = on;
+    h.classList.toggle("kbd-nosize-oos", on);
+    var cart = d.getElementById("artdet__cart"), b = d.getElementById("kbd-ns-btn"), bb = cart && cart.closest ? cart.closest(".r2-buy") : null;
+    if (on) {
+      if (!b && cart) {
+        var col = d.createElement("div"); col.className = "col-12 kbd-ns-col";
+        b = d.createElement("button"); b.type = "button"; b.id = "kbd-ns-btn";
+        b.className = "artdet__cart-btn artdet-main-btn btn btn-lg btn-block kbd-ns-btn";   /* the main-button look; never a cart action (onPress stops it) */
+        b.appendChild(d.createTextNode(LABEL)); col.appendChild(b); cart.insertBefore(col, cart.firstChild);
+      }
+      if (bb) bb.classList.remove("r2-buy--oos");   /* keep the buy card frame */
+    } else if (b) {
+      var c = b.parentNode; if (c && c.parentNode) c.parentNode.removeChild(c);
+      if (bb && cart && !cart.querySelector(".artdet__cart-btn")) bb.classList.add("r2-buy--oos");
+    }
+  }
   function shouldAsk() {
+    if (oosAsk()) return true;
     var t = tiles();
     if (t.length < 2) return false;
     var act = d.querySelector("#artdet__type .product-type__value--text.is-active");
@@ -1242,7 +1278,11 @@
     /* after a press without a size: the free tiles and the label turn brown for 2.4 s */
     "html.kbd-pdp.kbd-nosize body:not(#d1):not(#d2):not(#d3):not(#d4) .kbd-nosize-hit #artdet__type .product-type__value:not(.kbd-oos){border-color:var(--kbd-brown,#A3481F)!important}",
     "html.kbd-pdp body:not(#d1):not(#d2):not(#d3):not(#d4) .kbd-nosize-hit #kbd-size-head .kbd-size-label::before{color:var(--kbd-brown,#A3481F)}",
-    ".kbd-nosize-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}"
+    ".kbd-nosize-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}",
+    /* sold-out landing size: our button instead of the "Nincs raktáron" note, the free sizes outlined */
+    "html.kbd-nosize-oos #artdet__cart .artdet__cart-no-stock-col{display:none!important}",
+    "html.kbd-nosize-oos #artdet__cart .kbd-ns-col{flex:0 0 100%;max-width:100%}",
+    "html.kbd-pdp.kbd-nosize.kbd-nosize-oos body:not(#d1):not(#d2):not(#d3):not(#d4) #artdet__type .product-type__value--text:not(.kbd-oos):not(.is-active){border-color:var(--ink,#171717)!important}"
   ].join("\n");
   (d.head || h).appendChild(css);
 
@@ -1264,6 +1304,8 @@
     if (on !== asking || on) {
       asking = on;
       h.classList.toggle("kbd-nosize", on);
+      var om = on && oosAsk();
+      if (om || oosMode) oosUi(om);
       setAria(on);
     }
   }
