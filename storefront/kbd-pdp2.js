@@ -1109,9 +1109,10 @@
   });
 
   /* ---- Klarna 3 részlet (CFG.klarna) ---- */
-  /* "Hogyan működik?" -> Klarna's official Pay in 3 page (David TG 5491, main msg 5304), new tab */
-  var KT = SK ? { l: "Ako to funguje?", u: "https://www.klarna.com/sk/zaplat-v-3-splatkach/", a: "alebo 3 bezúročné splátky po ", b: " s Klarnou", w: "Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky." }
-    : { l: "Hogyan működik?", u: "https://www.klarna.com/hu/fizetesi-modok/fizetes-3-reszletben/", a: "vagy 3 kamatmentes részlet, egyenként ", b: " a Klarnával", w: "Figyelem! A hitelfelvétel pénzbe kerül. Késedelmes fizetés esetén a hitel költségekkel járhat." };
+  /* "Hogyan működik?" -> our own payment page (David TG 5509: competitors link to their own page; main msg 5318/5325), same tab;
+     the Klarna paragraph (3 installments every 30 days + warning) is in the payment method's description there */
+  var KT = SK ? { l: "Ako to funguje?", u: "/shop_contact.php?tab=payment", a: "alebo 3 bezúročné splátky po ", b: " s Klarnou", w: "Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky." }
+    : { l: "Hogyan működik?", u: "/shop_contact.php?tab=payment", a: "vagy 3 kamatmentes részlet, egyenként ", b: " a Klarnával", w: "Figyelem! A hitelfelvétel pénzbe kerül. Késedelmes fizetés esetén a hitel költségekkel járhat." };
   /* one third of the live price, rounded UP: HUF to a whole forint (69 990 -> 23 330 Ft), EUR to the cent with a comma (69,90 -> 23,30 €) */
   function klPart(p) {
     if (SK) return (Math.ceil(Math.round(p * 100) / 3) / 100).toFixed(2).replace(".", ",") + "\u00a0€";
@@ -1132,7 +1133,7 @@
     /* R2 moves the cart button into .r2-buy before kbd-ready: wait for that (or for R2 to give up), so the line never moves after the page shows */
     if (!(cart.closest(".r2-buy") || window.__kbdR2Done)) return;
     if (!e) { e = d.createElement("div"); e.id = "kbd-klarna"; }
-    var html = '<div class="kk-r"><span>' + esc(KT.a) + "<b>" + klPart(p) + "</b>" + esc(KT.b) + '</span>' + K2.klBadge("kk-b") + '<a class="kk-l" href="' + KT.u + '" target="_blank" rel="noopener">' + esc(KT.l) + '</a></div><p class="kk-w">' + esc(KT.w) + "</p>";
+    var html = '<div class="kk-r"><span>' + esc(KT.a) + "<b>" + klPart(p) + "</b>" + esc(KT.b) + '</span>' + K2.klBadge("kk-b") + '<a class="kk-l" href="' + KT.u + '">' + esc(KT.l) + '</a></div><p class="kk-w">' + esc(KT.w) + "</p>";
     if (e.getAttribute("data-k") !== html) { e.innerHTML = html; e.setAttribute("data-k", html); }
     if (e.previousElementSibling !== cart || e.parentNode !== cart.parentNode) cart.parentNode.insertBefore(e, cart.nextSibling);
     var o = getComputedStyle(cart).order; if (e.style.order !== o) e.style.order = o;
