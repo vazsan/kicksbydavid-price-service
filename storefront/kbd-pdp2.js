@@ -11,6 +11,7 @@
   if (window.__kbdPdp2) return;
   window.__kbdPdp2 = true;
   var SELF = (d.currentScript && d.currentScript.src) || "";   /* ebből a könyvtárból töltődik a dupimg.json is (ugyanaz a rögzített commit) */
+  var KL_BADGE = SELF && /kbd-pdp2\.js/.test(SELF) ? SELF.replace(/kbd-pdp2\.js.*$/, "klarna/klarna-badge.png") : "";
 
   /* ========================= KONFIGURÁCIÓ ========================= */
   var CFG = {
@@ -577,7 +578,7 @@
   function payChips() {
     var cod = (T1.payments || [])[2] || (SK ? "Dobierka" : "Utánvét");
     function chip(svg, label) { return '<span class="k4-chip" role="img" aria-label="' + esc(label) + '">' + svg + "</span>"; }
-    var kl = klarnaOn() ? '<span class="k4-klarna kk-pill" role="img" aria-label="Klarna">Klarna.</span>' : "";
+    var kl = klarnaOn() ? klBadge("k4-klarna") : "";
     return chip(PAYSVG.cash, cod) + chip(PAYSVG.visa, "VISA") + chip(PAYSVG.mc, "Mastercard") + kl;
   }
   /* SK: a pipás sor és a kártyák kizárólag a meglévő SK szövegekből (a v11 szótár és a lap szövegei) állnak össze */
@@ -810,7 +811,9 @@
     try { var q = location.search.match(/[?&]kbdklarna=([01])(?:&|$)/); if (q) localStorage.setItem("kbdklarna", q[1]); f = localStorage.getItem("kbdklarna"); } catch (e) {}
     return f === "1" || (f !== "0" && !!(CFG.klarna && CFG.klarna.on));
   }
-  window.KBD2 = { CFG: CFG, TX: TX, SK: SK, T1: T1, esc: esc, txt: txt, $: $, $$: $$, ico: ico, klarnaOn: klarnaOn };
+  /* the official Klarna badge (David TG 5450, white border cropped, not recoloured) from the same pinned commit; empty = the CSS pill */
+  function klBadge(cls) { return KL_BADGE ? '<img class="' + cls + ' kk-img" src="' + KL_BADGE + '" alt="Klarna" width="43" height="24" decoding="async">' : '<span class="' + cls + ' kk-pill" role="img" aria-label="Klarna">Klarna.</span>'; }
+  window.KBD2 = { CFG: CFG, TX: TX, SK: SK, T1: T1, esc: esc, txt: txt, $: $, $$: $$, ico: ico, klarnaOn: klarnaOn, klBadge: klBadge };
   if (CFG.coupon && CFG.coupon.enabled) {
 /* KBD PDP: kuponblokk (ELES) + elfogyott-méret értesítő (CSAK a ?kbdnotify=1 süti-kapu mögött, küldés nélkül).
    Betölti a kbd-pdp2.js ugyanabból a könyvtárból (CFG.coupon.enabled). Dizájn: Vera (agents/vera/scripts/pdp_kupon_design.mjs), illesztés: Nora, szövegek: Zara (SK: lektorálásra vár).
@@ -1101,7 +1104,7 @@
   });
 
   /* ---- Klarna 3 részlet (CFG.klarna) ---- */
-  var KT = SK ? { a: "alebo 3 bezúročné splátky po ", b: " s Klarna", w: "Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky." }
+  var KT = SK ? { a: "alebo 3 bezúročné splátky po ", b: " s Klarnou", w: "Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky." }
     : { a: "vagy 3 kamatmentes részlet, egyenként ", b: " a Klarnával", w: "Figyelem! A hitelfelvétel pénzbe kerül. Késedelmes fizetés esetén a hitel költségekkel járhat." };
   /* one third of the live price, rounded UP: HUF to a whole forint (69 990 -> 23 330 Ft), EUR to the cent with a comma (69,90 -> 23,30 €) */
   function klPart(p) {
@@ -1113,7 +1116,8 @@
     "#kbd-klarna .kk-r b{font-weight:800;white-space:nowrap}" +
     ".kk-pill{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;background:#FFB3C7;color:#0B051D;font-family:Montserrat,Montserrat-fallback,sans-serif;font-size:12px;font-weight:800;line-height:1;letter-spacing:.01em;text-transform:none}" +
     "#kbd-klarna .kk-w{margin:4px 0 0;font-size:12px;line-height:1.45;font-weight:500;color:#3A3A36}" +
-    ".k4-klarna.kk-pill{flex:0 0 auto;align-self:center;height:24px;margin-left:2px}";
+    ".k4-klarna{flex:0 0 auto;align-self:center;height:24px;margin-left:2px}" +
+    ".kk-img{display:inline-block;height:24px;width:auto;vertical-align:middle;border-radius:5px}";
   function klarna() {
     var e = d.getElementById("kbd-klarna"), cart = $("#artdet__main-block #artdet__cart"), pb = priceBlock(), p = pb ? priceNow(isSale()) : 0;
     if (!d.getElementById("kbd-klarna-css") && K2.klarnaOn && K2.klarnaOn()) { var s = d.createElement("style"); s.id = "kbd-klarna-css"; s.textContent = KL_CSS; (d.head || h).appendChild(s); }
@@ -1121,7 +1125,7 @@
     /* R2 moves the cart button into .r2-buy before kbd-ready: wait for that (or for R2 to give up), so the line never moves after the page shows */
     if (!(cart.closest(".r2-buy") || window.__kbdR2Done)) return;
     if (!e) { e = d.createElement("div"); e.id = "kbd-klarna"; }
-    var html = '<div class="kk-r"><span>' + esc(KT.a) + "<b>" + klPart(p) + "</b>" + esc(KT.b) + '</span><span class="kk-pill" role="img" aria-label="Klarna">Klarna.</span></div><p class="kk-w">' + esc(KT.w) + "</p>";
+    var html = '<div class="kk-r"><span>' + esc(KT.a) + "<b>" + klPart(p) + "</b>" + esc(KT.b) + '</span>' + K2.klBadge("kk-b") + '</div><p class="kk-w">' + esc(KT.w) + "</p>";
     if (e.getAttribute("data-k") !== html) { e.innerHTML = html; e.setAttribute("data-k", html); }
     if (e.previousElementSibling !== cart || e.parentNode !== cart.parentNode) cart.parentNode.insertBefore(e, cart.nextSibling);
     var o = getComputedStyle(cart).order; if (e.style.order !== o) e.style.order = o;
