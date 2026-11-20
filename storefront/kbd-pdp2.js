@@ -116,10 +116,10 @@
       upsell: { prev: "Predchádzajúce", next: "Ďalšie" },
       ship: {
         eta: "Predpokladané doručenie:", free: "✓ Pri tomto páre je doprava zdarma", miss: "Do dopravy zdarma chýba ešte <b>%X%</b>",
-        cod: "Dobierka +3 €", btn: "Doprava a platba", title: "Doprava a platba", close: "Zavrieť",
+        cod: "Dobierka +2,90 €", btn: "Doprava a platba", title: "Doprava a platba", close: "Zavrieť",
         banner: ["Nad 120 € je doprava", "ZADARMO"],
         s1: "Spôsoby dopravy", ship: [["DPD Pickup / AlzaBox", "4 €"], ["DPD kuriér na adresu", "5 €"]],
-        s2: "Platba", pay: [["Platba kartou (Visa, Mastercard)", "0 €"], ["Dobierka", "+3 €"]],
+        s2: "Platba", pay: [["Platba kartou (Visa, Mastercard)", "0 €"], ["Dobierka", "+2,90 €"]],
         warn: null,
         foot: ["↺ Výmena veľkosti do 14 dní, novú posielame my.", "☎ Máte otázku? %PHONE%"],
         checks: null, cards: null   /* az SK pipás sor és kártyák a meglévő SK szövegekből készülnek (nincs új SK szöveg), lásd skShip() */
