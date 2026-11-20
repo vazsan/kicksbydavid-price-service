@@ -31,7 +31,7 @@
     /* Klarna 3 részlet (kanban 8e29caec, David TG 5439, main msg 5246): "vagy 3 kamatmentes részlet, egyenként X a Klarnával" under the cart button + the
        mandatory credit warning (CCD2 from 2026-11-20: MNB, 312/2025 Z. z. § 5 (2)) + a Klarna pill in the payment chips. on:false until David's yes;
        ?kbdklarna=1 / =0 forces it on / off in one browser (preview). */
-    klarna: { on: false },
+    klarna: { on: true },   /* ON for everyone: David TG 5512 'Mehetnek ezek a dolgok is a klarnával' (main msg 5319), 2026-11-20 */
     /* bf.after: what the coupon spot shows after the end. "none" = nothing (KBD5/KBD10 are switched off at the BF go-live); "kbd" = the old KBD box again. */
     /* bf.round: the Unas cart rounds the DISCOUNT to a whole unit (David's SK cart, TG 4526: 139 EUR -> "-21 EUR" for 20.85). Half-up or up is not
        known yet, so "ceil" (main msg 4433): the strip never shows more than the cart; "round" once a cart test shows half-up. */
