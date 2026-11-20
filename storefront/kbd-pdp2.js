@@ -12,6 +12,8 @@
   window.__kbdPdp2 = true;
   var SELF = (d.currentScript && d.currentScript.src) || "";   /* ebből a könyvtárból töltődik a dupimg.json is (ugyanaz a rögzített commit) */
   var KL_BADGE = SELF && /kbd-pdp2\.js/.test(SELF) ? SELF.replace(/kbd-pdp2\.js.*$/, "klarna/klarna-badge.png") : "";
+  /* Apple Pay / Google Pay marks from David (main msg 5293): white background cropped, Apple's baked-in checkerboard turned white, logos untouched */
+  var PAY_BASE = SELF && /kbd-pdp2\.js/.test(SELF) ? SELF.replace(/kbd-pdp2\.js.*$/, "payment/") : "";
 
   /* ========================= KONFIGURÁCIÓ ========================= */
   var CFG = {
@@ -579,7 +581,8 @@
     var cod = (T1.payments || [])[2] || (SK ? "Dobierka" : "Utánvét");
     function chip(svg, label) { return '<span class="k4-chip" role="img" aria-label="' + esc(label) + '">' + svg + "</span>"; }
     var kl = klarnaOn() ? klBadge("k4-klarna") : "";
-    return chip(PAYSVG.cash, cod) + chip(PAYSVG.visa, "VISA") + chip(PAYSVG.mc, "Mastercard") + kl;
+    function mark(file, label, w) { return PAY_BASE ? '<img class="k4-mark" src="' + PAY_BASE + file + '" alt="' + esc(label) + '" width="' + w + '" height="24" decoding="async" style="display:inline-block;height:24px;width:auto;flex:0 0 auto;align-self:center">' : ""; }
+    return chip(PAYSVG.cash, cod) + chip(PAYSVG.visa, "VISA") + chip(PAYSVG.mc, "Mastercard") + mark("applepay.png", "Apple Pay", 37) + mark("googlepay.png", "Google Pay", 46) + kl;
   }
   /* SK: a pipás sor és a kártyák kizárólag a meglévő SK szövegekből (a v11 szótár és a lap szövegei) állnak össze */
   function skShip() {
