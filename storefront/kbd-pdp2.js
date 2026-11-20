@@ -1186,7 +1186,7 @@
    on a cart button scrolls to the sizes instead of adding to the cart. A size URL (not the base) keeps
    its size: that size was chosen. Pages with one size or without a cart button are unchanged.
    Off switch: ?kbdnosize=0 (localStorage, this browser only), ?kbdnosize=1 turns it back on.
-   Sold-out landing size (David TG 5578, main msg 5409, Nora): a size page whose own size is sold out (e.g. AF1 White "EU 44" from a listing,
+   Sold-out landing size (David TG 5578, main msg 5409, Nora; ON since 2026-11-20): a size page whose own size is sold out (e.g. AF1 White "EU 44" from a listing,
    an ad or the feed) showed only "Nincs raktáron", with no button and no buy card, although other sizes were in stock. With OOS_ON (or
    ?kbdoosask=1 in one browser) it gets the same "Válassz méretet" state: the label, a "Válassz méretet" button in the buy card (it only
    scrolls to the sizes, it never touches the cart), the free sizes outlined; a tap on a free size opens that size page (Kosárba +
@@ -1206,7 +1206,7 @@
   var SK = /\.sk$/i.test(location.hostname) || (h.getAttribute("lang") || "").toLowerCase().indexOf("sk") === 0;
   var LABEL = SK ? "Vyber veľkosť" : "Válassz méretet";   /* approved strings (David TG 4345) */
   var KEY = "kbdSizePick", picked = false;
-  var OOS_ON = false, OOS = false;   /* sold-out landing size: OFF until David's yes; ?kbdoosask=1 / =0 forces it in one browser (localStorage "kbdoosask") */
+  var OOS_ON = true, OOS = false;   /* sold-out landing size: ON (David TG 5578, main msg 5409; live Lighthouse A/B 2026-11-20); ?kbdoosask=0 / =1 forces it in one browser (localStorage "kbdoosask") */
   try { var qo = location.search.match(/[?&]kbdoosask=([01])(?:&|$)/); if (qo) w.localStorage.setItem("kbdoosask", qo[1]); var fo = w.localStorage.getItem("kbdoosask"); OOS = fo === "1" || (fo !== "0" && OOS_ON); } catch (e) { OOS = OOS_ON; }
   var BTNS = "#artdet__cart .artdet__cart-btn, #artdet__fixed-cart .fixed-cart__btn, #artdet__cart .artdet__quick-order-btn, .artdet__quick-order-btn";
   function path(u) { try { return decodeURIComponent(new URL(u, location.href).pathname).toLowerCase(); } catch (e) { return ""; } }
@@ -1236,6 +1236,7 @@
         var col = d.createElement("div"); col.className = "col-12 kbd-ns-col";
         b = d.createElement("button"); b.type = "button"; b.id = "kbd-ns-btn";
         b.className = "artdet__cart-btn artdet-main-btn btn btn-lg btn-block kbd-ns-btn";   /* the main-button look; never a cart action (onPress stops it) */
+        b.setAttribute("aria-label", LABEL);   /* the PDP price labeler (kbd-pdp.js) rewrites the text of every .artdet__cart-btn; the accessible name stays ours (Samu msg 5414) */
         b.appendChild(d.createTextNode(LABEL)); col.appendChild(b); cart.insertBefore(col, cart.firstChild);
       }
       if (bb) bb.classList.remove("r2-buy--oos");   /* keep the buy card frame */
