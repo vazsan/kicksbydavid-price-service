@@ -16,7 +16,8 @@
   var L = SK ? {
     base: "/vsetky-produkty", newUrl: "/novinky", saleUrl: "/akcie", tkdur: 24,
     h1: "Tenisky, ktoré<br>práve letia", sub: "Výrobný kód pri každom produkte", btn: "Zobraziť všetko",
-    ticker: ["VÝMENA VEĽKOSTI DO 14 DNÍ", "DOBIERKA", "VÝROBNÝ KÓD", "RATE", "DOPRAVA ZADARMO NAD 120 €"], rate: "GOOGLE",
+    ticker: ["VÝMENA VEĽKOSTI DO 14 DNÍ", "DOBIERKA", "KLARNA", "VÝROBNÝ KÓD", "RATE", "DOPRAVA ZADARMO NAD 120 €"], rate: "GOOGLE",
+    kl: ["Zaplať v 3 splátkach s Klarna", "Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky."],
     newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesadne veľkosť, do 14 dní ju vymeníme: novú veľkosť ti pošleme my, zaplatíš len spätné zaslanie.",
     brandsT: "Obľúbené značky", topT: "Najobľúbenejšie", revT: "Čo o nás hovoria zákazníci", saleT: "Zľavy",
     revBasis: function (n) { return "Na základe " + n + " " + skPl(n); }, gBtn: "Hodnotenia na Google", revLang: "sk",
@@ -25,7 +26,8 @@
   } : {
     base: "/osszes-termek", newUrl: "/ujdonsagok", saleUrl: "/akcios-termekek", tkdur: 26,
     h1: "Felkapott<br>sneakerek", sub: "Gyári cikkszám minden terméklapon", btn: "Mutasd az összeset",
-    ticker: ["14 NAPOS MÉRETCSERE", "UTÁNVÉT", "GYÁRI CIKKSZÁM", "RATE", "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], rate: "GOOGLE",
+    ticker: ["14 NAPOS MÉRETCSERE", "UTÁNVÉT", "KLARNA", "GYÁRI CIKKSZÁM", "RATE", "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], rate: "GOOGLE",
+    kl: ["Fizess 3 részletben a Klarnával", "Figyelem! A hitelfelvétel pénzbe kerül. Késedelmes fizetés esetén a hitel költségekkel járhat."],
     newT: "Most érkezett", all: "Mind", sizeT: "Vásárolj a méretedben", sizeAll: "ÖSSZES", sizeNote: "Ha nem jó a méret, 14 napon belül kicseréljük: az új méretet mi küldjük, csak a visszaküldést fizeted.",
     brandsT: "Népszerű márkák", topT: "Legnépszerűbb", revT: "Rólunk mondták", saleT: "Akciós",
     revBasis: function (n) { return n + " vélemény alapján"; }, gBtn: "Vélemények a Google-on", revLang: "hu",
@@ -93,6 +95,8 @@
     + "#khr .khr-tk:hover .khr-tkin,#khr .khr-tk:active .khr-tkin,#khr .khr-tk:focus-within .khr-tkin,#khr .khr-tk.khr-tkp .khr-tkin{animation-play-state:paused}"
     + "@media (prefers-reduced-motion:reduce){#khr .khr-tkin{animation:none;transform:none}#khr .khr-tkh:not(:first-child){display:none}#khr .khr-tk{padding:0 16px}}"
     + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}#khr .khr-tk i{font-style:normal}"
+    + "#khr .khr-tk .khr-kl{gap:8px;font-size:12px;letter-spacing:.02em;text-transform:none}#khr .khr-tk .khr-kl em{font-style:normal;font-weight:600;color:#3A3A36}"
+    + "#khr .khr-klp{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:#FFB3C7;color:#0B051D;font-size:11px;font-weight:800;letter-spacing:.01em}"
     + "#khr .khr-first{padding-top:18px}"
     /* kártyasín és rács: a kártya a natív Unas kártya */
     + "#khr .khr-rail{display:grid;grid-auto-flow:column;grid-auto-columns:184px;gap:10px;overflow-x:auto;margin:0 -16px 0 -5px;padding:6px 16px 8px 5px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}"
@@ -197,14 +201,18 @@
     var on = function () { tk.classList.add("khr-tkp"); }, off = function () { tk.classList.remove("khr-tkp"); };
     tk.addEventListener("touchstart", on, { passive: true }); tk.addEventListener("touchend", off, { passive: true }); tk.addEventListener("touchcancel", off, { passive: true });
   }
+  /* Klarna switch: off until David's yes (KL_ON); ?kbdklarna=1 / =0 forces it in one browser (the same key as the PDP preview) */
+  var KL_ON = false;
+  function klOn() { var f = null; try { var q = location.search.match(/[?&]kbdklarna=([01])(?:&|$)/); if (q) localStorage.setItem("kbdklarna", q[1]); f = localStorage.getItem("kbdklarna"); } catch (e) {} return f === "1" || (f !== "0" && KL_ON); }
   function skeleton(noHero) {
     var sz = "";
     for (var i = 0; i < SIZES.length; i++) sz += '<a data-s="' + SIZES[i] + '" href="' + L.base + '?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
     sz += '<a href="' + L.base + '"><small>' + L.sizeAll + '</small><b>' + ARROW + "</b></a>";
     var br = "";
     for (var j = 0; j < BRANDS.length; j++) br += '<a data-b="' + BRANDS[j][0] + '" href="' + L.base + '?filter=8208356:' + encodeURIComponent(BRANDS[j][0]) + '"><img src="' + IMG + "brandlogo_" + BRANDS[j][1] + '.webp" alt="' + BRANDS[j][0] + '" loading="lazy" decoding="async"></a>';
-    var tk = L.ticker.map(function (x) { return x === "RATE" ? '<i class="khr-rate">5,0 ' + L.rate + "</i>" : x; }), t = "";
-    for (var k = 0; k < tk.length; k++) t += "<span>" + CHECK + tk[k] + "</span>";
+    /* KLARNA (kanban 8e29caec, main msg 5246): the installment claim always with the credit warning right next to it (CCD2, min 12px); only while klOn() */
+    var tk = L.ticker.filter(function (x) { return x !== "KLARNA" || klOn(); }).map(function (x) { return x === "RATE" ? '<i class="khr-rate">5,0 ' + L.rate + "</i>" : x; }), t = "";
+    for (var k = 0; k < tk.length; k++) t += tk[k] === "KLARNA" ? '<span class="khr-kl"><b class="khr-klp">Klarna.</b>' + L.kl[0] + '<em>' + L.kl[1] + "</em></span>" : "<span>" + CHECK + tk[k] + "</span>";
     var tkh = ""; for (var c = 0; c < 4; c++) tkh += '<div class="khr-tkh"' + (c ? ' aria-hidden="true"' : "") + ">" + t + "</div>";
     var ph = '<div class="khr-ph" style="width:100%"></div>';
     return (noHero || SLIDER() ? '' : ''
