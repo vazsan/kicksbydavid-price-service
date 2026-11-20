@@ -17,7 +17,7 @@
     base: "/vsetky-produkty", newUrl: "/novinky", saleUrl: "/akcie", tkdur: 24,
     h1: "Tenisky, ktoré<br>práve letia", sub: "Výrobný kód pri každom produkte", btn: "Zobraziť všetko",
     ticker: ["VÝMENA VEĽKOSTI DO 14 DNÍ", "DOBIERKA", "KLARNA", "VÝROBNÝ KÓD", "RATE", "DOPRAVA ZADARMO NAD 120 €"], rate: "GOOGLE",
-    kl: ["Zaplať v 3 splátkach s Klarna", "Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky."],
+    kl: ["Zaplať v 3 splátkach s Klarnou", "Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky."],
     newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesadne veľkosť, do 14 dní ju vymeníme: novú veľkosť ti pošleme my, zaplatíš len spätné zaslanie.",
     brandsT: "Obľúbené značky", topT: "Najobľúbenejšie", revT: "Čo o nás hovoria zákazníci", saleT: "Zľavy",
     revBasis: function (n) { return "Na základe " + n + " " + skPl(n); }, gBtn: "Hodnotenia na Google", revLang: "sk",
