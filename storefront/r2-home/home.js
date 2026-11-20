@@ -225,7 +225,7 @@
      flipping from the black KBD card (v4 A) to the pink Klarna card (v4 B) once it scrolls into view (CSS 3D, placement.json, -5deg); reduced motion = pink.
      The whole banner links to the sneaker category; the full credit warning + "Hogyan működik?" are real HTML under it. Lazy images, fixed aspect ratio (no CLS).
      The "-tól" price is the cheapest in-stock sneaker on 2026-11-20 (18 130 Ft / 49 EUR, /3 rounded up). Off switch: KLB_ON, ?kbdklb=0 / =1 in one browser. */
-  var KLB_ON = true;
+  var KLB_ON = false;
   function klbOn() { var f = null; try { var q = location.search.match(/[?&]kbdklb=([01])(?:&|$)/); if (q) localStorage.setItem("kbdklb", q[1]); f = localStorage.getItem("kbdklb"); } catch (e) {} return f === "1" || (f !== "0" && KLB_ON); }
   function klbHtml() {
     if (!klbOn() || !L.klb) return "";
