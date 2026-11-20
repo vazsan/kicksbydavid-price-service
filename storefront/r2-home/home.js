@@ -18,6 +18,8 @@
     h1: "Tenisky, ktoré<br>práve letia", sub: "Výrobný kód pri každom produkte", btn: "Zobraziť všetko",
     ticker: ["VÝMENA VEĽKOSTI DO 14 DNÍ", "DOBIERKA", "KLARNA", "VÝROBNÝ KÓD", "RATE", "DOPRAVA ZADARMO NAD 120 €"], rate: "GOOGLE",
     kl: ["Zaplať v 3 splátkach s Klarnou", "Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky."],
+    klb: { url: "/sneakery", how: "Ako to funguje?", howUrl: "https://www.klarna.com/sk/zaplat-v-3-splatkach/",
+      alt: "Odteraz môžeš platiť aj s Klarnou. 3 rovnaké splátky, každých 30 dní. 3 splátky bez úrokov, už od 16,34 € za splátku*. Pozri si tenisky. Pozor! Požičanie peňazí stojí peniaze. *Cena nášho najlacnejšieho páru k 20. 11. 2026, rozdelená na 3 splátky. Platbu na splátky poskytuje Klarna podľa svojich podmienok." },
     newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesadne veľkosť, do 14 dní ju vymeníme: novú veľkosť ti pošleme my, zaplatíš len spätné zaslanie.",
     brandsT: "Obľúbené značky", topT: "Najobľúbenejšie", revT: "Čo o nás hovoria zákazníci", saleT: "Zľavy",
     revBasis: function (n) { return "Na základe " + n + " " + skPl(n); }, gBtn: "Hodnotenia na Google", revLang: "sk",
@@ -28,6 +30,8 @@
     h1: "Felkapott<br>sneakerek", sub: "Gyári cikkszám minden terméklapon", btn: "Mutasd az összeset",
     ticker: ["14 NAPOS MÉRETCSERE", "UTÁNVÉT", "KLARNA", "GYÁRI CIKKSZÁM", "RATE", "INGYENES SZÁLLÍTÁS 46 250 FT FELETT"], rate: "GOOGLE",
     kl: ["Fizess 3 részletben a Klarnával", "Figyelem! A hitelfelvétel pénzbe kerül. Késedelmes fizetés esetén a hitel költségekkel járhat."],
+    klb: { url: "/sneakerek", how: "Hogyan működik?", howUrl: "https://www.klarna.com/hu/fizetesi-modok/fizetes-3-reszletben/",
+      alt: "Mostantól Klarnával is fizethetsz. 3 egyenlő részlet, 30 naponként. 3 részletben, kamatmentesen, részletenként akár 6 044 Ft-tól*. Böngészd a cipőket. Figyelem! A hitelfelvétel pénzbe kerül. *A legolcsóbb párunk ára 2026. november 20-án, 3 részletre osztva. A részletfizetést a Klarna nyújtja, a saját feltételei szerint." },
     newT: "Most érkezett", all: "Mind", sizeT: "Vásárolj a méretedben", sizeAll: "ÖSSZES", sizeNote: "Ha nem jó a méret, 14 napon belül kicseréljük: az új méretet mi küldjük, csak a visszaküldést fizeted.",
     brandsT: "Népszerű márkák", topT: "Legnépszerűbb", revT: "Rólunk mondták", saleT: "Akciós",
     revBasis: function (n) { return n + " vélemény alapján"; }, gBtn: "Vélemények a Google-on", revLang: "hu",
@@ -95,6 +99,15 @@
     + "#khr .khr-tk:hover .khr-tkin,#khr .khr-tk:active .khr-tkin,#khr .khr-tk:focus-within .khr-tkin,#khr .khr-tk.khr-tkp .khr-tkin{animation-play-state:paused}"
     + "@media (prefers-reduced-motion:reduce){#khr .khr-tkin{animation:none;transform:none}#khr .khr-tkh:not(:first-child){display:none}#khr .khr-tk{padding:0 16px}}"
     + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}#khr .khr-tk i{font-style:normal}"
+    + "#khr .khr-klb-a{position:relative;display:block;max-width:600px;margin:0 auto;aspect-ratio:1280/1792;border-radius:12px;overflow:hidden;background:#e9e9e9}"
+    + "#khr .khr-klb-bg{display:block;width:100%;height:100%;object-fit:cover}"
+    + "#khr .khr-klb-card{position:absolute;left:28.125%;top:5.58%;width:43.75%;height:41.29%;perspective:1400px;transform:rotate(-5deg)}"
+    + "#khr .khr-klb-in{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .95s cubic-bezier(.3,.1,.2,1)}"
+    + "#khr .khr-klb-in picture,#khr .khr-klb-in img{position:absolute;inset:0;display:block;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden}"
+    + "#khr .khr-klb-in picture:last-child{transform:rotateY(180deg)}#khr .khr-klb.on .khr-klb-in{transform:rotateY(180deg)}"
+    + "#khr .khr-klb-w{margin:8px auto 0;max-width:600px;font-size:12px;line-height:1.45;font-weight:500;color:#3A3A36;text-align:center}#khr .khr-klb-w a{color:#171717;font-weight:700;text-decoration:underline;white-space:nowrap}"
+    + "@media (min-width:992px){#khr .khr-klb-a{max-width:none;aspect-ratio:3840/1440}#khr .khr-klb-card{left:53.125%;top:12.5%;width:21.354%;height:75%}#khr .khr-klb-w{max-width:none}}"
+    + "@media (prefers-reduced-motion:reduce){#khr .khr-klb-in{transition:none}}"
     + "#khr .khr-tk .khr-kl{gap:8px;font-size:12px;letter-spacing:.02em;text-transform:none}#khr .khr-tk .khr-kl em{font-style:normal;font-weight:600;color:#3A3A36}"
     + "#khr .khr-klp{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:#FFB3C7;color:#0B051D;font-size:11px;font-weight:800;letter-spacing:.01em}"
     + "#khr .khr-first{padding-top:18px}"
@@ -197,6 +210,7 @@
   function SLIDER() { return /(^|\s)khr-slider(\s|$)/.test(document.documentElement.className); }
   /* előnysáv: érintésre megáll (iOS Safari :active-ot csak touchstart figyelővel ad, ezért a kis figyelő: a sáv animációja csak CSS marad) */
   function tickerTouch(root) {
+    try { klbStart(root); } catch (e) {}
     var tk = $(".khr-tk", root); if (!tk || tk.getAttribute("data-t")) return; tk.setAttribute("data-t", "1");
     var on = function () { tk.classList.add("khr-tkp"); }, off = function () { tk.classList.remove("khr-tkp"); };
     tk.addEventListener("touchstart", on, { passive: true }); tk.addEventListener("touchend", off, { passive: true }); tk.addEventListener("touchcancel", off, { passive: true });
@@ -204,6 +218,29 @@
   /* Klarna switch: off until David's yes (KL_ON); ?kbdklarna=1 / =0 forces it in one browser (the same key as the PDP preview) */
   var KL_ON = false;
   function klOn() { var f = null; try { var q = location.search.match(/[?&]kbdklarna=([01])(?:&|$)/); if (q) localStorage.setItem("kbdklarna", q[1]); f = localStorage.getItem("kbdklarna"); } catch (e) {} return f === "1" || (f !== "0" && KL_ON); }
+  /* Klarna banner (kanban 8e29caec, David TG 5503 "Mehet fel a banner is árral", main msg 5313): Vera v4 B background (text box baked in) + the card
+     flipping from the black KBD card (v4 A) to the pink Klarna card (v4 B) once it scrolls into view (CSS 3D, placement.json, -5deg); reduced motion = pink.
+     The whole banner links to the sneaker category; the full credit warning + "Hogyan működik?" are real HTML under it. Lazy images, fixed aspect ratio (no CLS).
+     The "-tól" price is the cheapest in-stock sneaker on 2026-11-20 (18 130 Ft / 49 EUR, /3 rounded up). Off switch: KLB_ON, ?kbdklb=0 / =1 in one browser. */
+  var KLB_ON = true;
+  function klbOn() { var f = null; try { var q = location.search.match(/[?&]kbdklb=([01])(?:&|$)/); if (q) localStorage.setItem("kbdklb", q[1]); f = localStorage.getItem("kbdklb"); } catch (e) {} return f === "1" || (f !== "0" && KLB_ON); }
+  function klbHtml() {
+    if (!klbOn() || !L.klb) return "";
+    var P = IMG + "klarna/" + (SK ? "sk" : "hu") + "_", K = L.klb;
+    function face(cls, c) { return '<picture><source media="(min-width:992px)" srcset="' + P + "card_" + c + '_d.webp"><img class="' + cls + '" src="' + P + "card_" + c + '_m.webp" alt="" loading="lazy" decoding="async" width="560" height="740"></picture>'; }
+    return '<section class="khr-sec khr-klb" aria-label="Klarna"><a class="khr-klb-a" href="' + K.url + '"><picture>'
+      + '<source media="(min-width:992px)" srcset="' + P + "bg_d_1920.webp 1920w, " + P + "bg_d_2560.webp 2560w, " + P + 'bg_d_3840.webp 3840w" sizes="(min-width:1272px) 1240px, calc(100vw - 32px)">'
+      + '<img class="khr-klb-bg" src="' + P + 'bg_m_640.webp" srcset="' + P + "bg_m_640.webp 640w, " + P + "bg_m_960.webp 960w, " + P + 'bg_m_1280.webp 1280w" sizes="(max-width:632px) calc(100vw - 32px), 600px" alt="' + esc(K.alt) + '" loading="lazy" decoding="async" width="1280" height="1792"></picture>'
+      + '<span class="khr-klb-card" aria-hidden="true"><span class="khr-klb-in">' + face("khr-klb-f", "black") + face("khr-klb-b", "pink") + "</span></span></a>"
+      + '<p class="khr-klb-w">' + esc(L.kl[1]) + ' <a href="' + K.howUrl + '" target="_blank" rel="noopener">' + esc(K.how) + "</a></p></section>";
+  }
+  function klbStart(root) {
+    var s = $(".khr-klb", root || document); if (!s || s.getAttribute("data-k")) return; s.setAttribute("data-k", "1");
+    var go = function () { s.classList.add("on"); };
+    if ((window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) || !window.IntersectionObserver) { go(); return; }
+    var io = new IntersectionObserver(function (en) { for (var i = 0; i < en.length; i++) if (en[i].isIntersecting) { io.disconnect(); setTimeout(go, 700); } }, { threshold: 0.5 });
+    io.observe(s);
+  }
   function skeleton(noHero) {
     var sz = "";
     for (var i = 0; i < SIZES.length; i++) sz += '<a data-s="' + SIZES[i] + '" href="' + L.base + '?filter=7723491:EU%20' + SIZES[i] + '"><small>EU</small><b>' + SIZES[i] + "</b></a>";
@@ -223,6 +260,7 @@
       + '<div class="khr-w"><div class="khr-tk"><div class="khr-tkin" style="--tkd:' + L.tkdur + 's">' + tkh + "</div></div>"
       + (SLIDER() ? '<h1 class="khr-sr">' + L.h1.replace(/<br>/g, " ") + "</h1>" : "")
       + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
+      + klbHtml()
       + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
       + '<section class="khr-sec" aria-label="' + L.brandsT + '"><div class="khr-sh"><h2>' + L.brandsT + '</h2></div><div class="khr-bl">' + br + "</div></section>"
       + '<section class="khr-sec khr-two"><div data-k="top">' + head(L.topT, L.base) + '<div class="khr-grid type--1 list-type--1">' + ph + "</div></div>"
