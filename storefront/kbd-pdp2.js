@@ -580,9 +580,11 @@
   function payChips() {
     var cod = (T1.payments || [])[2] || (SK ? "Dobierka" : "Utánvét");
     function chip(svg, label) { return '<span class="k4-chip" role="img" aria-label="' + esc(label) + '">' + svg + "</span>"; }
-    var kl = klarnaOn() ? klBadge("k4-klarna") : "";
-    function mark(file, label, w) { return PAY_BASE ? '<img class="k4-mark" src="' + PAY_BASE + file + '" alt="' + esc(label) + '" width="' + w + '" height="24" decoding="async" style="display:inline-block;height:24px;width:auto;flex:0 0 auto;align-self:center">' : ""; }
-    return chip(PAYSVG.cash, cod) + chip(PAYSVG.visa, "VISA") + chip(PAYSVG.mc, "Mastercard") + mark("applepay.png", "Apple Pay", 37) + mark("googlepay.png", "Google Pay", 46) + kl;
+    /* every mark in the same framed tile, one height (main msg 5295); official files from David (store/brand/payment-logos, klarna) on the pinned commit */
+    function tile(url, label) { return url ? chip('<img src="' + url + '" alt="" decoding="async" style="display:block;max-width:34px;max-height:20px;width:auto;height:auto">', label) : ""; }
+    var P = PAY_BASE;
+    return chip(PAYSVG.cash, cod) + (P ? tile(P + "visa.png", "VISA") + tile(P + "mastercard.png", "Mastercard") : chip(PAYSVG.visa, "VISA") + chip(PAYSVG.mc, "Mastercard")) +
+      tile(P && P + "applepay.png", "Apple Pay") + tile(P && P + "googlepay.png", "Google Pay") + (klarnaOn() ? tile(KL_BADGE, "Klarna") : "");
   }
   /* SK: a pipás sor és a kártyák kizárólag a meglévő SK szövegekből (a v11 szótár és a lap szövegei) állnak össze */
   function skShip() {
