@@ -58,7 +58,7 @@
 
   /* ---------- CSS: all under #khr .khr-stl (tokens and the header style of home.js) ---------- */
   var CSS = ""
-    + "#khr .khr-stl{--stl-bg:#F6F3ED;letter-spacing:normal}"   /* the shop body letter-spacing leaks in otherwise (Nora, live mock) */
+    + "#khr .khr-stl{--stl-bg:#F6F3ED;letter-spacing:normal}#khr .khr-stl *{letter-spacing:normal}"   /* the shop's letter-spacing (body and its own a/span rules) leaks in otherwise (live check 2026-11-20); the button sets its own below */
     + "#khr .khr-stl .khr-sh{align-items:flex-end}"
     + "#khr .khr-stl .khr-sh>div{min-width:0}"
     + "#khr .khr-stl .khr-stl-p{margin:8px 0 0;font-size:13px;line-height:1.45;font-weight:500;color:var(--soft);max-width:52ch}"
