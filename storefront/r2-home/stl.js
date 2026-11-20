@@ -254,7 +254,9 @@
         busy = false; btn.classList.remove("busy"); btn.textContent = T.btn;
         if (code === "ok") {
           setMsg("ok", esc(T.ok) + ' <a href="' + esc(cartHref()) + '">' + esc(T.cart) + "</a>");
-          ga("add_to_cart", { currency: CUR, value: num(a.eur) + num(b.eur), items: [gaItem(set.shoe, a, 0, set.id), gaItem(set.wear, b, 1, set.id)] });
+          /* NOT "add_to_cart": the shop's own cart_add already sends add_to_cart per item through GTM, and the Google Ads conversion tag
+             also fired on ours (live test 2026-11-20). A custom event keeps the per-set count for the rotation without double counting. */
+          ga("kbd_look_add_to_cart", { item_list_id: LIST_ID, item_list_name: "look_" + set.id, look_id: String(set.id), currency: CUR, value: num(a.eur) + num(b.eur), items: [gaItem(set.shoe, a, 0, set.id), gaItem(set.wear, b, 1, set.id)] });
           upd();
         } else if (code === "soldShoe") soldOut("shoe", a.v);
         else if (code === "soldWear") soldOut("wear", b.v);
