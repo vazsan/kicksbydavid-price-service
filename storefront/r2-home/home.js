@@ -249,11 +249,11 @@
     var io = new IntersectionObserver(function (en) { for (var i = 0; i < en.length; i++) if (en[i].isIntersecting) { io.disconnect(); setTimeout(go, 700); } }, { threshold: 0.5 });
     io.observe(s);
   }
-  /* Shop the look strip (STL, Nora): OFF until David's yes (STL_ON); ?kbdstl=1 / =0 forces it in one browser (localStorage "kbdstl").
+  /* Shop the look strip (STL, Nora): ON for everyone since David's yes (TG 5540, main msg 5354/5392; live Lighthouse A/B 2026-11-20); ?kbdstl=1 / =0 forces it in one browser (localStorage "kbdstl").
      When on, only an empty placeholder section goes into the skeleton (after the size tiles, before the brands); stl.js builds the strip
      lazily, below the fold. STL_DATA: the data branch on jsDelivr (looks.json + img/, written by Nora's rotation job, hourly cache key in stl.js);
      if it is empty or the fetch fails, stl.js falls back to the snapshot in this code branch (BASE + "stl/"). Fail-open: no stl.js = the placeholder stays empty (0 px). */
-  var STL_ON = false, STL_DATA = "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-stl-data/";
+  var STL_ON = true, STL_DATA = "https://cdn.jsdelivr.net/gh/vazsan/kicksbydavid-price-service@claude/kbd-stl-data/";
   function stlOn() { var f = null; try { var q = location.search.match(/[?&]kbdstl=([01])(?:&|$)/); if (q) localStorage.setItem("kbdstl", q[1]); f = localStorage.getItem("kbdstl"); } catch (e) {} return f === "1" || (f !== "0" && STL_ON); }
   function stlHtml() { return stlOn() ? '<section class="khr-sec khr-stl" data-k="stl" aria-label="' + L.stlT + '"></section>' : ""; }
   function stlStart(root) {
