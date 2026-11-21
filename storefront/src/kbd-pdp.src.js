@@ -20,7 +20,7 @@
     skuHint:"Másold be a keresőbe, és nézd meg, ugyanez a modell jön-e vissza.",
     trust:[
       {ic:"shield",b:"Dupla pénz vissza, ha hamis",s:"A független vizsgálatot mi fizetjük"},
-      {ic:"swap",b:"30 nap ingyenes csere",s:"A cserét és a visszaküldést mi fizetjük"},
+      { ic:"swap",b:"14 napos méretcsere",s:"Az új méretet mi küldjük"},
       {ic:"ruler",b:"Méretgarancia",s:"Írd meg, mit hordasz, megmondjuk a méreted"},
       {ic:"bell",b:"Szólunk, hol tart",s:"2 munkanap csend után 1 000 Club-pont jár"},
       {ic:"box",b:"Eredeti doboz",s:"Új állapotban érkezik."},
@@ -31,7 +31,7 @@
     freeFrom:"Ingyenes szállítás 46 250 Ft-tól", missing:"ehhez a párhoz még <b>%X%</b> hiányzik",
     zoom:"Kép nagyítása",
     sizePick:"Méret (EU)",
-    sizeHint:"Nem vagy biztos a méretben? A csere 30 napig ingyenes.",
+    sizeHint:"Nem vagy biztos a méretben? 14 napon belül kicseréljük, az új méretet mi küldjük.",
     sizeChart:"Mérettáblázat",
     cartPrefix:"Kosárba", cartNoSize:" teszem",
     delivery:"5–10 munkanapos szállítás · nyomkövetéssel",
@@ -39,28 +39,28 @@
     freeship:"Ehhez a párhoz ingyenes a szállítás",
     fixedNoSize:"Kosárba teszem", fixedPrefix:"Kosárba · ",
     oosWord:"elfogyott", oosTitle:"Ez a méret elfogyott",
-    benefits:["100% eredeti termék, ellenőrzött európai forrásból","Ingyenes csere 30 napig, ha nem jó a méret","Utánvéttel is fizethetsz, nem kell előre utalnod"],
+    benefits:["100% eredeti termék, ellenőrzött európai forrásból","Ha nem jó a méret, 14 napon belül kicseréljük: az új méretet mi küldjük, csak a visszaküldést fizeted","Utánvéttel is fizethetsz, nem kell előre utalnod"],
     more:"Részletes leírás és méretek →",
     payments:["VISA","Mastercard","Utánvét"],
     clarity:"Biztonságos fizetés, utánvéttel is"
   };
   var sk={
-    skuLabel:"Kód výrobcu", copy:"Kopírovať", copied:"Skopírované",
-    skuHint:"Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model.",
+    skuLabel:"Výrobný kód", copy:"Kopírovať", copied:"Skopírované",
+    skuHint:"Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model.",
     trust:[
-      {ic:"shield",b:"100 % originálny produkt",s:"Z overených európskych zdrojov"},
-      {ic:"swap",b:"Výmena a vrátenie zdarma",s:"Do 30 dní od prevzatia, platíme my"},
+      { ic:"shield",b:"Originalitu si môžeš overiť",s:"Podľa výrobného kódu pri produkte."},
+      { ic:"swap",b:"Výmena veľkosti do 14 dní",s:"Novú veľkosť posielame my"},
       {ic:"lock",b:"Bezpečná platba",s:"Chránená platba kartou"},
-      {ic:"chat",b:"Rýchla zákaznícka podpora",s:"Radi vám pomôžeme"},
+      { ic:"chat",b:"Rýchla zákaznícka podpora",s:"Odpovedáme do 1 pracovného dňa"},
       {ic:"box",b:"Originálna krabica",s:"Príde v novom stave."},
       {ic:"cash",b:"Dobierka",s:"Nemusíš platiť vopred."}
     ],
     contactQ:"Máš otázku?", contactCall:"Zavolaj nám:", phone:"+421 910 252 548", tel:"+421910252548",
-    shipLabel:"Doprava:", shipOpts:[["DPD výdajné miesto / box","4 €"],["DPD na adresu","5 €"]], cod:"Dobierka +3 €",
+    shipLabel:"Doprava:", shipOpts:[["DPD výdajné miesto / box","4 €"],["DPD na adresu","5 €"]], cod:"Dobierka +2,90 €",
     freeFrom:"Doprava zdarma od 120 €", missing:"k tomuto páru chýba ešte <b>%X%</b>",
     zoom:"Zväčšiť obrázok",
     sizePick:"Veľkosť (EU)",
-    sizeHint:"Nie si si istý veľkosťou? Výmena je 30 dní zdarma.",
+    sizeHint:"Nie si si istý veľkosťou? Do 14 dní ti ju vymeníme, novú pošleme my.",
     sizeChart:"Tabuľka veľkostí",
     cartPrefix:"Do košíka", cartNoSize:"",
     delivery:"Doručenie za 3-5 pracovných dní · so sledovaním zásielky",
@@ -68,7 +68,7 @@
     freeship:"Pri tomto páre je doprava zdarma",
     fixedNoSize:"Pridám do košíka", fixedPrefix:"Do košíka · ",
     oosWord:"vypredané", oosTitle:"Táto veľkosť je vypredaná",
-    benefits:["100 % originál z overených európskych zdrojov","Výmena zdarma do 30 dní, ak nesedí veľkosť","Môžeš platiť na dobierku, nič vopred"],
+    benefits:["100 % originál z overených európskych zdrojov","Ak ti nesadne veľkosť, do 14 dní ju vymeníme: novú veľkosť ti pošleme my, zaplatíš len spätné zaslanie","Môžeš platiť na dobierku, nič vopred"],
     more:"Podrobný popis a veľkosti →",
     payments:["VISA","Mastercard","Dobierka"],
     clarity:"Bezpečná platba, aj na dobierku"
@@ -499,7 +499,7 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
     }
     var cart = $("#artdet__cart", inner);
     var anchor = $("#kbd-size-help") || trust;
-    if (cart && anchor && anchor.nextElementSibling !== cart) anchor.parentNode.insertBefore(cart, anchor.nextSibling);
+    if (cart && anchor && anchor.nextElementSibling !== cart && !(cart.closest && cart.closest(".r2-buy"))) anchor.parentNode.insertBefore(cart, anchor.nextSibling);
     if (cart) buildCart(cart);
     var del = $("#kbd-pdp-delivery"), tr = $("#kbd-pdp-trust"), skl = $(".kbd-skuline");
     var tAnchor = $("#kbd3-contact") || $("#kbd3-shipinfo") || del;
@@ -550,8 +550,8 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
       title: "Doručenie a prevzatie",
       html: '<div style="font-size:15px;line-height:1.7">' +
         H3F + 'Ako dlho trvá doručenie?</h3><p><strong>3–5 pracovných dní</strong> a nemusíš sa nás na nič pýtať: e-mailom ti dáme vedieť, v akom stave je tvoj balík, a po odoslaní dostaneš číslo na sledovanie zásielky.</p>' +
-        H3 + 'Dá sa platiť na dobierku?</h3><p>Áno, pri každom spôsobe doručenia. Dobierka stojí 3 € a platíš pri prevzatí, takže peniaze máš u seba, kým balík nedorazí.</p>' +
-        H3 + 'Čo ak ti veľkosť nesedí?</h3><p><strong>Výmenu aj vrátenie platíme my.</strong> Máš na to 30 dní od prevzatia, bez udania dôvodu. Celý postup nájdeš na stránke <a href="/vratenie">Vrátenie tovaru</a>.</p>' +
+        H3 + 'Dá sa platiť na dobierku?</h3><p>Áno, pri každom spôsobe doručenia. Dobierka stojí 2,90 € a platíš pri prevzatí, takže peniaze máš u seba, kým balík nedorazí.</p>' +
+        H3 + 'Čo ak ti veľkosť nesedí?</h3><p><strong>Veľkosť ti do 14 dní vymeníme.</strong> Novú veľkosť ti pošleme my, spätné zaslanie platíš ty. Ak chceš tovar vrátiť, môžeš do 14 dní odstúpiť od zmluvy, náklady na vrátenie aj vtedy platíš ty. Celý postup nájdeš na stránke <a href="/vratenie">Vrátenie tovaru</a>.</p>' +
         '<p>Do balíka prilož krátku správu so šiestimi údajmi: číslo objednávky, meno, telefónne číslo, e-mail, či ide o vrátenie alebo výmenu, a pri výmene aj novú veľkosť. Topánky pošli nenosené a čisté, v originálnej krabici a vo vonkajšom obale.</p>' +
         H3 + 'Čo ak sa moja veľkosť vypredá?</h3><p>Ozveme sa ti a vrátime ti celú kúpnu cenu. Ku každej objednávke posielame elektronickú faktúru a zákaznícka podpora odpovedá do 1 pracovného dňa.</p></div>'
     },
@@ -559,9 +559,9 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
       title: "Originalita a starostlivosť",
       html: '<div style="font-size:15px;line-height:1.7">' +
         H3F + 'Ako zistím, že je to originál?</h3><p>Nápis „100 % originál“ nájdeš na každom e-shope, aj na podvodných. U nás preto dôkazom nie je on, ale tieto tri veci:</p>' +
-        '<p><strong>1. Kód výrobcu je uvedený.</strong> Nájdeš ho na tejto stránke. Vlož ho do vyhľadávača a over si, či ti vyhodí ten istý model.</p>' +
-        '<p><strong>2. Firma vystupuje pod svojím menom.</strong> KICKSBYDAVID s.r.o., DIČ 2121629928, uvedená adresa, telefón, ktorý niekto zdvihne, a e-mail, na ktorý odpovedáme do 1 pracovného dňa.</p>' +
-        '<p><strong>3. Riziko nesieme my.</strong> Môžeš platiť na dobierku, takže peniaze máš u seba až do prevzatia. Ak niečo nesedí, vrátenie aj výmenu platíme my.</p>' +
+        '<p><strong>1. Výrobný kód je uvedený pri produkte.</strong> Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model.</p>' +
+        '<p><strong>2. Overiteľná firma.</strong> KICKS BY DÁVID s. r. o., DIČ 2121629928. Adresa, telefón, ktorý zdvihneme, aj e-mail. Na správy odpovedáme do 1 pracovného dňa.</p>' +
+        '<p><strong>3. Dobierka a výmena veľkosti.</strong> Môžeš platiť na dobierku a veľkosť ti do 14 dní vymeníme.</p>' +
         H3 + 'Odkiaľ páry pochádzajú?</h3><p>Od overených európskych veľkoobchodných partnerov, nové a v originálnej krabici. Často ide o modely a veľkosti, ktoré u nás v obchodoch už nekúpiš.</p>' +
         H3 + 'Ako ich udržať ako nové?</h3>' +
         '<p><strong>Pred prvým nosením:</strong> impregnačný sprej v dvoch tenkých vrstvách urobí viac než akékoľvek neskoršie čistenie.</p>' +
@@ -594,7 +594,25 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
       if (box && !box.getAttribute("data-kbd-sk")) { box.innerHTML = m.html; box.setAttribute("data-kbd-sk", "1"); }
     });
   }
-  function both() { try { run(); labels(); } catch (e) {} }
+  /* Dávid TG 2301/2261 (main msg 2022): the FAQ sentence stored in the Unas SK product tab (AdditionalData 3) is replaced in the DOM with the approved 01-block wording; the stored text stays untouched */
+  function faq() {
+  Array.prototype.forEach.call(document.querySelectorAll("p > strong"), function (s) {
+  if (norm(s.textContent) !== "1. Kód výrobcu je uvedený.") return;
+  var p = s.parentNode;
+  if (p.getAttribute("data-kbd-faq")) return;
+  p.innerHTML = "<strong>1. Výrobný kód je uvedený pri produkte.</strong> Skopíruj ho do vyhľadávača a pozri sa, či ti vyjde ten istý model.";
+  p.setAttribute("data-kbd-faq", "1");
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("p > strong"), function (s) {
+  var k = norm(s.textContent), p = s.parentNode;
+  if (p.getAttribute("data-kbd-faq")) return;
+  if (k === "2. Firma vystupuje pod svojím menom.") p.innerHTML = "<strong>2. Overiteľná firma.</strong> KICKS BY DÁVID s. r. o., DIČ 2121629928. Adresa, telefón, ktorý zdvihneme, aj e-mail. Na správy odpovedáme do 1 pracovného dňa.";
+  else if (k === "3. Riziko nesieme my.") p.innerHTML = "<strong>3. Dobierka a výmena veľkosti.</strong> Môžeš platiť na dobierku a veľkosť ti do 14 dní vymeníme.";
+  else return;
+  p.setAttribute("data-kbd-faq", "1");
+  });
+  }
+  function both() { try { run(); labels(); faq(); } catch (e) {} }
   window.KBD_sk = both;
   both();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", both); else setTimeout(both, 0);
@@ -845,8 +863,9 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
     if(!window.KBD_late){ try{ markSizeChart(); fixGallery(); }catch(e){} }
     /* modell-sáv: a kirajzolás addig vár, amíg a kbd-pdp2.js el nem döntötte (window.KBD_FAM.release); legfeljebb 1,2 mp, a 4 mp-es biztonsági háló mellett */
     var FM=window.KBD_FAM;
-    if(FM && FM.on && !FM.done && !window.KBD_late){ FM.release=function(){ FM.release=null; h.classList.add("kbd-ready"); }; setTimeout(function(){ if(FM.release) FM.release(); },1200); }
-    else h.classList.add("kbd-ready");
+    function kbdReadyNow(){ if(window.__kbdR2Wait && !window.__kbdR2Done){ window.__kbdR2Rel=function(){ window.__kbdR2Rel=null; h.classList.add("kbd-ready"); }; setTimeout(function(){ if(window.__kbdR2Rel) window.__kbdR2Rel(); },2500); } else h.classList.add("kbd-ready"); }
+    if(FM && FM.on && !FM.done && !window.KBD_late){ FM.release=function(){ FM.release=null; kbdReadyNow(); }; setTimeout(function(){ if(FM.release) FM.release(); },1200); }
+    else kbdReadyNow();
   }
   /* biztonsági háló: ha a mérettáblázat-script mégsem vitte el az 1. lapfület, újra látszik */
   function afterLoad(){
@@ -902,7 +921,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     var LIVE={hu:true,sk:true};
     var d=document, h=d.documentElement, q=location.search, ls=null;
     try{ ls=window.localStorage; }catch(e){}
-    if(ls){ if(/[?&]kbdv2=1/.test(q)) ls.setItem("kbdv2","1"); if(/[?&]kbdv2=0/.test(q)) ls.setItem("kbdv2","0"); }
+    if(ls){ if(/[?&]kbdv2=1/.test(q)) ls.setItem("kbdv2","1"); if(/[?&]kbdv2=0/.test(q)) ls.setItem("kbdv2","0"); if(/[?&]kbdupsell=1/.test(q)) ls.setItem("kbdv2","1"); if(/[?&]kbdr2=1/.test(q)) ls.setItem("kbdv2","1"); }
     var sk=/\.sk$/i.test(location.hostname)||(h.getAttribute("lang")||"").toLowerCase().indexOf("sk")===0;
     var v=ls?ls.getItem("kbdv2"):null;
     var on=v==="1"||(v!=="0"&&(sk?LIVE.sk:LIVE.hu));
@@ -910,6 +929,18 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     var cs=d.currentScript, ld=d.getElementById("kbd-pdp-loader"), src=(cs&&cs.src)||(ld&&ld.src)||"";
     if(!/kbd-pdp\.js/.test(src)) return;
     h.classList.add("kbd-v2");
+    /* R2 kinézet (David TG 2256): alapból BE a HU termékoldalakon, SK-n is (David TG 2289, Zara végleges SK szövegei); ?kbdr2=0 kikapcsolja (süti kbdr2=0, 30 nap), ?kbdr2=1 visszakapcsolja. A kbd-ready addig vár, amíg az r2.js lefutott (vagy 2,5 mp), hogy ne legyen elrendezés-ugrás. */
+    try{
+    var mr=q.match(/[?&]kbdr2=([01])(?:&|$)/);
+    if(mr) d.cookie="kbdr2="+mr[1]+";path=/;max-age=2592000;SameSite=Lax";
+    var ck=d.cookie.match(/(?:^|; )kbdr2=([01])(?:;|$)/);
+    if(!(ck && ck[1]==="0")){
+    window.__kbdR2Wait=true; h.classList.add("kbd-r2");
+    var br=src.replace(/kbd-pdp\.js.*$/,"r2/");
+    var lk=d.createElement("link"); lk.rel="stylesheet"; lk.id="kbd-r2-css"; lk.href=br+"r2.css"; (d.head||h).appendChild(lk);
+    var sr=d.createElement("script"); sr.id="kbd-r2-js"; sr.async=true; sr.src=br+"r2.js"; sr.onerror=function(){ window.__kbdR2Done=true; if(window.__kbdR2Rel) window.__kbdR2Rel(); }; (d.head||h).appendChild(sr);
+    }
+    }catch(e){}
     var s=d.createElement("script"); s.async=true; s.src=src.replace(/kbd-pdp\.js/,"kbd-pdp2.js");
     (d.head||h).appendChild(s);
   }catch(e){}

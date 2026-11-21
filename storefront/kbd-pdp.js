@@ -533,7 +533,6 @@ var box = pane && pane.querySelector(".tab-pane__container");
 if (box && !box.getAttribute("data-kbd-sk")) { box.innerHTML = m.html; box.setAttribute("data-kbd-sk", "1"); }
 });
 }
-/* Dávid TG 2301/2261 (main msg 2022): the FAQ sentence stored in the Unas SK product tab (AdditionalData 3) is replaced in the DOM with the approved 01-block wording; the stored text stays untouched */
 function faq() {
 Array.prototype.forEach.call(document.querySelectorAll("p > strong"), function (s) {
 if (norm(s.textContent) !== "1. Kód výrobcu je uvedený.") return;
@@ -840,7 +839,6 @@ if(!on||!h.classList.contains("kbd-pdp")) return;
 var cs=d.currentScript, ld=d.getElementById("kbd-pdp-loader"), src=(cs&&cs.src)||(ld&&ld.src)||"";
 if(!/kbd-pdp\.js/.test(src)) return;
 h.classList.add("kbd-v2");
-/* R2 kinézet (David TG 2256): alapból BE a HU termékoldalakon, SK-n is (David TG 2289, Zara végleges SK szövegei); ?kbdr2=0 kikapcsolja (süti kbdr2=0, 30 nap), ?kbdr2=1 visszakapcsolja. A kbd-ready addig vár, amíg az r2.js lefutott (vagy 2,5 mp), hogy ne legyen elrendezés-ugrás. */
 try{
 var mr=q.match(/[?&]kbdr2=([01])(?:&|$)/);
 if(mr) d.cookie="kbdr2="+mr[1]+";path=/;max-age=2592000;SameSite=Lax";
