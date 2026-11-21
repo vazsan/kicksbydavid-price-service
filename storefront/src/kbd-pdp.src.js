@@ -170,7 +170,33 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
     return out;
   }
 
+  // splitName v2 (Nora's prototype agents/nora/scripts/h1/split-v2.cjs; David TG 5619, main msg 5503). Unicode-safe word match instead of the ASCII-only \b:
+  // cut before the first gender word or the first lowercase product-type word; a later gender word leads the subtitle; a repeated 2-word phrase drops.
+  // H1V2_ON = false: OFF for everyone; ?kbdh1v2=1 / =0 forces it in one browser (localStorage "kbdh1v2").
+  var H1V2_ON = false, H1V2 = false;
+  try { var qh = location.search.match(/[?&]kbdh1v2=([01])(?:&|$)/); if (qh) localStorage.setItem("kbdh1v2", qh[1]); var fh = localStorage.getItem("kbdh1v2"); H1V2 = fh === "1" || (fh !== "0" && H1V2_ON); } catch (e) { H1V2 = H1V2_ON; }
+  var H1G = "férfi női gyerek fiú lány uniszex unisex pánske dámske detské chlapčenské dievčenské pánsky dámsky detský pánska dámska detská chlapčenský dievčenský".split(" ");
+  var H1D = ("alacsony magas közép középmagas gördeszkás utcai sneaker cipő futócipő kosárlabdacipő kosárlabdás papucs szandál bakancs csizma edzőcipő túracipő teniszcipő póló pulóver kapucnis nadrág melegítő melegítőnadrág zokni sapka táska hátizsák dzseki kabát rövidnadrág mellény ing top sportmelltartó leggings " +
+    "nízke vysoké stredne skejtové mestské streetové tenisky topánky bežecké basketbalové šľapky sandále čižmy tričko mikina nohavice ponožky čiapka taška batoh bunda šortky tepláky vesta košeľa legíny").split(" ");
+  function h1low(t) { return t.toLowerCase().replace(/[,.]+$/, ""); }
+  function splitName2(full) {
+    var tk = String(full).replace(/\s+/g, " ").trim().split(" "), cut = -1;
+    for (var i = 1; i < tk.length; i++) {
+      var l = h1low(tk[i]);
+      if ((H1G.indexOf(l) > -1 || (tk[i] === tk[i].toLowerCase() && H1D.indexOf(l) > -1)) && tk.slice(0, i).join(" ").length > 3) { cut = i; break; }
+    }
+    if (cut < 0) return [tk.join(" "), ""];
+    var rest = tk.slice(cut), gen = rest.filter(function (t) { return H1G.indexOf(h1low(t)) > -1; }), out = [];
+    rest.filter(function (t) { return H1G.indexOf(h1low(t)) < 0; }).forEach(function (t) {
+      out.push(t);
+      if (out.length >= 4 && out.slice(0, -2).join(" ").toLowerCase().indexOf(out.slice(-2).join(" ").toLowerCase()) > -1) out = out.slice(0, -2);
+    });
+    var sub = gen.slice(0, 1).concat(out).join(" ");
+    return [tk.slice(0, cut).join(" "), sub.charAt(0).toUpperCase() + sub.slice(1)];
+  }
+
   function splitName(full) {
+    if (H1V2) return splitName2(full);
     var m = full.match(/^(.*?)\s+((?:dámske|pánske|unisex|detské|chlapčenské|dievčenské|női|férfi|gyerek|fiú|lány)\b.*)$/i);
     if (m && m[1].length > 3) return [m[1], m[2].charAt(0).toUpperCase() + m[2].slice(1)];
     return [full, ""];
