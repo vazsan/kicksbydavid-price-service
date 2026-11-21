@@ -137,7 +137,7 @@ if (i > 0 && t.slice(0, i).trim().toLowerCase() === name.toLowerCase()) out = t.
 });
 return out;
 }
-var H1V2_ON = false, H1V2 = false;
+var H1V2_ON = true, H1V2 = false;
 try { var qh = location.search.match(/[?&]kbdh1v2=([01])(?:&|$)/); if (qh) localStorage.setItem("kbdh1v2", qh[1]); var fh = localStorage.getItem("kbdh1v2"); H1V2 = fh === "1" || (fh !== "0" && H1V2_ON); } catch (e) { H1V2 = H1V2_ON; }
 var H1G = "férfi női gyerek fiú lány uniszex unisex pánske dámske detské chlapčenské dievčenské pánsky dámsky detský pánska dámska detská chlapčenský dievčenský".split(" ");
 var H1D = ("alacsony magas közép középmagas gördeszkás utcai sneaker cipő futócipő kosárlabdacipő kosárlabdás papucs szandál bakancs csizma edzőcipő túracipő teniszcipő póló pulóver kapucnis nadrág melegítő melegítőnadrág zokni sapka táska hátizsák dzseki kabát rövidnadrág mellény ing top sportmelltartó leggings " +

@@ -172,8 +172,8 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
 
   // splitName v2 (Nora's prototype agents/nora/scripts/h1/split-v2.cjs; David TG 5619, main msg 5503). Unicode-safe word match instead of the ASCII-only \b:
   // cut before the first gender word or the first lowercase product-type word; a later gender word leads the subtitle; a repeated 2-word phrase drops.
-  // H1V2_ON = false: OFF for everyone; ?kbdh1v2=1 / =0 forces it in one browser (localStorage "kbdh1v2").
-  var H1V2_ON = false, H1V2 = false;
+  // H1V2_ON = true: ON for everyone (David TG 5619, Nora live OK msg 5510); ?kbdh1v2=0 / =1 forces it in one browser (localStorage "kbdh1v2").
+  var H1V2_ON = true, H1V2 = false;
   try { var qh = location.search.match(/[?&]kbdh1v2=([01])(?:&|$)/); if (qh) localStorage.setItem("kbdh1v2", qh[1]); var fh = localStorage.getItem("kbdh1v2"); H1V2 = fh === "1" || (fh !== "0" && H1V2_ON); } catch (e) { H1V2 = H1V2_ON; }
   var H1G = "férfi női gyerek fiú lány uniszex unisex pánske dámske detské chlapčenské dievčenské pánsky dámsky detský pánska dámska detská chlapčenský dievčenský".split(" ");
   var H1D = ("alacsony magas közép középmagas gördeszkás utcai sneaker cipő futócipő kosárlabdacipő kosárlabdás papucs szandál bakancs csizma edzőcipő túracipő teniszcipő póló pulóver kapucnis nadrág melegítő melegítőnadrág zokni sapka táska hátizsák dzseki kabát rövidnadrág mellény ing top sportmelltartó leggings " +
