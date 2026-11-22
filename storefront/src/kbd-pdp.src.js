@@ -481,7 +481,24 @@ s.textContent="html.kbd-pdp:not(.kbd-ready) #artdet__main-block .artdet__block-c
     }
   }
 
+  /* Adatok tábla: "Doboz típusa" sor, ha a "Doboz állapota" paraméter ki van töltve (saját/outlet termékek; Főnök msg 5709, Dávid TG 5859) */
+  function boxRow() {
+    var tb = $(".kbd-desc__sec--data .kbd-desc__table tbody");
+    if (!tb || $("tr.kbd-boxrow", tb)) return;
+    var v = "";
+    $$(".artdet__spec-param").forEach(function (p) {
+      var n = txt($(".param-name", p) || $(".artdet__spec-param-title", p));
+      if (!v && /^(Doboz állapota|Stav krabice)\s*:?$/i.test(n)) v = txt($(".artdet__spec-param-value", p));
+    });
+    if (!v) return;
+    var tr = document.createElement("tr");
+    tr.className = "kbd-boxrow";
+    tr.innerHTML = '<th scope="row">' + (SK ? "Typ krabice" : "Doboz típusa") + "</th><td>" + esc(v) + "</td>";
+    tb.appendChild(tr);
+  }
+
   function run() {
+    try { boxRow(); } catch (e) {}
     var inner = $("#artdet__main-block .artdet__block-cart-inner");
     if (!inner) return;
     buildHead(inner);
