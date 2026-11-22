@@ -122,7 +122,7 @@
         banner: ["Nad 120 € je doprava", "ZADARMO"],
         s1: "Spôsoby dopravy", ship: [["DPD Pickup / AlzaBox", "4 €"], ["DPD kuriér na adresu", "5 €"]],
         s2: "Platba", pay: [["Platba kartou (Visa, Mastercard)", "0 €"], ["Dobierka", "+2,90 €"]],
-        warn: "Na dobierku ti objednávku pošleme len kuriérom DPD až domov. Ak si vyberieš výdajné miesto alebo box DPD, zaplatíš kartou alebo cez Klarnu.",
+        warn: "Na dobierku ti objednávku pošleme len kuriérom DPD až domov. Ak si vyberieš výdajné miesto DPD, DPD Pickup box alebo AlzaBox, zaplatíš kartou alebo cez Klarnu.",
         foot: ["↺ Výmena veľkosti do 14 dní, novú posielame my.", "☎ Máte otázku? %PHONE%"],
         checks: null, cards: null   /* az SK pipás sor és kártyák a meglévő SK szövegekből készülnek (nincs új SK szöveg), lásd skShip() */
       }
