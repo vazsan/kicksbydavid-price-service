@@ -1524,7 +1524,7 @@
 /* ============================================================================
    PDP four points (David TG 4449, main msg 4259; data: store/pdp-pontok/gen_pontok.py -> pontok.json next to this file):
    1) the fit sentence at the bottom of the size step (.r2-step), only where a brand-sourced one exists (AF1, Jordan 4, P-6000, Lowmel);
-   2) a "Kényelem" + "Ápolás" card before #kbd4-ship (flex order 10; without it before #kbd4-cards);
+   2) a "Kényelem" + "Ápolás" card after #kbd4-cards (flex order 13; without it after #kbd4-ship, order 10), main msg 5821;
    3) the authenticity tip under the visible .kbd2-sku (manufacturer code).
    pontok.json: s = sentence id -> text, p = MAIN product SKU -> [[HU comfort, fit, authentic, care], [SK ...]], 0 = none. Size pages use the
    main SKU (the is-base tile's data-sku). PILOT = main SKUs where it shows ("*" = every product). SK only after Zara's review (LIVE.sk);
@@ -1592,16 +1592,18 @@
     var fit = s(ids[1]), kom = s(ids[0]), ere = s(ids[2]), apo = s(ids[3]);
     void fit;   /* the fit sentence is placed early from the inline FIT map (fitEarly) */
     if ((kom || apo) && !d.getElementById("kbd-pp")) {
-      var anchor = d.getElementById("kbd4-ship") || d.getElementById("kbd4-cards");
+      /* below the delivery box AND the 4-part USP grid (David TG 6013/6014, main msg 5821): right after #kbd4-cards with its order (13), so it
+         sits between the grid and #kbd2-ship; without the grid, right after #kbd4-ship (order 10). Products without comfort/care: nothing is made */
+      var cards = d.getElementById("kbd4-cards"), anchor = cards || d.getElementById("kbd4-ship");
       if (anchor) {
-        var c = el("div", "kbd-pp", "kbd-pp"); c.style.order = "10";
+        var c = el("div", "kbd-pp", "kbd-pp"); c.style.order = cards ? "13" : "10";
         [[kom, L.k, "☁"], [apo, L.a, "✦"]].forEach(function (r) {
           if (!r[0]) return;
           var row = el("div", "kbd-pp__r", ""), ic = el("span", "kbd-pp__i", "", r[2]), tt = el("span", "kbd-pp__t", ""), b = el("b", "", "", r[1]);
           row.removeAttribute("id"); ic.removeAttribute("id"); tt.removeAttribute("id"); b.removeAttribute("id"); b.removeAttribute("class");
           ic.setAttribute("aria-hidden", "true"); tt.appendChild(b); tt.appendChild(d.createTextNode(r[0])); row.appendChild(ic); row.appendChild(tt); c.appendChild(row);
         });
-        anchor.parentNode.insertBefore(c, anchor);
+        anchor.parentNode.insertBefore(c, anchor.nextSibling);
       } else done = false;
     }
     if (ere && !d.getElementById("kbd-pp-hint")) {
