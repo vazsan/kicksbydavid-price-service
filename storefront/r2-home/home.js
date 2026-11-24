@@ -289,13 +289,13 @@
       + (SLIDER() ? '<h1 class="khr-sr">' + L.h1.replace(/<br>/g, " ") + "</h1>" : "")
       + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + klbHtml()
-      + '<section class="khr-sec" data-k="grail" aria-label="' + L.grailT + '">' + head(L.grailT, L.grailUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
       + stlHtml()
       + '<section class="khr-sec" aria-label="' + L.brandsT + '"><div class="khr-sh"><h2>' + L.brandsT + '</h2></div><div class="khr-bl">' + br + "</div></section>"
       + '<section class="khr-sec khr-two"><div data-k="top">' + head(L.topT, L.base) + '<div class="khr-grid type--1 list-type--1">' + ph + "</div></div>"
       + '<div data-k="rev"><div class="khr-sh"><h2>' + L.revT + '</h2></div><div class="khr-revbox"><div class="khr-rvph"></div></div></div></section>'
       + '<section class="khr-sec" data-k="sale" aria-label="' + L.saleT + '">' + head(L.saleT, L.saleUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
+      + '<section class="khr-sec" data-k="grail" aria-label="' + L.grailT + '">' + head(L.grailT, L.grailUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + "</div>";
   }
 
