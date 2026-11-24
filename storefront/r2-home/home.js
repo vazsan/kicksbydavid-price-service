@@ -22,7 +22,7 @@
       alt: "Odteraz môžeš platiť aj s Klarnou. 3 rovnaké splátky, každých 30 dní. 3 splátky bez úrokov, už od 16,34 € za splátku*. Pozri si tenisky. Pozor! Požičanie peňazí stojí peniaze. Pri oneskorenej platbe môžu vzniknúť poplatky. *Cena nášho najlacnejšieho páru k 20. 11. 2026, rozdelená na 3 splátky. Platbu na splátky poskytuje Klarna podľa svojich podmienok." },
     newT: "Novinky", all: "Všetko", sizeT: "Nakupuj podľa veľkosti", sizeAll: "VŠETKY", sizeNote: "Ak ti nesadne veľkosť, do 14 dní ju vymeníme: novú veľkosť ti pošleme my, zaplatíš len spätné zaslanie.",
     brandsT: "Obľúbené značky", topT: "Najobľúbenejšie", revT: "Čo o nás hovoria zákazníci", saleT: "Zľavy",
-    stlT: "Kompletné outfity",
+    stlT: "Kompletné outfity", grailT: "Grail", grailUrl: "/grail",
     revBasis: function (n) { return "Na základe " + n + " " + skPl(n); }, gBtn: "Hodnotenia na Google", revLang: "sk",
     tiBig: "6b883db76988873e850692b71b0", tiSmall: "f2ddae483a2767044106f3718af", tiles: "tiles-sk.json", prev: "Predchádzajúce", next: "Ďalšie",
     starsAria: function (n) { return n + "/5"; }, alt: "ASICS Gel-NYC Oyster Grey", aria: "KicksByDavid"
@@ -35,7 +35,7 @@
       alt: "Mostantól Klarnával is fizethetsz. 3 egyenlő részlet, 30 naponként. 3 részletben, kamatmentesen, részletenként akár 6 044 Ft-tól*. Böngészd a cipőket. Figyelem! A hitelfelvétel pénzbe kerül. Késedelmes fizetés esetén a hitel költségekkel járhat. *A legolcsóbb párunk ára 2026. november 20-án, 3 részletre osztva. A részletfizetést a Klarna nyújtja, a saját feltételei szerint." },
     newT: "Most érkezett", all: "Mind", sizeT: "Vásárolj a méretedben", sizeAll: "ÖSSZES", sizeNote: "Ha nem jó a méret, 14 napon belül kicseréljük: az új méretet mi küldjük, csak a visszaküldést fizeted.",
     brandsT: "Népszerű márkák", topT: "Legnépszerűbb", revT: "Rólunk mondták", saleT: "Akciós",
-    stlT: "Összeillő párok",
+    stlT: "Összeillő párok", grailT: "Grail", grailUrl: "/grail",
     revBasis: function (n) { return n + " vélemény alapján"; }, gBtn: "Vélemények a Google-on", revLang: "hu",
     tiBig: "3ba033477a0d031a5f060029c5d", tiSmall: "0d3908782f85181dd586d19e174", tiles: "tiles.json", prev: "Előző", next: "Következő",
     starsAria: function (n) { return n + " csillag az 5-ből"; }, alt: "ASICS Gel-NYC Oyster Grey sneaker utcai kövön", aria: "Kezdőlap"
@@ -45,7 +45,7 @@
   var SIZES = ["36", "36.5", "37.5", "38", "38.5", "39", "40", "40.5", "41", "42", "42.5", "43", "44", "44.5", "45", "45.5", "46", "47", "47.5"];
   var BRANDS = [["Nike", "nike"], ["Air Jordan", "air-jordan"], ["Adidas", "adidas"], ["New Balance", "new-balance"], ["ASICS", "asics"], ["UGG", "ugg"], ["ON", "on"], ["Puma", "puma"],
     ["Converse", "converse"], ["Vans", "vans"], ["Salomon", "salomon"], ["Saucony", "saucony"], ["Crocs", "crocs"], ["Birkenstock", "birkenstock"], ["Timberland", "timberland"], ["Supreme", "supreme"]];
-  var N_NEW = 8, N_TOP = 6, N_SALE = 10;
+  var N_NEW = 8, N_TOP = 6, N_SALE = 10, N_GRAIL = 12;
 
   var ARROW = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
   var CHECK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
@@ -289,6 +289,7 @@
       + (SLIDER() ? '<h1 class="khr-sr">' + L.h1.replace(/<br>/g, " ") + "</h1>" : "")
       + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + klbHtml()
+      + '<section class="khr-sec" data-k="grail" aria-label="' + L.grailT + '">' + head(L.grailT, L.grailUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
       + stlHtml()
       + '<section class="khr-sec" aria-label="' + L.brandsT + '"><div class="khr-sh"><h2>' + L.brandsT + '</h2></div><div class="khr-bl">' + br + "</div></section>"
@@ -323,7 +324,7 @@
     var b = document.getElementById(boxId); if (!b) return [];
     return $$(".js-product", b);
   }
-  var done = { sale: false, top: false, "new": false };
+  var done = { sale: false, top: false, "new": false, grail: false };
   function pulls() {
     var secSale = $('[data-k="sale"]'), secTop = $('[data-k="top"]');
     if (!done.sale) {
@@ -349,29 +350,32 @@
     if (h && lo === hi && !$(".khr-pill", h)) h.insertAdjacentHTML("beforeend", ' <span class="khr-pill">-' + lo + "%</span>");
   }
 
-  /* Most érkezett: a natív /ujdonsagok AJAX-lista (a márkapolcok is így töltenek), csak ha a sor közel van a képernyőhöz */
-  function loadNew(sec) {
-    if (done["new"] || sec.getAttribute("data-loading")) return;
+  /* Most érkezett: a natív /ujdonsagok AJAX-lista (a márkapolcok is így töltenek), csak ha a sor közel van a képernyőhöz.
+     Grail (Dávid TG 6035, Főnök msg 5848): ugyanígy a rejtett /grail kategória listájából (a tagságot a napi grail_cat.py tartja karban); 4 cipő alatt a szekció eltűnik */
+  function loadNew(sec) { loadList(sec, "new", L.newUrl, "khr_new1", N_NEW); }
+  function loadGrail(sec) { loadList(sec, "grail", L.grailUrl, "khr_grail1", N_GRAIL); }
+  function loadList(sec, dk, path, key, N) {
+    if (done[dk] || sec.getAttribute("data-loading")) return;
     sec.setAttribute("data-loading", "1");
-    var key = "khr_new1", url = ORIGIN + L.newUrl + "?ajax_filter=1&ajax_nodesign=1&filter_value_count_disabled=1";
+    var url = ORIGIN + path + "?ajax_filter=1&ajax_nodesign=1&filter_value_count_disabled=1";
     function render(htmlTxt) {
       var doc; try { doc = new DOMParser().parseFromString(htmlTxt, "text/html"); } catch (e) { return false; }
-      var cards = $$(".js-product", doc).filter(isShoe).slice(0, N_NEW).map(function (c) { return document.importNode(c, true); });
+      var cards = $$(".js-product", doc).filter(isShoe).slice(0, N).map(function (c) { return document.importNode(c, true); });
       if (cards.length < 4) return false;
       try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), h: cards.map(function (c) { return c.outerHTML; }).join("") })); } catch (e) {}
-      done["new"] = fill(sec, cards, ".khr-rail", N_NEW); navFor(sec);
-      return done["new"];
+      done[dk] = fill(sec, cards, ".khr-rail", N); navFor(sec);
+      return done[dk];
     }
     try {
       var c0 = JSON.parse(sessionStorage.getItem(key) || "null");
       if (c0 && c0.t && Date.now() - c0.t < 600000 && c0.h) {
         var d0 = new DOMParser().parseFromString("<div>" + c0.h + "</div>", "text/html");
         var k0 = $$(".js-product", d0).map(function (c) { return document.importNode(c, true); });
-        if (k0.length >= 4) { done["new"] = fill(sec, k0, ".khr-rail", N_NEW); navFor(sec); return; }
+        if (k0.length >= 4) { done[dk] = fill(sec, k0, ".khr-rail", N); navFor(sec); return; }
       }
     } catch (e) {}
     if (!window.fetch) return fail();
-    function fail() { var m = $(".khr-railbox", sec); if (m && !done["new"]) m.parentNode.removeChild(m), sec.parentNode.removeChild(sec); }
+    function fail() { var m = $(".khr-railbox", sec); if (m && !done[dk]) m.parentNode.removeChild(m), sec.parentNode && sec.parentNode.removeChild(sec); }
     fetch(url, { credentials: "same-origin" }).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) { if (!t || !render(t)) fail(); }).catch(fail);
   }
   function lazy(sec, fn, margin) {
@@ -521,8 +525,8 @@
     if (banner && banner.parentNode === main) main.insertBefore(r, banner.nextSibling); else main.insertBefore(r, main.firstChild);
     tickerTouch(r);
     document.documentElement.className += " khr-ready";
-    var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
-    afterHero(r, function () { tiles(r); lazy(sNew, loadNew, "1200px 0px"); });
+    var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r), sGr = $('[data-k="grail"]', r);
+    afterHero(r, function () { tiles(r); lazy(sNew, loadNew, "1200px 0px"); if (sGr) lazy(sGr, loadGrail, "1200px 0px"); });
     lazy(sRev, loadReviews, "600px 0px");
     stlStart(r);
     sliderDots(banner);
@@ -575,9 +579,9 @@
       main.insertBefore(r, main.firstChild); tickerTouch(r);
     }
     document.documentElement.className += " khr-ready";
-    var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r);
+    var sNew = $('[data-k="new"]', r), sRev = $('[data-k="rev"]', r), sGr = $('[data-k="grail"]', r);
     /* a hős kép előnyt kap a lassú hálón: a Most érkezett lista (~800 KB HTML) és a tiles.json csak a hős betöltése után (legfeljebb 3,5 mp) indul */
-    afterHero(r, function () { tiles(r); lazy(sNew, loadNew, "1200px 0px"); });
+    afterHero(r, function () { tiles(r); lazy(sNew, loadNew, "1200px 0px"); if (sGr) lazy(sGr, loadGrail, "1200px 0px"); });
     lazy(sRev, loadReviews, "600px 0px");
     stlStart(r);
     return true;
