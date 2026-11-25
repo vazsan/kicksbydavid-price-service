@@ -100,6 +100,10 @@
     + "@keyframes khrm{from{transform:translateX(0)}to{transform:translateX(-25%)}}"
     + "#khr .khr-tk:hover .khr-tkin,#khr .khr-tk:active .khr-tkin,#khr .khr-tk:focus-within .khr-tkin,#khr .khr-tk.khr-tkp .khr-tkin{animation-play-state:paused}"
     + "@media (prefers-reduced-motion:reduce){#khr .khr-tkin{animation:none;transform:none}#khr .khr-tkh:not(:first-child){display:none}#khr .khr-tk{padding:0 16px}}"
+    + "#khr .khr-tk{position:relative}#khr .khr-tk.khr-tkx .khr-tkin{animation-play-state:paused}"
+    + "#khr .khr-tkb{position:absolute;right:0;top:0;width:44px;height:38px;border:0;padding:0;margin:0;display:grid;place-items:center;background:linear-gradient(90deg,rgba(255,255,255,0),#fff 35%);color:#171717;cursor:pointer;z-index:2}"
+    + "#khr .khr-tkb:focus-visible{outline:2px solid #171717;outline-offset:-3px}"
+    + "@media (prefers-reduced-motion:reduce){#khr .khr-tkb{display:none}}"
     + "#khr .khr-tk span{display:inline-flex;align-items:center;gap:6px}#khr .khr-tk svg{width:14px;height:14px}#khr .khr-tk i{font-style:normal}"
     + "#khr .khr-klb-a{position:relative;display:block;max-width:600px;margin:0 auto;aspect-ratio:1280/1792;border-radius:12px;overflow:hidden;background:#e9e9e9;container-type:inline-size}"
     + "#khr .khr-klb-m{position:absolute;inset:0;display:block}"
@@ -215,11 +219,19 @@
   /* ---------- 1) a váz ---------- */
   function SLIDER() { return /(^|\s)khr-slider(\s|$)/.test(document.documentElement.className); }
   /* előnysáv: érintésre megáll (iOS Safari :active-ot csak touchstart figyelővel ad, ezért a kis figyelő: a sáv animációja csak CSS marad) */
+  var TKB = { p: '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>',
+    g: '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M7 5v14l12-7z" fill="currentColor"/></svg>' };
   function tickerTouch(root) {
     try { klbStart(root); } catch (e) {}
     var tk = $(".khr-tk", root); if (!tk || tk.getAttribute("data-t")) return; tk.setAttribute("data-t", "1");
     var on = function () { tk.classList.add("khr-tkp"); }, off = function () { tk.classList.remove("khr-tkp"); };
     tk.addEventListener("touchstart", on, { passive: true }); tk.addEventListener("touchend", off, { passive: true }); tk.addEventListener("touchcancel", off, { passive: true });
+    /* WCAG 2.2.2 pause button (main msg 5884), HU only until the SK labels are proofread; reduced motion: hidden by CSS (the ticker stands still) */
+    if (!SK) {
+      var b = mk("button", "khr-tkb", TKB.p); b.type = "button"; b.setAttribute("aria-label", "Szöveg megállítása"); b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () { var st = tk.classList.toggle("khr-tkx"); b.setAttribute("aria-pressed", st ? "true" : "false"); b.setAttribute("aria-label", st ? "Szöveg indítása" : "Szöveg megállítása"); b.innerHTML = st ? TKB.g : TKB.p; });
+      tk.appendChild(b);
+    }
   }
   /* Klarna switch: off until David's yes (KL_ON); ?kbdklarna=1 / =0 forces it in one browser (the same key as the PDP preview) */
   var KL_ON = true;   /* ON for everyone: David TG 5512 (main msg 5319), 2026-11-20 */
@@ -228,6 +240,7 @@
      flipping from the black KBD card (v4 A) to the pink Klarna card (v4 B) once it scrolls into view (CSS 3D, placement.json, -5deg); reduced motion = pink.
      The whole banner links to the sneaker category; the full credit warning + "Hogyan működik?" are real HTML under it. Lazy images, fixed aspect ratio (no CLS).
      The "-tól" price is the cheapest in-stock sneaker on 2026-11-20 (18 130 Ft / 49 EUR, /3 rounded up). Off switch: KLB_ON, ?kbdklb=0 / =1 in one browser. */
+  var SL_MS = 7000;   /* HU slider autoplay floor (main msg 5884) */
   var KLB_ON = false;
   /* SALE UP (Nora msg 5882, David TG 6111, main msg 5884): HU only, during Black Friday the Akciós rail (+ Grail right under it, David TG 6041)
      goes directly below the ticker; back to the normal order automatically on 2026-12-01 00:00 Europe/Bratislava. Test switch: ?kbdsaleup=0 / =1 in one browser. */
@@ -547,6 +560,14 @@
       try { f = window.Flickity && car && window.Flickity.data(car); } catch (e) {}
       if (!f || !f.cells || f.cells.length < 2) { if (++n < 60) return setTimeout(wait, 250); return; }
       if ($(".khr-dots", banner)) return;
+      /* WCAG 2.2.2 (Nora msg 5882, David TG 6111, main msg 5884), HU only: autoplay at least 7 s instead of the admin's 4 s; prefers-reduced-motion = no autoplay.
+         The Unas inline resize handler restarts the player from its own options object, so that one is set too. */
+      if (!SK) try {
+        var rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches, ap = f.options.autoPlay;
+        if (rm) { f.options.autoPlay = false; if (f.player) f.player.autoPlay = false; f.stopPlayer(); }
+        else if (typeof ap === "number" && ap > 0 && ap < SL_MS) { f.options.autoPlay = SL_MS; if (f.player) f.player.autoPlay = SL_MS; f.stopPlayer(); f.playPlayer(); }   /* Flickity v3: the player reads its own copy */
+        try { if (typeof $flkty_start_banner_big_options === "object") $flkty_start_banner_big_options.autoPlay = rm ? 0 : Math.max(SL_MS, +$flkty_start_banner_big_options.autoPlay || 0); } catch (e2) {}
+      } catch (e) {}
       var box = mk("div", "khr-dots"), total = f.cells.length, bs = [];
       for (var i = 0; i < total; i++) (function (k) {
         var b = mk("button"); b.type = "button"; b.setAttribute("aria-label", (k + 1) + "/" + total);
