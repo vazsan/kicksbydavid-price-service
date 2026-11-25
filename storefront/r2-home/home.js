@@ -518,6 +518,30 @@
   /* ---------- 4) indítás ---------- */
   /* Hős a slide 1 képéből (Főnök msg 2099): CSAK ha az Unas adminban a start_banner_big 1. slide-képének alt-szövege "r2:" előtaggal kezdődik (a kép felirat nélküli, Dávid döntése).
      Jelölés nélkül marad a saját hős-kép, tehát feliratos kép véletlenül sem kerül ki. A slide <picture>-je az élő markup másolata (az Unas a fejből már előtölti, a time= szám a képcserével magától változik). */
+  /* GA4 homepage clicks (Nora msg 5882 point 5, main msg 5884): select_item for product cards in the R2 rails (list = section), select_promotion for slider slides,
+     size / brand tiles and the "Mind" links. Only gtag (the shop's own GA4 tag, consent mode applies); no personal data. Off switch: GA_ON, ?kbdga=0 / =1 in one browser. */
+  var GA_ON = false;   /* off until main/David OK (point 5 was not in David TG 6111 1-4) */
+  function gaOn() { var f = null; try { var q = location.search.match(/[?&]kbdga=([01])(?:&|$)/); if (q) localStorage.setItem("kbdga", q[1]); f = localStorage.getItem("kbdga"); } catch (e) {} return f === "1" || (f !== "0" && GA_ON); }
+  function gaSend(ev, p) { try { if (typeof window.gtag === "function") window.gtag("event", ev, p); else (window.dataLayer = window.dataLayer || []).push({ event: ev, ecommerce: p }); } catch (e) {} }
+  if (gaOn() && !window.KBD_HOME_GA) {
+    window.KBD_HOME_GA = 1;
+    document.addEventListener("click", function (e) {
+      var a = e.target && e.target.closest ? e.target.closest("a[href]") : null; if (!a) return;
+      var t = function (x) { return (x || "").replace(/\s+/g, " ").trim().slice(0, 100); };
+      var cell = a.closest("#start_banner_big .carousel-cell");
+      if (cell) { var m = /carousel-cell--(\d+)/.exec(cell.className), n = m ? m[1] : "?", im = cell.querySelector("img");
+        return gaSend("select_promotion", { promotion_id: "home_slide_" + n, promotion_name: t(im && im.getAttribute("alt")) || a.getAttribute("href"), creative_slot: "home_slider_" + n, location_id: "home" }); }
+      var sec = a.closest("#khr [data-k], #khr section"); if (!sec) return;
+      var k = sec.getAttribute("data-k") || "", card = a.closest(".js-product");
+      if (card && k) {
+        var cards = [].slice.call(sec.querySelectorAll(".js-product")), nm = card.querySelector("a.product__name-link") || a;
+        return gaSend("select_item", { item_list_id: "home_" + k, item_list_name: "home " + k, items: [{ item_id: card.getAttribute("data-sku") || "", item_name: t(nm.textContent), index: cards.indexOf(card), item_list_id: "home_" + k, item_list_name: "home " + k }] });
+      }
+      if (a.closest(".khr-szr")) return gaSend("select_promotion", { promotion_id: "home_size_" + (a.getAttribute("data-s") || "all"), promotion_name: "size " + (a.getAttribute("data-s") || "all"), creative_slot: "home_sizes", location_id: "home" });
+      if (a.closest(".khr-bl")) return gaSend("select_promotion", { promotion_id: "home_brand_" + (a.getAttribute("data-b") || "?"), promotion_name: "brand " + (a.getAttribute("data-b") || "?"), creative_slot: "home_brands", location_id: "home" });
+      if (a.closest(".khr-sh")) return gaSend("select_promotion", { promotion_id: "home_more_" + (k || "?"), promotion_name: "more " + (k || t(sec.getAttribute("aria-label"))), creative_slot: "home_section_head", location_id: "home" });
+    }, true);
+  }
   var T0 = Date.now();
   function slideImg() { return document.querySelector("#start_banner_big .carousel-cell--1 picture img") || document.querySelector("#start_banner_big picture img"); }
   function wantSlide(img) { return !!img && /^\s*r2:/i.test(img.getAttribute("alt") || ""); }
