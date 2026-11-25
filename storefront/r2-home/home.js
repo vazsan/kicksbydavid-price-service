@@ -520,7 +520,7 @@
      Jelölés nélkül marad a saját hős-kép, tehát feliratos kép véletlenül sem kerül ki. A slide <picture>-je az élő markup másolata (az Unas a fejből már előtölti, a time= szám a képcserével magától változik). */
   /* GA4 homepage clicks (Nora msg 5882 point 5, main msg 5884): select_item for product cards in the R2 rails (list = section), select_promotion for slider slides,
      size / brand tiles and the "Mind" links. Only gtag (the shop's own GA4 tag, consent mode applies); no personal data. Off switch: GA_ON, ?kbdga=0 / =1 in one browser. */
-  var GA_ON = false;   /* off until main/David OK (point 5 was not in David TG 6111 1-4) */
+  var GA_ON = true;   /* ON: David TG 6119 (main msg 5897) */
   function gaOn() { var f = null; try { var q = location.search.match(/[?&]kbdga=([01])(?:&|$)/); if (q) localStorage.setItem("kbdga", q[1]); f = localStorage.getItem("kbdga"); } catch (e) {} return f === "1" || (f !== "0" && GA_ON); }
   function gaSend(ev, p) { try { if (typeof window.gtag === "function") window.gtag("event", ev, p); else (window.dataLayer = window.dataLayer || []).push({ event: ev, ecommerce: p }); } catch (e) {} }
   if (gaOn() && !window.KBD_HOME_GA) {
