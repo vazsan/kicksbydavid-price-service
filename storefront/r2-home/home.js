@@ -229,6 +229,10 @@
      The whole banner links to the sneaker category; the full credit warning + "Hogyan működik?" are real HTML under it. Lazy images, fixed aspect ratio (no CLS).
      The "-tól" price is the cheapest in-stock sneaker on 2026-11-20 (18 130 Ft / 49 EUR, /3 rounded up). Off switch: KLB_ON, ?kbdklb=0 / =1 in one browser. */
   var KLB_ON = false;
+  /* SALE UP (Nora msg 5882, David TG 6111, main msg 5884): HU only, during Black Friday the Akciós rail (+ Grail right under it, David TG 6041)
+     goes directly below the ticker; back to the normal order automatically on 2026-12-01 00:00 Europe/Bratislava. Test switch: ?kbdsaleup=0 / =1 in one browser. */
+  var SALEUP_UNTIL = Date.UTC(2026, 10, 30, 23, 0, 0);
+  function saleUp() { var f = null; try { var q = location.search.match(/[?&]kbdsaleup=([01])(?:&|$)/); if (q) localStorage.setItem("kbdsaleup", q[1]); f = localStorage.getItem("kbdsaleup"); } catch (e) {} return !SK && (f === "1" || (f !== "0" && Date.now() < SALEUP_UNTIL)); }
   function klbOn() { var f = null; try { var q = location.search.match(/[?&]kbdklb=([01])(?:&|$)/); if (q) localStorage.setItem("kbdklb", q[1]); f = localStorage.getItem("kbdklb"); } catch (e) {} return f === "1" || (f !== "0" && KLB_ON); }
   function klbHtml() {
     if (!klbOn() || !L.klb) return "";
@@ -280,6 +284,8 @@
     for (var k = 0; k < tk.length; k++) t += tk[k] === "KLARNA" ? '<span class="khr-kl"><b class="khr-klp">Klarna.</b>' + L.kl[0] + '<em>' + L.kl[1] + "</em></span>" : "<span>" + CHECK + tk[k] + "</span>";
     var tkh = ""; for (var c = 0; c < 4; c++) tkh += '<div class="khr-tkh"' + (c ? ' aria-hidden="true"' : "") + ">" + t + "</div>";
     var ph = '<div class="khr-ph" style="width:100%"></div>';
+    var up = saleUp(), sg = '<section class="khr-sec' + (up ? " khr-first" : "") + '" data-k="sale" aria-label="' + L.saleT + '">' + head(L.saleT, L.saleUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
+      + '<section class="khr-sec" data-k="grail" aria-label="' + L.grailT + '">' + head(L.grailT, L.grailUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>";
     return (noHero || SLIDER() ? '' : ''
       + '<a class="khr-hero" href="' + L.base + '?filter=8908281:4"><picture><source media="(min-width:992px)" srcset="' + IMG + 'hero_klassz_desk_1440.webp 1440w, ' + IMG + 'hero_klassz_desk_1920.webp 1920w, ' + IMG + 'hero_klassz_desk_2560.webp 2560w" sizes="100vw" width="1440" height="600">'
       + '<img src="' + IMG + 'hero_klassz_mob_780.webp" width="780" height="1040" fetchpriority="high" decoding="async" alt="' + L.alt + '"></picture>'
@@ -287,15 +293,15 @@
       + '<span class="khr-cap">ASICS GEL-NYC<br>OYSTER GREY</span></a>')
       + '<div class="khr-w"><div class="khr-tk"><div class="khr-tkin" style="--tkd:' + L.tkdur + 's">' + tkh + "</div></div>"
       + (SLIDER() ? '<h1 class="khr-sr">' + L.h1.replace(/<br>/g, " ") + "</h1>" : "")
-      + '<section class="khr-sec khr-first" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
+      + (up ? sg : "")
+      + '<section class="khr-sec' + (up ? "" : " khr-first") + '" data-k="new" aria-label="' + L.newT + '">' + head(L.newT, L.newUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
       + klbHtml()
       + '<section class="khr-sec" aria-label="' + L.sizeT + '"><div class="khr-sh"><h2>' + L.sizeT + '</h2></div><div class="khr-szr">' + sz + '</div><p class="khr-szn">' + L.sizeNote + '</p></section>'
       + stlHtml()
       + '<section class="khr-sec" aria-label="' + L.brandsT + '"><div class="khr-sh"><h2>' + L.brandsT + '</h2></div><div class="khr-bl">' + br + "</div></section>"
       + '<section class="khr-sec khr-two"><div data-k="top">' + head(L.topT, L.base) + '<div class="khr-grid type--1 list-type--1">' + ph + "</div></div>"
       + '<div data-k="rev"><div class="khr-sh"><h2>' + L.revT + '</h2></div><div class="khr-revbox"><div class="khr-rvph"></div></div></div></section>'
-      + '<section class="khr-sec" data-k="sale" aria-label="' + L.saleT + '">' + head(L.saleT, L.saleUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
-      + '<section class="khr-sec" data-k="grail" aria-label="' + L.grailT + '">' + head(L.grailT, L.grailUrl) + '<div class="khr-railbox"><div class="khr-rail type--1 list-type--1">' + ph + "</div></div></section>"
+      + (up ? "" : sg)
       + "</div>";
   }
 
